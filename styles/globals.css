@@ -1,0 +1,56 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --primary: #254a9a;
+  --secondary: #ffffff;
+  --tertiary: #bda361;
+}
+
+body {
+  @apply bg-gray-50;
+}
+
+.btn-primary {
+  @apply bg-primary-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-primary-700 transition-all duration-300 shadow-lg hover:shadow-xl active:scale-95;
+}
+
+.btn-secondary {
+  @apply bg-tertiary-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-tertiary-700 transition-all duration-300 active:scale-95;
+}
+
+.card {
+  @apply bg-white rounded-xl shadow-md p-4 md:p-6 border border-gray-100;
+}
+
+.input-field {
+  @apply w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent text-base;
+}
+
+.label {
+  @apply block text-sm font-medium text-gray-700 mb-2;
+}
+
+.badge-pending {
+  @apply bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-xs md:text-sm font-semibold;
+}
+
+.badge-approved {
+  @apply bg-green-100 text-green-800 px-3 py-1 rounded-full text-xs md:text-sm font-semibold;
+}
+
+.badge-revoked {
+  @apply bg-red-100 text-red-800 px-3 py-1 rounded-full text-xs md:text-sm font-semibold;
+}
+
+/* Mobile-first touch targets */
+@media (max-width: 768px) {
+  button, a {
+    min-height: 44px;
+  }
+  
+  .card {
+    @apply p-4;
+  }
+}
