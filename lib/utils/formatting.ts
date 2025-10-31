@@ -34,11 +34,13 @@ export function formatDate(dateString: string | Date, format: 'short' | 'long' |
   
   if (isNaN(date.getTime())) return '';
   
-  const options: Intl.DateTimeFormatOptions = {
+  const formatOptions: Record<string, Intl.DateTimeFormatOptions> = {
     short: { day: '2-digit', month: '2-digit', year: 'numeric' },
     long: { day: 'numeric', month: 'long', year: 'numeric' },
     full: { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }
-  }[format];
+  };
+  
+  const options = formatOptions[format];
   
   return new Intl.DateTimeFormat('en-IN', options).format(date);
 }

@@ -1,7 +1,9 @@
 import { forwardRef, ButtonHTMLAttributes } from 'react';
 import { motion } from 'framer-motion';
 
-interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+// Exclude React event handlers that conflict with Framer Motion
+interface ButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 
+  'onAnimationStart' | 'onDragStart' | 'onDragEnd' | 'onDrag'> {
   variant?: 'primary' | 'secondary' | 'tertiary' | 'danger' | 'outline' | 'ghost';
   size?: 'sm' | 'md' | 'lg';
   fullWidth?: boolean;
