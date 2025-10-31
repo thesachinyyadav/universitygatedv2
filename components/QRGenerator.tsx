@@ -148,11 +148,11 @@ export default function QRGenerator({ visitorId, visitorName }: QRGeneratorProps
     if (visitorDetails?.visitor_category) {
       const categoryText = visitorDetails.visitor_category.toUpperCase();
       const categoryColors: { [key: string]: number[] } = {
-        'student': [0, 123, 255],      // Blue
+        'student': [9, 41, 135],       // Deep Blue (#092987)
         'speaker': [255, 179, 0],      // Amber
         'vip': [128, 0, 0]             // Maroon
       };
-      const colorRGB = categoryColors[visitorDetails.visitor_category] || [37, 74, 154];
+      const colorRGB = categoryColors[visitorDetails.visitor_category] || [9, 41, 135];
       
       // Category badge with shadow
       pdf.setFillColor(colorRGB[0], colorRGB[1], colorRGB[2]);

@@ -211,10 +211,10 @@ CREATE OR REPLACE FUNCTION set_qr_color()
 RETURNS TRIGGER AS $$
 BEGIN
   CASE NEW.visitor_category
-    WHEN 'student' THEN NEW.qr_color := '#1e40af';   -- Blue
+    WHEN 'student' THEN NEW.qr_color := '#092987';   -- Deep Blue
     WHEN 'speaker' THEN NEW.qr_color := '#d97706';   -- Amber
     WHEN 'vip' THEN NEW.qr_color := '#991b1b';       -- Maroon
-    ELSE NEW.qr_color := '#1e40af';
+    ELSE NEW.qr_color := '#092987';
   END CASE;
   RETURN NEW;
 END;

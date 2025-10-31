@@ -21,9 +21,9 @@ body {
   @apply bg-tertiary-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-tertiary-700 transition-all duration-300 active:scale-95;
 }
 
-/* Card Styles */
+/* Card Styles - More Compact */
 .card {
-  @apply bg-white rounded-xl shadow-md p-4 md:p-6 border border-gray-100 transition-shadow hover:shadow-lg;
+  @apply bg-white rounded-lg shadow-md p-3 sm:p-4 md:p-5 border border-gray-100 transition-shadow hover:shadow-lg;
 }
 
 /* Form Input Styles */

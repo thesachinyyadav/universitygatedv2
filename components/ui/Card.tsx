@@ -88,24 +88,24 @@ export function QuickActionCard({
 }) {
   return (
     <motion.div
-      className={`card cursor-pointer hover:shadow-xl transition-all hover:scale-105 relative ${className}`}
+      className={`card cursor-pointer hover:shadow-lg transition-all hover:scale-105 relative ${className}`}
       onClick={onClick}
-      whileHover={{ y: -5 }}
+      whileHover={{ y: -4 }}
       whileTap={{ scale: 0.98 }}
     >
       {badge !== undefined && (
-        <div className="absolute top-4 right-4 bg-red-500 text-white text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center">
+        <div className="absolute top-3 right-3 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
           {badge}
         </div>
       )}
       
-      <div className="flex flex-col items-center text-center p-4">
-        <div className="w-16 h-16 bg-primary-100 rounded-2xl flex items-center justify-center mb-4 text-primary-600">
+      <div className="flex flex-col items-center text-center p-3 sm:p-4">
+        <div className="w-12 h-12 sm:w-14 sm:h-14 bg-primary-100 rounded-xl flex items-center justify-center mb-3 text-primary-600">
           {icon}
         </div>
-        <h4 className="font-bold text-gray-800 mb-2">{title}</h4>
+        <h4 className="font-bold text-gray-800 mb-1.5 text-sm sm:text-base">{title}</h4>
         {description && (
-          <p className="text-sm text-gray-600">{description}</p>
+          <p className="text-xs sm:text-sm text-gray-600 leading-snug">{description}</p>
         )}
       </div>
     </motion.div>
