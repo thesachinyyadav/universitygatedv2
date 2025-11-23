@@ -206,11 +206,15 @@ export default function QRGenerator({ visitorId, visitorName }: QRGeneratorProps
         pdf.setFont('helvetica', 'bold');
         pdf.text('EVENT', 105, 109, { align: 'center' });
         
-        // Event name
-        pdf.setTextColor(0, 0, 0);
-        pdf.setFontSize(14);
-        pdf.setFont('helvetica', 'normal');
-        pdf.text(visitorDetails.event_name, 105, 118, { align: 'center', maxWidth: 170 });
+        // Event name - highlighted with background
+        pdf.setFillColor(255, 250, 240); // Light beige/cream background
+        pdf.roundedRect(25, 112, 160, 14, 2, 2, 'F');
+        
+        // Event name text - larger and bolder
+        pdf.setTextColor(37, 74, 154); // Primary blue for emphasis
+        pdf.setFontSize(16);
+        pdf.setFont('helvetica', 'bold');
+        pdf.text(visitorDetails.event_name, 105, 121, { align: 'center', maxWidth: 150 });
       }
 
       // Event Dates
@@ -267,7 +271,7 @@ export default function QRGenerator({ visitorId, visitorName }: QRGeneratorProps
       pdf.setTextColor(60, 60, 60);
       pdf.setFontSize(11);
       pdf.setFont('helvetica', 'bold');
-      pdf.text('SCAN THIS QR CODE AT THE SECURITY GATE', 105, 267, { align: 'center' });
+      pdf.text('This QR code is required for entry verification.', 105, 267, { align: 'center' });
       
       // Visitor ID
       pdf.setFontSize(8);
