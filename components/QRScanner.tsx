@@ -12,7 +12,7 @@ export default function QRScanner({ onScan }: QRScannerProps) {
   const [scannerActive, setScannerActive] = useState(false);
   const scannerRef = useRef<Html5QrcodeScanner | null>(null);
   const lastScanRef = useRef<{ id: string; timestamp: number } | null>(null);
-  const SCAN_COOLDOWN = 5000; // 5 seconds cooldown between same QR codes
+  const SCAN_COOLDOWN = 3000; // 3 seconds cooldown between same QR codes
 
   // Vibration feedback function
   const triggerVibration = () => {
@@ -99,9 +99,15 @@ export default function QRScanner({ onScan }: QRScannerProps) {
         const scanner = new Html5QrcodeScanner(
           'qr-reader',
           {
-            fps: 10,
-            qrbox: { width: 250, height: 250 },
+            fps: 30, // Increased FPS for faster scanning
+            qrbox: { width: 280, height: 280 }, // Larger scan box
             aspectRatio: 1.0,
+            disableFlip: false, // Allow flipped QR codes
+            experimentalFeatures: {
+              useBarCodeDetectorIfSupported: true // Use native browser barcode detector if available (much faster!)
+            },
+            rememberLastUsedCamera: true, // Remember camera preference
+            showTorchButtonIfSupported: true // Show flashlight button if available
           },
           false
         );

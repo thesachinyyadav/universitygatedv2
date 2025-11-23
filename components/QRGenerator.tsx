@@ -92,7 +92,7 @@ export default function QRGenerator({ visitorId, visitorName }: QRGeneratorProps
     }
   };
 
-  const downloadPDF = () => {
+  const downloadPDF = async () => {
     if (!qrCodeUrl) {
       console.error('[PDF_DOWNLOAD] No QR code URL available');
       alert('QR code is not ready yet. Please wait a moment and try again.');
@@ -101,167 +101,197 @@ export default function QRGenerator({ visitorId, visitorName }: QRGeneratorProps
 
     try {
       console.log('[PDF_DOWNLOAD] Starting PDF generation...');
-    const pdf = new jsPDF({
-      orientation: 'portrait',
-      unit: 'mm',
-      format: 'a4'
-    });
-
-    // Beautiful gradient header with university branding
-    pdf.setFillColor(37, 74, 154); // Primary blue
-    pdf.rect(0, 0, 210, 50, 'F');
-    
-    // Add subtle gradient effect (darker at top)
-    pdf.setFillColor(25, 60, 130);
-    pdf.rect(0, 0, 210, 15, 'F');
-    
-    // University name - Larger and bolder
-    pdf.setTextColor(255, 255, 255);
-    pdf.setFontSize(32);
-    pdf.setFont('helvetica', 'bold');
-    pdf.text('CHRIST UNIVERSITY', 105, 22, { align: 'center' });
-    
-    // Subtitle with tertiary color accent
-    pdf.setFillColor(189, 163, 97); // Tertiary gold
-    pdf.rect(40, 30, 130, 12, 'F');
-    pdf.setFontSize(16);
-    pdf.setFont('helvetica', 'normal');
-    pdf.text('VISITOR ACCESS PASS', 105, 37, { align: 'center' });
-
-    // White content area with shadow effect
-    pdf.setDrawColor(220, 220, 220);
-    pdf.setLineWidth(0.5);
-    pdf.rect(15, 60, 180, 195, 'S');
-    
-    // Visitor name - Large and prominent
-    pdf.setTextColor(37, 74, 154);
-    pdf.setFontSize(26);
-    pdf.setFont('helvetica', 'bold');
-    pdf.text(visitorName.toUpperCase(), 105, 80, { align: 'center' });
-    
-    // Decorative line under name
-    pdf.setDrawColor(189, 163, 97);
-    pdf.setLineWidth(1);
-    pdf.line(50, 85, 160, 85);
-
-    // Visitor Category Badge - Larger and more prominent
-    if (visitorDetails?.visitor_category) {
-      const categoryText = visitorDetails.visitor_category.toUpperCase();
-      const categoryColors: { [key: string]: number[] } = {
-        'student': [9, 41, 135],       // Deep Blue (#092987)
-        'speaker': [255, 179, 0],      // Amber
-        'vip': [128, 0, 0]             // Maroon
-      };
-      const colorRGB = categoryColors[visitorDetails.visitor_category] || [9, 41, 135];
       
-      // Category badge with shadow
-      pdf.setFillColor(colorRGB[0], colorRGB[1], colorRGB[2]);
-      pdf.roundedRect(65, 92, 80, 14, 3, 3, 'F');
+      // Load the Christ University logo
+      const logoImg = new Image();
+      logoImg.src = '/christunilogo.png';
       
-      // Category text
-      pdf.setTextColor(255, 255, 255);
-      pdf.setFontSize(14);
-      pdf.setFont('helvetica', 'bold');
-      pdf.text(categoryText, 105, 101, { align: 'center' });
-    }
-
-    // Event Details Section
-    if (visitorDetails?.event_name) {
-      // Event label
-      pdf.setTextColor(100, 100, 100);
-      pdf.setFontSize(12);
-      pdf.setFont('helvetica', 'bold');
-      pdf.text('EVENT', 105, 118, { align: 'center' });
-      
-      // Event name - larger
-      pdf.setTextColor(0, 0, 0);
-      pdf.setFontSize(16);
-      pdf.setFont('helvetica', 'normal');
-      pdf.text(visitorDetails.event_name, 105, 128, { align: 'center', maxWidth: 160 });
-    }
-
-    // Event Dates - More prominent
-    if (visitorDetails?.date_of_visit_from && visitorDetails?.date_of_visit_to) {
-      pdf.setTextColor(100, 100, 100);
-      pdf.setFontSize(11);
-      pdf.setFont('helvetica', 'bold');
-      pdf.text('VALID DATES', 105, 142, { align: 'center' });
-      
-      const fromDate = new Date(visitorDetails.date_of_visit_from).toLocaleDateString('en-IN', {
-        day: 'numeric',
-        month: 'short',
-        year: 'numeric'
+      await new Promise((resolve, reject) => {
+        logoImg.onload = resolve;
+        logoImg.onerror = () => {
+          console.warn('[PDF_DOWNLOAD] Logo failed to load, continuing without logo');
+          resolve(null);
+        };
+        // Timeout after 2 seconds if logo doesn't load
+        setTimeout(resolve, 2000);
       });
-      const toDate = new Date(visitorDetails.date_of_visit_to).toLocaleDateString('en-IN', {
-        day: 'numeric',
-        month: 'short',
-        year: 'numeric'
-      });
-      
-      pdf.setTextColor(37, 74, 154);
-      pdf.setFontSize(14);
-      pdf.setFont('helvetica', 'bold');
-      pdf.text(`${fromDate}  to  ${toDate}`, 105, 151, { align: 'center' });
-    }
 
-    // QR Code with elegant border
-    if (qrCodeUrl) {
-      // Colored border frame with shadow effect
-      if (visitorDetails?.qr_color) {
-        const hexColor = visitorDetails.qr_color.replace('#', '');
-        const r = parseInt(hexColor.substring(0, 2), 16);
-        const g = parseInt(hexColor.substring(2, 4), 16);
-        const b = parseInt(hexColor.substring(4, 6), 16);
-        
-        // Shadow (slightly offset for 3D effect)
-        pdf.setFillColor(200, 200, 200);
-        pdf.roundedRect(53, 163, 106, 106, 3, 3, 'F');
-        
-        // Colored border frame
-        pdf.setFillColor(r, g, b);
-        pdf.roundedRect(51, 161, 110, 110, 5, 5, 'F');
-        
-        // White background for QR (inner area)
-        pdf.setFillColor(255, 255, 255);
-        pdf.roundedRect(58, 168, 96, 96, 3, 3, 'F');
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4'
+      });
+
+      // Clean white background
+      pdf.setFillColor(255, 255, 255);
+      pdf.rect(0, 0, 210, 297, 'F');
+      
+      // Header section with gold border
+      pdf.setDrawColor(189, 163, 97); // Gold color
+      pdf.setLineWidth(1);
+      pdf.rect(10, 10, 190, 35, 'S');
+      
+      // Add Christ University Logo (left corner inside border)
+      if (logoImg.complete && logoImg.naturalHeight !== 0) {
+        try {
+          // Use actual image aspect ratio to avoid distortion
+          const imgWidth = logoImg.naturalWidth;
+          const imgHeight = logoImg.naturalHeight;
+          const aspectRatio = imgWidth / imgHeight;
+          
+          // Set height and calculate width based on aspect ratio
+          const logoHeight = 22;
+          const logoWidth = logoHeight * aspectRatio;
+          
+          pdf.addImage(logoImg, 'PNG', 15, 16, logoWidth, logoHeight);
+        } catch (err) {
+          console.warn('[PDF_DOWNLOAD] Could not add logo to PDF:', err);
+        }
       }
       
-      // QR Code - centered within white background
-      // White background is 96x96 starting at (58, 168)
-      // QR should be 86x86 to leave 5mm padding on all sides
-      // Position: 58 + 5 = 63, 168 + 5 = 173
-      pdf.addImage(qrCodeUrl, 'PNG', 63, 173, 86, 86);
-    }
+      // "University Gated" text (right side, aligned properly)
+      pdf.setTextColor(37, 74, 154); // Primary blue
+      pdf.setFontSize(18);
+      pdf.setFont('helvetica', 'bold');
+      pdf.text('University Gated', 195, 23, { align: 'right' });
+      
+      // Subtitle below "University Gated"
+      pdf.setFontSize(9);
+      pdf.setFont('helvetica', 'normal');
+      pdf.setTextColor(120, 120, 120);
+      pdf.text('Access Management System', 195, 30, { align: 'right' });
 
-    // Instructions - Clear and larger
-    pdf.setTextColor(80, 80, 80);
-    pdf.setFontSize(12);
-    pdf.setFont('helvetica', 'bold');
-    pdf.text('SCAN THIS QR CODE AT THE SECURITY GATE', 105, 282, { align: 'center' });
-    
-    // Visitor ID - Smaller and subtle
-    pdf.setFontSize(9);
-    pdf.setFont('helvetica', 'normal');
-    pdf.setTextColor(150, 150, 150);
-    pdf.text(`Visitor ID: ${visitorId}`, 105, 290, { align: 'center' });
+      // Main content area with better spacing
+      pdf.setDrawColor(220, 220, 220);
+      pdf.setLineWidth(0.3);
+      pdf.rect(10, 55, 190, 210, 'S');
+      
+      // Visitor name - Large and prominent
+      pdf.setTextColor(37, 74, 154);
+      pdf.setFontSize(24);
+      pdf.setFont('helvetica', 'bold');
+      pdf.text(visitorName.toUpperCase(), 105, 73, { align: 'center' });
+      
+      // Decorative line under name
+      pdf.setDrawColor(189, 163, 97);
+      pdf.setLineWidth(0.8);
+      pdf.line(55, 78, 155, 78);
 
-    // Beautiful footer with gradient
-    pdf.setFillColor(189, 163, 97); // Tertiary gold
-    pdf.rect(0, 277, 210, 20, 'F');
-    
-    pdf.setTextColor(255, 255, 255);
-    pdf.setFontSize(11);
-    pdf.setFont('helvetica', 'bold');
-    pdf.text('Christ University Gated Access Management', 105, 287, { align: 'center' });
-    
-    pdf.setFontSize(8);
-    pdf.setFont('helvetica', 'normal');
-    pdf.text('Secure • Efficient • Contactless', 105, 293, { align: 'center' });
+      // Visitor Category Badge
+      if (visitorDetails?.visitor_category) {
+        const categoryText = visitorDetails.visitor_category.toUpperCase();
+        const categoryColors: { [key: string]: number[] } = {
+          'student': [9, 41, 135],       // Deep Blue (#092987)
+          'speaker': [255, 179, 0],      // Amber
+          'vip': [128, 0, 0]             // Maroon
+        };
+        const colorRGB = categoryColors[visitorDetails.visitor_category] || [9, 41, 135];
+        
+        // Category badge
+        pdf.setFillColor(colorRGB[0], colorRGB[1], colorRGB[2]);
+        pdf.roundedRect(70, 85, 70, 12, 3, 3, 'F');
+        
+        // Category text
+        pdf.setTextColor(255, 255, 255);
+        pdf.setFontSize(12);
+        pdf.setFont('helvetica', 'bold');
+        pdf.text(categoryText, 105, 93, { align: 'center' });
+      }
 
-    // Save with better filename
-    const safeEventName = visitorDetails?.event_name?.replace(/[^a-zA-Z0-9]/g, '_') || 'Event';
-    pdf.save(`ChristUniversity_AccessPass_${visitorName.replace(/\s+/g, '_')}_${safeEventName}.pdf`);
-    console.log('[PDF_DOWNLOAD] ✓ PDF download initiated successfully');
+      // Event Details Section
+      if (visitorDetails?.event_name) {
+        // Event label
+        pdf.setTextColor(100, 100, 100);
+        pdf.setFontSize(10);
+        pdf.setFont('helvetica', 'bold');
+        pdf.text('EVENT', 105, 109, { align: 'center' });
+        
+        // Event name
+        pdf.setTextColor(0, 0, 0);
+        pdf.setFontSize(14);
+        pdf.setFont('helvetica', 'normal');
+        pdf.text(visitorDetails.event_name, 105, 118, { align: 'center', maxWidth: 170 });
+      }
+
+      // Event Dates
+      if (visitorDetails?.date_of_visit_from && visitorDetails?.date_of_visit_to) {
+        pdf.setTextColor(100, 100, 100);
+        pdf.setFontSize(10);
+        pdf.setFont('helvetica', 'bold');
+        pdf.text('VALID DATES', 105, 132, { align: 'center' });
+        
+        const fromDate = new Date(visitorDetails.date_of_visit_from).toLocaleDateString('en-IN', {
+          day: 'numeric',
+          month: 'short',
+          year: 'numeric'
+        });
+        const toDate = new Date(visitorDetails.date_of_visit_to).toLocaleDateString('en-IN', {
+          day: 'numeric',
+          month: 'short',
+          year: 'numeric'
+        });
+        
+        pdf.setTextColor(37, 74, 154);
+        pdf.setFontSize(12);
+        pdf.setFont('helvetica', 'bold');
+        pdf.text(`${fromDate}  to  ${toDate}`, 105, 141, { align: 'center' });
+      }
+
+      // QR Code with elegant border
+      if (qrCodeUrl) {
+        // Colored border frame
+        if (visitorDetails?.qr_color) {
+          const hexColor = visitorDetails.qr_color.replace('#', '');
+          const r = parseInt(hexColor.substring(0, 2), 16);
+          const g = parseInt(hexColor.substring(2, 4), 16);
+          const b = parseInt(hexColor.substring(4, 6), 16);
+          
+          // Shadow for 3D effect
+          pdf.setFillColor(220, 220, 220);
+          pdf.roundedRect(52, 148, 107, 107, 5, 5, 'F');
+          
+          // Colored border frame (thicker and more prominent)
+          pdf.setFillColor(r, g, b);
+          pdf.roundedRect(50, 146, 110, 110, 5, 5, 'F');
+          
+          // White background for QR
+          pdf.setFillColor(255, 255, 255);
+          pdf.roundedRect(57, 153, 96, 96, 3, 3, 'F');
+        }
+        
+        // QR Code image - centered perfectly
+        pdf.addImage(qrCodeUrl, 'PNG', 62, 158, 86, 86);
+      }
+
+      // Instructions
+      pdf.setTextColor(60, 60, 60);
+      pdf.setFontSize(11);
+      pdf.setFont('helvetica', 'bold');
+      pdf.text('SCAN THIS QR CODE AT THE SECURITY GATE', 105, 267, { align: 'center' });
+      
+      // Visitor ID
+      pdf.setFontSize(8);
+      pdf.setFont('helvetica', 'normal');
+      pdf.setTextColor(150, 150, 150);
+      pdf.text(`Visitor ID: ${visitorId}`, 105, 273, { align: 'center' });
+
+      // Footer
+      pdf.setFillColor(37, 74, 154);
+      pdf.rect(0, 275, 210, 22, 'F');
+      
+      pdf.setTextColor(255, 255, 255);
+      pdf.setFontSize(10);
+      pdf.setFont('helvetica', 'bold');
+      pdf.text('Christ University Gated Access Management', 105, 284, { align: 'center' });
+      
+      pdf.setFontSize(7);
+      pdf.setFont('helvetica', 'normal');
+      pdf.text('Secure • Efficient • Contactless', 105, 290, { align: 'center' });
+
+      // Save PDF
+      const safeEventName = visitorDetails?.event_name?.replace(/[^a-zA-Z0-9]/g, '_') || 'Event';
+      pdf.save(`ChristUniversity_AccessPass_${visitorName.replace(/\s+/g, '_')}_${safeEventName}.pdf`);
+      console.log('[PDF_DOWNLOAD] ✓ PDF download initiated successfully');
     } catch (error) {
       console.error('[PDF_DOWNLOAD] Error generating PDF:', error);
       alert('Failed to generate PDF. Please try again.');
