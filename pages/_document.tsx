@@ -18,7 +18,16 @@ export default function Document() {
         {/* PWA Meta Tags */}
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-title" content="CU Access" />
+        <meta name="apple-mobile-web-app-title" content="GATED" />
+        
+        {/* Improved PWA Compatibility */}
+        <meta name="application-name" content="GATED" />
+        <meta name="apple-touch-fullscreen" content="yes" />
+        <meta name="format-detection" content="telephone=no" />
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="msapplication-config" content="/browserconfig.xml" />
+        <meta name="msapplication-TileColor" content="#254a9a" />
+        <meta name="msapplication-tap-highlight" content="no" />
         
         {/* SEO */}
         <meta name="description" content="Secure, efficient entry management for Christ University events and campus access. Register for events, download QR codes, and manage campus entry seamlessly." />

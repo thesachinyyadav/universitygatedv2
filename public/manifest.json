@@ -1,14 +1,16 @@
 {
-  "name": "Christ University Gated Access Management",
-  "short_name": "CU Access",
+  "name": "GATED",
+  "short_name": "GATED",
   "description": "Secure, efficient entry management for Christ University events and campus access",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#254a9a",
+  "background_color": "#FFFFFF",
   "theme_color": "#254a9a",
-  "orientation": "portrait-primary",
+  "orientation": "any",
   "scope": "/",
   "categories": ["education", "productivity", "utilities"],
+  "lang": "en",
+  "dir": "ltr",
   "icons": [
     {
       "src": "/icon-72x72.png",
