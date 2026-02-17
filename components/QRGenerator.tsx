@@ -149,28 +149,47 @@ export default function QRGenerator({ visitorId, visitorName }: QRGeneratorProps
         }
       }
       
-      // "University Gated" text (right side, aligned properly)
-      // Load SOCIO.svg logo (right side)
+      // SOCIO logo + "Gated" text (right side)
       try {
+        // Convert SVG to PNG via canvas for jsPDF compatibility
         const socioLogoImg = new Image();
         socioLogoImg.src = '/socio.svg';
-        await new Promise((resolve, reject) => {
-          socioLogoImg.onload = resolve;
+        const socioLoaded = await new Promise<boolean>((resolve) => {
+          socioLogoImg.onload = () => resolve(true);
           socioLogoImg.onerror = () => {
-            console.warn('[PDF_DOWNLOAD] SOCIO logo failed to load, continuing without logo');
-            resolve(null);
+            console.warn('[PDF_DOWNLOAD] SOCIO logo failed to load');
+            resolve(false);
           };
-          setTimeout(resolve, 2000);
+          setTimeout(() => resolve(false), 2000);
         });
-        // Place the SOCIO logo on the right, similar to the previous text position
-        const socioLogoHeight = 12;
-        const socioLogoWidth = 40; // Adjust as needed for aspect ratio
-        pdf.addImage(socioLogoImg, 'PNG', 145, 14, socioLogoWidth, socioLogoHeight);
-        // Add 'Gated' text next to the logo
-        pdf.setTextColor(37, 74, 154); // Primary blue
-        pdf.setFontSize(18);
-        pdf.setFont('helvetica', 'bold');
-        pdf.text('Gated', 195, 23, { align: 'right' });
+
+        if (socioLoaded && socioLogoImg.naturalWidth > 0) {
+          // Render SVG to canvas, then extract as PNG data URL
+          const canvas = document.createElement('canvas');
+          const scale = 3; // High res
+          canvas.width = socioLogoImg.naturalWidth * scale;
+          canvas.height = socioLogoImg.naturalHeight * scale;
+          const ctx = canvas.getContext('2d');
+          if (ctx) {
+            ctx.drawImage(socioLogoImg, 0, 0, canvas.width, canvas.height);
+            const socioDataUrl = canvas.toDataURL('image/png');
+            // Calculate dimensions maintaining aspect ratio
+            const aspect = socioLogoImg.naturalWidth / socioLogoImg.naturalHeight;
+            const socioHeight = 10;
+            const socioWidth = socioHeight * aspect;
+            // Position: right-aligned, logo then "Gated" text
+            const gatedTextWidth = 22; // approx width of 'Gated' at font size 18
+            const logoX = 195 - gatedTextWidth - socioWidth - 2;
+            pdf.addImage(socioDataUrl, 'PNG', logoX, 15, socioWidth, socioHeight);
+          }
+          // Add 'Gated' text after the logo
+          pdf.setTextColor(37, 74, 154);
+          pdf.setFontSize(18);
+          pdf.setFont('helvetica', 'bold');
+          pdf.text('Gated', 195, 23, { align: 'right' });
+        } else {
+          throw new Error('SOCIO logo not loaded');
+        }
       } catch (err) {
         // Fallback: just write 'SOCIO Gated' as text if logo fails
         pdf.setTextColor(37, 74, 154);
@@ -310,7 +329,7 @@ export default function QRGenerator({ visitorId, visitorName }: QRGeneratorProps
       pdf.setTextColor(255, 255, 255);
       pdf.setFontSize(10);
       pdf.setFont('helvetica', 'bold');
-      pdf.text('Christ University Gated Access Management', 105, 284, { align: 'center' });
+      pdf.text('SOCIO Gated Access Management', 105, 284, { align: 'center' });
       
       pdf.setFontSize(7);
       pdf.setFont('helvetica', 'normal');
