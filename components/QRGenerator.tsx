@@ -150,10 +150,34 @@ export default function QRGenerator({ visitorId, visitorName }: QRGeneratorProps
       }
       
       // "University Gated" text (right side, aligned properly)
-      pdf.setTextColor(37, 74, 154); // Primary blue
-      pdf.setFontSize(18);
-      pdf.setFont('helvetica', 'bold');
-      pdf.text('University Gated', 195, 23, { align: 'right' });
+      // Load SOCIO.svg logo (right side)
+      try {
+        const socioLogoImg = new Image();
+        socioLogoImg.src = '/socio.svg';
+        await new Promise((resolve, reject) => {
+          socioLogoImg.onload = resolve;
+          socioLogoImg.onerror = () => {
+            console.warn('[PDF_DOWNLOAD] SOCIO logo failed to load, continuing without logo');
+            resolve(null);
+          };
+          setTimeout(resolve, 2000);
+        });
+        // Place the SOCIO logo on the right, similar to the previous text position
+        const socioLogoHeight = 12;
+        const socioLogoWidth = 40; // Adjust as needed for aspect ratio
+        pdf.addImage(socioLogoImg, 'PNG', 145, 14, socioLogoWidth, socioLogoHeight);
+        // Add 'Gated' text next to the logo
+        pdf.setTextColor(37, 74, 154); // Primary blue
+        pdf.setFontSize(18);
+        pdf.setFont('helvetica', 'bold');
+        pdf.text('Gated', 195, 23, { align: 'right' });
+      } catch (err) {
+        // Fallback: just write 'SOCIO Gated' as text if logo fails
+        pdf.setTextColor(37, 74, 154);
+        pdf.setFontSize(18);
+        pdf.setFont('helvetica', 'bold');
+        pdf.text('SOCIO Gated', 195, 23, { align: 'right' });
+      }
       
       // Subtitle below "University Gated"
       pdf.setFontSize(9);
