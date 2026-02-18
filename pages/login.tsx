@@ -66,7 +66,7 @@ export default function Login() {
       ...prev,
       [name]: value,
     }));
-    
+
     // Clear error when user starts typing
     if (errors[name]) {
       setErrors(prev => ({ ...prev, [name]: '' }));
@@ -75,29 +75,29 @@ export default function Login() {
 
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
-    
+
     const usernameValidation = validateRequired(formData.username, 'Username');
     if (!usernameValidation.isValid) {
       newErrors.username = usernameValidation.error || '';
     }
-    
+
     const passwordValidation = validateRequired(formData.password, 'Password');
     if (!passwordValidation.isValid) {
       newErrors.password = passwordValidation.error || '';
     }
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       showToast('Please fill in all required fields', 'error');
       return;
     }
-    
+
     setIsSubmitting(true);
 
     try {
@@ -120,7 +120,7 @@ export default function Login() {
 
       // Store user data in localStorage
       localStorage.setItem('user', JSON.stringify(data.user));
-      
+
       showToast(`Welcome back, ${data.user.full_name || data.user.username}!`, 'success');
 
       // Small delay to show the success message
@@ -148,7 +148,12 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary-600 via-primary-700 to-primary-800 flex items-center justify-center px-3 sm:px-4 py-6 sm:py-8">
+    <div className="min-h-screen bg-gradient-to-br from-primary-600 via-primary-700 to-primary-800 flex items-center justify-center px-3 sm:px-4 py-6 sm:py-8 relative overflow-hidden">
+      {/* Background Decorative Elements */}
+      <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0 pointer-events-none">
+        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary-500/20 rounded-full blur-[100px] animate-pulse" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-tertiary-600/20 rounded-full blur-[100px] animate-pulse" />
+      </div>
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -169,8 +174,8 @@ export default function Login() {
                 />
               </div>
             </div>
-            
-            <motion.div 
+
+            <motion.div
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               transition={{ delay: 0.2, type: 'spring' }}
@@ -178,7 +183,7 @@ export default function Login() {
             >
               {getRoleIcon()}
             </motion.div>
-            
+
             <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-800 mb-1 sm:mb-2">
               {getRoleTitle()} Login
             </h1>

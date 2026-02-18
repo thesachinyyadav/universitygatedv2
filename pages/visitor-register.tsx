@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import QRGenerator from '@/components/QRGenerator';
 import PhotoCapture from '@/components/PhotoCapture';
+import { Button, Card, Input } from '@/components/ui';
 
 interface ApprovedEvent {
   id: string;
@@ -111,204 +112,222 @@ export default function VisitorRegister() {
 
   if (registeredVisitor) {
     return (
-      <div className="min-h-screen bg-gray-50 py-6 sm:py-8 md:py-12 px-3 sm:px-4">
-        <div className="container mx-auto max-w-2xl">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="w-full max-w-2xl"
+        >
           <QRGenerator
             visitorId={registeredVisitor.id}
             visitorName={registeredVisitor.name}
           />
-        </div>
+        </motion.div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-3 sm:py-4 md:py-6 px-3 sm:px-4">
-      <div className="container mx-auto max-w-2xl">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-3xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="card p-3 sm:p-4 md:p-6"
         >
-          <div className="text-center mb-3 sm:mb-4">
-            <h1 className="text-xl sm:text-2xl font-bold text-maroon-600 mb-1">
-              Visitor Registration
-            </h1>
-            <p className="text-gray-600 text-xs sm:text-sm">
-              Fill form to request entry
-            </p>
-          </div>
-
-          {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 px-3 sm:px-4 py-2 sm:py-3 rounded-lg mb-4 sm:mb-6 text-sm">
-              {error}
-            </div>
-          )}
-
-          <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
-            <div>
-              <label className="label text-xs sm:text-sm">Full Name *</label>
-              <input
-                type="text"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                required
-                className="input-field text-xs sm:text-sm py-2"
-                placeholder="Enter your full name"
-              />
+          <Card className="shadow-xl bg-white/80 backdrop-blur-lg border border-white/50">
+            <div className="text-center mb-8">
+              <h1 className="text-3xl font-extrabold text-primary-700 tracking-tight mb-2">
+                Visitor Registration
+              </h1>
+              <p className="text-slate-500 text-sm">
+                Complete the form below to generate your digital entry pass
+              </p>
             </div>
 
-            <div className="grid sm:grid-cols-2 gap-2 sm:gap-3">
-              <div>
-                <label className="label text-xs sm:text-sm">Phone</label>
-                <input
-                  type="tel"
+            {error && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6 flex items-center gap-3"
+              >
+                <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span className="font-medium">{error}</span>
+              </motion.div>
+            )}
+
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div className="grid md:grid-cols-2 gap-6">
+                <Input
+                  label="Full Name"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  required
+                  placeholder="e.g. John Doe"
+                  leftIcon={
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                  }
+                />
+
+                <Input
+                  label="Phone Number"
                   name="phone"
+                  type="tel"
                   value={formData.phone}
                   onChange={handleChange}
-                  className="input-field text-xs sm:text-sm py-2"
-                  placeholder="+91 XXXXXXXXXX"
+                  placeholder="+91 9876543210"
+                  leftIcon={
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                    </svg>
+                  }
                 />
-              </div>
 
-              <div>
-                <label className="label text-xs sm:text-sm">Email</label>
-                <input
-                  type="email"
+                <Input
+                  label="Email Address"
                   name="email"
+                  type="email"
                   value={formData.email}
                   onChange={handleChange}
-                  className="input-field text-xs sm:text-sm py-2"
-                  placeholder="your@email.com"
+                  placeholder="john@example.com"
+                  leftIcon={
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
+                    </svg>
+                  }
                 />
-              </div>
 
-              <div>
-                <label className="label text-xs sm:text-sm">College Register Number</label>
-                <input
-                  type="text"
+                <Input
+                  label="College Register No."
                   name="register_number"
                   value={formData.register_number}
                   onChange={handleChange}
-                  className="input-field text-xs sm:text-sm py-2"
-                  placeholder="e.g., 2021BCSXXX"
+                  placeholder="e.g. 21BCS001"
+                  leftIcon={
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2" />
+                    </svg>
+                  }
                 />
               </div>
-            </div>
 
-            <div>
-              <label className="label text-xs sm:text-sm">Select Event *</label>
-              {isLoadingEvents ? (
-                <div className="input-field flex items-center space-x-2 text-sm sm:text-base">
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary-600"></div>
-                  <span className="text-gray-500">Loading events...</span>
-                </div>
-              ) : approvedEvents.length === 0 ? (
-                <div className="input-field text-gray-500 text-sm sm:text-base">
-                  No events available for registration at this time
-                </div>
-              ) : (
-                <select
-                  name="event_id"
-                  value={formData.event_id}
-                  onChange={handleChange}
-                  required
-                  className="input-field text-sm sm:text-base"
-                >
-                  <option value="">Select an event</option>
-                  {approvedEvents.map(event => (
-                    <option key={event.id} value={event.id}>
-                      {event.event_name} - {new Date(event.date_from).toLocaleDateString()} to {new Date(event.date_to).toLocaleDateString()} ({event.available_slots} slots available)
-                    </option>
-                  ))}
-                </select>
-              )}
-              {formData.event_id && (() => {
-                const selectedEvent = approvedEvents.find(e => e.id === formData.event_id);
-                return selectedEvent ? (
-                  <div className="mt-2 p-3 sm:p-4 bg-blue-50 rounded-lg text-xs sm:text-sm">
-                    <p className="text-blue-800 font-semibold text-base sm:text-lg">{selectedEvent.event_name}</p>
-                    <p className="text-blue-600">{selectedEvent.department}</p>
-                    {selectedEvent.description && (
-                      <p className="text-blue-700 mt-1">{selectedEvent.description}</p>
-                    )}
-                    <p className="text-blue-600 mt-2">
-                      📅 {new Date(selectedEvent.date_from).toLocaleDateString()} - {new Date(selectedEvent.date_to).toLocaleDateString()}
-                    </p>
-                    <div className="mt-3 p-3 bg-green-100 border-2 border-green-400 rounded-lg">
-                      <div className="flex items-center justify-between">
-                        <span className="text-green-700 font-medium">Available Slots:</span>
-                        <span className="text-2xl sm:text-3xl font-bold text-green-700">
-                          {selectedEvent.available_slots}
-                        </span>
-                      </div>
-                      <p className="text-xs sm:text-sm text-green-600 mt-1">
-                        out of {selectedEvent.max_capacity} total capacity
-                      </p>
+              <div className="space-y-2">
+                <label className="text-sm font-semibold text-gray-700 ml-1">Select Event *</label>
+                {isLoadingEvents ? (
+                  <div className="h-12 bg-gray-50 rounded-lg animate-pulse border border-gray-200" />
+                ) : (
+                  <div className="relative">
+                    <select
+                      name="event_id"
+                      value={formData.event_id}
+                      onChange={handleChange}
+                      required
+                      className="w-full px-4 py-3 rounded-lg border border-gray-300 bg-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all appearance-none cursor-pointer hover:border-primary-400"
+                    >
+                      <option value="">Choose an event to attend...</option>
+                      {approvedEvents.map(event => (
+                        <option key={event.id} value={event.id}>
+                          {event.event_name}
+                        </option>
+                      ))}
+                    </select>
+                    <div className="absolute right-4 top-3.5 pointer-events-none text-gray-400">
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      </svg>
                     </div>
                   </div>
-                ) : null;
-              })()}
-            </div>
+                )}
 
-            {/* Hidden field - Public registration is always for students (Blue QR) */}
-            <input type="hidden" name="visitor_category" value="student" />
-            
-            <div className="p-3 sm:p-4 bg-blue-50 border-l-4 border-blue-500 rounded-lg">
-              <div className="flex items-start sm:items-center space-x-2 sm:space-x-3">
-                <svg className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 flex-shrink-0 mt-0.5 sm:mt-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <div>
-                  <p className="text-xs sm:text-sm font-semibold text-blue-800">Student Registration</p>
-                  <p className="text-xs text-blue-600 mt-0.5">
-                    Public registration is for students only. You will receive a Blue QR Code.
-                    For speaker/VIP registration, contact the event organizer.
-                  </p>
+                <AnimatePresence>
+                  {formData.event_id && (() => {
+                    const selectedEvent = approvedEvents.find(e => e.id === formData.event_id);
+                    return selectedEvent ? (
+                      <motion.div
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        className="mt-3 p-4 bg-primary-50 border border-primary-100 rounded-xl"
+                      >
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <h3 className="font-bold text-primary-800 text-lg">{selectedEvent.event_name}</h3>
+                            <p className="text-primary-600 text-sm font-medium">{selectedEvent.department}</p>
+                            <p className="text-primary-700/80 text-sm mt-2 max-w-lg">{selectedEvent.description}</p>
+                          </div>
+                          <div className="text-right">
+                            <span className="inline-block bg-primary-200 text-primary-800 text-xs px-2 py-1 rounded-md font-bold mb-1">
+                              {selectedEvent.available_slots} slots left
+                            </span>
+                            <p className="text-xs text-primary-600 font-mono">
+                              {new Date(selectedEvent.date_from).toLocaleDateString()}
+                            </p>
+                          </div>
+                        </div>
+                      </motion.div>
+                    ) : null;
+                  })()}
+                </AnimatePresence>
+              </div>
+
+              {/* Photo Capture Section */}
+              <div className="space-y-2">
+                <label className="text-sm font-semibold text-gray-700 ml-1">Photo Verification *</label>
+                <div className="border-2 border-dashed border-gray-300 rounded-xl p-4 bg-gray-50 hover:bg-white transition-colors">
+                  <PhotoCapture
+                    onPhotoCapture={setCapturedPhoto}
+                    capturedPhoto={capturedPhoto}
+                  />
                 </div>
               </div>
-            </div>
 
-            <div>
-              <label className="label text-xs sm:text-sm">Purpose</label>
-              <textarea
-                name="purpose"
-                value={formData.purpose}
-                onChange={handleChange}
-                rows={2}
-                className="input-field text-xs sm:text-sm py-2"
-                placeholder="Brief description"
-              />
-            </div>
+              {/* Explicit Purpose Field */}
+              <div className="space-y-2">
+                <label className="text-sm font-semibold text-gray-700 ml-1">Purpose of Visit</label>
+                <textarea
+                  name="purpose"
+                  value={formData.purpose}
+                  onChange={handleChange}
+                  rows={3}
+                  className="w-full px-4 py-3 rounded-lg border border-gray-300 bg-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all resize-none placeholder-gray-400"
+                  placeholder="Briefly describe why you are visiting..."
+                />
+              </div>
 
-            {/* Photo Capture */}
-            <PhotoCapture 
-              onPhotoCapture={setCapturedPhoto}
-              capturedPhoto={capturedPhoto}
-            />
+              {/* Form Actions */}
+              <div className="flex flex-col sm:flex-row gap-4 pt-4">
+                <Button
+                  type="submit"
+                  variant="primary"
+                  size="lg"
+                  fullWidth
+                  isLoading={isSubmitting}
+                  className="shadow-lg hover:shadow-xl"
+                >
+                  {isSubmitting ? 'Registering...' : 'Generate Pass'}
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="lg"
+                  fullWidth
+                  onClick={() => router.push('/')}
+                >
+                  Cancel
+                </Button>
+              </div>
 
-            <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="btn-primary flex-1 text-xs sm:text-sm py-2.5"
-              >
-                {isSubmitting ? 'Registering...' : 'Register & Get QR'}
-              </button>
-              <button
-                type="button"
-                onClick={() => router.push('/')}
-                className="px-3 sm:px-4 py-2.5 border-2 border-gray-300 rounded-lg hover:bg-gray-100 transition text-xs sm:text-sm"
-              >
-                Cancel
-              </button>
-            </div>
-          </form>
+              {/* Helper Note */}
+              <p className="text-center text-xs text-gray-400 mt-4">
+                By registering, you agree to the updated校园 security protocols.
+              </p>
 
-          <div className="mt-3 sm:mt-4 p-2 sm:p-3 bg-blue-50 border border-blue-200 rounded-lg text-xs text-gray-700">
-            <strong>Note:</strong> Save your QR code and present it at the gate.
-          </div>
+            </form>
+          </Card>
         </motion.div>
       </div>
     </div>

@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import QRGenerator from '../components/QRGenerator';
 import { supabase } from '../lib/supabaseClient';
+import { Button, Input, Card } from '@/components/ui';
 
 export default function RetrieveQR() {
   const router = useRouter();
@@ -17,7 +18,6 @@ export default function RetrieveQR() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    // If visitor ID is in URL, auto-fetch
     if (urlVisitorId && typeof urlVisitorId === 'string') {
       handleRetrieve(urlVisitorId, 'id');
     }
@@ -54,7 +54,6 @@ export default function RetrieveQR() {
         return;
       }
 
-      // Found visitor
       setVisitorId(data.id);
       setVisitorName(data.name);
       setShowQR(true);
@@ -76,159 +75,140 @@ export default function RetrieveQR() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="container mx-auto px-4 py-6 sm:py-8">
-        {!showQR ? (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="max-w-md mx-auto"
-          >
-            <div className="card p-4 sm:p-6">
-              {/* Icon */}
-              <div className="text-center mb-4">
-                <div className="w-16 h-16 mx-auto bg-primary-100 rounded-full flex items-center justify-center">
-                  <svg className="w-10 h-10 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                  </svg>
+    <div className="min-h-screen bg-gradient-to-br from-primary-900 via-primary-800 to-tertiary-900 relative overflow-hidden flex items-center justify-center p-4">
+      {/* Background Decorative Elements */}
+      <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0 pointer-events-none">
+        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary-500/20 rounded-full blur-[100px] animate-pulse" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-tertiary-600/20 rounded-full blur-[100px] animate-pulse" />
+      </div>
+
+      <div className="w-full max-w-md relative z-10">
+        <AnimatePresence mode="wait">
+          {!showQR ? (
+            <motion.div
+              key="search-form"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              transition={{ duration: 0.3 }}
+            >
+              <Card className="backdrop-blur-xl bg-white/95 border-white/20 shadow-2xl">
+                <div className="text-center mb-8">
+                  <div className="w-16 h-16 mx-auto bg-gradient-to-br from-primary-100 to-primary-200 rounded-2xl flex items-center justify-center mb-4 shadow-inner transform rotate-3">
+                    <svg className="w-8 h-8 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
+                    </svg>
+                  </div>
+                  <h1 className="text-2xl font-bold text-gray-900 mb-2">Retrieve Pass</h1>
+                  <p className="text-gray-500 text-sm">Enter your registered details to access your QR code</p>
                 </div>
-              </div>
 
-              <h1 className="text-xl sm:text-2xl font-bold text-center text-primary-600 mb-2">
-                Retrieve Your QR Code
-              </h1>
-              <p className="text-center text-gray-600 text-sm mb-6">
-                Enter your registration details to retrieve your access pass
-              </p>
-
-              {/* Search Method Tabs - Only Email and Phone */}
-              <div className="flex space-x-2 mb-4">
-                <button
-                  onClick={() => setSearchMethod('email')}
-                  className={`flex-1 py-2 px-3 rounded-lg font-medium text-sm transition ${
-                    searchMethod === 'email'
-                      ? 'bg-primary-600 text-white'
-                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                  }`}
-                >
-                  <div className="flex items-center justify-center space-x-2">
+                <div className="flex bg-gray-100/50 p-1 rounded-xl mb-6 border border-gray-200">
+                  <button
+                    onClick={() => setSearchMethod('email')}
+                    className={`flex-1 py-2.5 px-4 rounded-lg font-semibold text-sm transition-all duration-200 flex items-center justify-center space-x-2 ${searchMethod === 'email'
+                        ? 'bg-white text-primary-700 shadow-sm ring-1 ring-gray-200'
+                        : 'text-gray-500 hover:bg-white/50 hover:text-gray-700'
+                      }`}
+                  >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                     </svg>
                     <span>Email</span>
-                  </div>
-                </button>
-                <button
-                  onClick={() => setSearchMethod('phone')}
-                  className={`flex-1 py-2 px-3 rounded-lg font-medium text-sm transition ${
-                    searchMethod === 'phone'
-                      ? 'bg-primary-600 text-white'
-                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                  }`}
-                >
-                  <div className="flex items-center justify-center space-x-2">
+                  </button>
+                  <button
+                    onClick={() => setSearchMethod('phone')}
+                    className={`flex-1 py-2.5 px-4 rounded-lg font-semibold text-sm transition-all duration-200 flex items-center justify-center space-x-2 ${searchMethod === 'phone'
+                        ? 'bg-white text-primary-700 shadow-sm ring-1 ring-gray-200'
+                        : 'text-gray-500 hover:bg-white/50 hover:text-gray-700'
+                      }`}
+                  >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                     </svg>
                     <span>Phone</span>
-                  </div>
+                  </button>
+                </div>
+
+                <div className="space-y-6">
+                  <Input
+                    label={searchMethod === 'email' ? 'Email Address' : 'Phone Number'}
+                    type={searchMethod === 'email' ? 'email' : 'text'}
+                    value={searchValue}
+                    onChange={(e) => setSearchValue(e.target.value)}
+                    placeholder={searchMethod === 'email' ? 'john@example.com' : '+91 9876543210'}
+                    error={error}
+                    leftIcon={
+                      searchMethod === 'email' ? (
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
+                        </svg>
+                      ) : (
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                        </svg>
+                      )
+                    }
+                  />
+
+                  <Button
+                    onClick={() => handleRetrieve()}
+                    disabled={loading || !searchValue}
+                    isLoading={loading}
+                    fullWidth
+                    size="lg"
+                    variant="primary"
+                    className="shadow-lg shadow-primary-500/30"
+                  >
+                    Retrieve Pass
+                  </Button>
+                </div>
+
+                <div className="mt-8 text-center border-t border-gray-100 pt-6">
+                  <button
+                    onClick={() => router.push('/')}
+                    className="text-gray-500 hover:text-primary-600 font-medium text-sm flex items-center justify-center space-x-2 mx-auto transition-colors group"
+                  >
+                    <svg className="w-4 h-4 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                    </svg>
+                    <span>Back to Home</span>
+                  </button>
+                </div>
+              </Card>
+            </motion.div>
+          ) : (
+            <motion.div
+              key="qr-display"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              transition={{ duration: 0.3 }}
+            >
+              <div className="mb-6">
+                <button
+                  onClick={handleBack}
+                  className="text-white/80 hover:text-white font-medium text-sm flex items-center space-x-2 transition-colors bg-white/10 px-4 py-2 rounded-lg backdrop-blur-sm hover:bg-white/20"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                  </svg>
+                  <span>Check Another</span>
                 </button>
               </div>
 
-              {/* Input Field */}
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  {searchMethod === 'email' && 'Email Address'}
-                  {searchMethod === 'phone' && 'Phone Number'}
-                </label>
-                <input
-                  type={searchMethod === 'email' ? 'email' : 'text'}
-                  value={searchValue}
-                  onChange={(e) => setSearchValue(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && handleRetrieve()}
-                  placeholder={
-                    searchMethod === 'email' ? 'your.email@example.com' :
-                    '+91 1234567890'
-                  }
-                  className="input-field text-sm"
-                />
-              </div>
-
-              {/* Error Message */}
-              {error && (
-                <motion.div
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm flex items-start space-x-2"
-                >
-                  <svg className="w-5 h-5 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  <span>{error}</span>
-                </motion.div>
-              )}
-
-              {/* Retrieve Button */}
-              <button
-                onClick={() => handleRetrieve()}
-                disabled={loading || !searchValue}
-                className="btn-primary w-full py-3 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {loading ? (
-                  <span className="flex items-center justify-center">
-                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    Searching...
-                  </span>
-                ) : (
-                  'Retrieve QR Code'
-                )}
-              </button>
-
-              {/* Info Box */}
-              <div className="mt-6 p-3 bg-blue-50 border-l-4 border-blue-400 rounded-r-lg">
-                <div className="flex items-start space-x-3">
-                  <svg className="w-5 h-5 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  <div>
-                    <p className="text-xs font-semibold text-gray-800">How to retrieve:</p>
-                    <p className="text-xs text-gray-700 mt-1">
-                      Enter the same {searchMethod} you used during registration.
-                    </p>
-                  </div>
+              <Card className="backdrop-blur-xl bg-white/95 border-white/20 shadow-2xl p-0 overflow-hidden">
+                <div className="bg-gradient-to-r from-primary-600 to-tertiary-600 p-4 text-center">
+                  <h2 className="text-white font-bold text-lg">Access Pass Retrieved</h2>
+                  <p className="text-primary-100 text-xs">Present this QR code at the gate</p>
                 </div>
-              </div>
-            </div>
-
-            {/* Back Link */}
-            <div className="text-center mt-6">
-              <a href="/" className="text-primary-600 hover:text-primary-700 font-medium text-sm inline-flex items-center space-x-1">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                </svg>
-                <span>Back to Home</span>
-              </a>
-            </div>
-          </motion.div>
-        ) : (
-          <div>
-            <div className="max-w-4xl mx-auto mb-4">
-              <button
-                onClick={handleBack}
-                className="text-primary-600 hover:text-primary-700 font-medium text-sm inline-flex items-center space-x-1"
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                </svg>
-                <span>Search Another</span>
-              </button>
-            </div>
-            <QRGenerator visitorId={visitorId} visitorName={visitorName} />
-          </div>
-        )}
+                <div className="p-6">
+                  <QRGenerator visitorId={visitorId} visitorName={visitorName} />
+                </div>
+              </Card>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </div>
   );

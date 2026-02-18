@@ -41,7 +41,9 @@ export default function App({ Component, pageProps }: AppProps) {
       <ToastProvider>
         {loading && <LoadingScreen />}
         <Navbar />
-        <Component {...pageProps} />
+        <main className="min-h-screen pt-4 pb-20 animate-fade-in">
+          <Component {...pageProps} />
+        </main>
       </ToastProvider>
     </PWAProvider>
   )
