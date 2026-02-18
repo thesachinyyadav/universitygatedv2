@@ -75,12 +75,7 @@ export default function RetrieveQR() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary-900 via-primary-800 to-tertiary-900 relative overflow-hidden flex items-center justify-center p-4">
-      {/* Background Decorative Elements */}
-      <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0 pointer-events-none">
-        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary-500/20 rounded-full blur-[100px] animate-pulse" />
-        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-tertiary-600/20 rounded-full blur-[100px] animate-pulse" />
-      </div>
+    <div className="min-h-screen bg-gradient-to-b from-primary-700 via-primary-800 to-primary-900 flex items-center justify-center p-4">
 
       <div className="w-full max-w-md relative z-10">
         <AnimatePresence mode="wait">
@@ -107,8 +102,8 @@ export default function RetrieveQR() {
                   <button
                     onClick={() => setSearchMethod('email')}
                     className={`flex-1 py-2.5 px-4 rounded-lg font-semibold text-sm transition-all duration-200 flex items-center justify-center space-x-2 ${searchMethod === 'email'
-                        ? 'bg-white text-primary-700 shadow-sm ring-1 ring-gray-200'
-                        : 'text-gray-500 hover:bg-white/50 hover:text-gray-700'
+                      ? 'bg-white text-primary-700 shadow-sm ring-1 ring-gray-200'
+                      : 'text-gray-500 hover:bg-white/50 hover:text-gray-700'
                       }`}
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -119,8 +114,8 @@ export default function RetrieveQR() {
                   <button
                     onClick={() => setSearchMethod('phone')}
                     className={`flex-1 py-2.5 px-4 rounded-lg font-semibold text-sm transition-all duration-200 flex items-center justify-center space-x-2 ${searchMethod === 'phone'
-                        ? 'bg-white text-primary-700 shadow-sm ring-1 ring-gray-200'
-                        : 'text-gray-500 hover:bg-white/50 hover:text-gray-700'
+                      ? 'bg-white text-primary-700 shadow-sm ring-1 ring-gray-200'
+                      : 'text-gray-500 hover:bg-white/50 hover:text-gray-700'
                       }`}
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -198,7 +193,7 @@ export default function RetrieveQR() {
               </div>
 
               <Card className="backdrop-blur-xl bg-white/95 border-white/20 shadow-2xl p-0 overflow-hidden">
-                <div className="bg-gradient-to-r from-primary-600 to-tertiary-600 p-4 text-center">
+                <div className="bg-gradient-to-r from-primary-600 to-secondary-600 p-4 text-center">
                   <h2 className="text-white font-bold text-lg">Access Pass Retrieved</h2>
                   <p className="text-primary-100 text-xs">Present this QR code at the gate</p>
                 </div>

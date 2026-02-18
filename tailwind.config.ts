@@ -12,32 +12,47 @@ const config: Config = {
         sans: ['Inter', 'sans-serif'],
       },
       colors: {
-        // Christ University Professional Theme
+        // Christ University Brand Colors — User Specified
         primary: {
-          50: '#f0f4ff', // Lightest
-          100: '#e0eaff',
-          200: '#c7d9ff',
-          300: '#9ebaff',
-          400: '#6d94ff',
-          500: '#4169E1', // Royal Blue (Design System Primary)
-          600: '#254a9a', // Main primary (Brand Core)
-          700: '#1f3d7f',
-          800: '#1e3466',
-          900: '#1e2f52',
-          950: '#111b33',
+          50: '#e8f0fc',
+          100: '#c5d9f8',
+          200: '#9ebef3',
+          300: '#74a1ed',
+          400: '#518be8',
+          500: '#2e74e2',
+          600: '#154CB3', // ← PRIMARY (Deep Blue)
+          700: '#113d92',
+          800: '#0D3070',
+          900: '#09234F',
+          950: '#051530',
         },
-        tertiary: {
-          50: '#fdfaf6',
-          100: '#fbf5ed',
-          200: '#f7ebd9',
-          300: '#f0dbbe',
-          400: '#e6c49c',
-          500: '#d9aa72',
-          600: '#bda361', // Gold (Brand Accent)
-          700: '#9e8650',
-          800: '#7f6a40',
-          900: '#604f2f',
+        secondary: {
+          50: '#fffef0',
+          100: '#fffbd4',
+          200: '#fff6a3',
+          300: '#ffef6d',
+          400: '#ffe53a',
+          500: '#FFCC00', // ← SECONDARY (Vivid Yellow)
+          600: '#e6b800',
+          700: '#bf9900',
+          800: '#997a00',
+          900: '#735c00',
+          950: '#4d3d00',
         },
+        accent: {
+          50: '#e9f5fe',
+          100: '#cfe9fd',
+          200: '#a1d4fb',
+          300: '#6ebdf8',
+          400: '#4aacf4',
+          500: '#30A4EF', // ← ACCENT (Light Blue)
+          600: '#1b8dd6',
+          700: '#1572ae',
+          800: '#105987',
+          900: '#0b4060',
+          950: '#062839',
+        },
+        // Keep slate for UI grays
         slate: {
           50: '#f8fafc',
           100: '#f1f5f9',
@@ -52,8 +67,10 @@ const config: Config = {
         }
       },
       boxShadow: {
-        'glass': '0 8px 32px 0 rgba(31, 38, 135, 0.15)',
+        'glass': '0 8px 32px 0 rgba(21, 76, 179, 0.12)',
         'inner-lg': 'inset 0 2px 4px 0 rgba(0, 0, 0, 0.06)',
+        'card': '0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06)',
+        'card-hover': '0 4px 12px rgba(21, 76, 179, 0.12)',
       },
       animation: {
         'fade-in': 'fadeIn 0.5s ease-out forwards',

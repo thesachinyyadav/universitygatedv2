@@ -2,17 +2,15 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
 :root {
   /* Core Brand Colors */
-  --primary: #254a9a;
-  --primary-light: #4169E1;
-  /* Royal Blue */
-  --primary-dark: #1a3168;
-  --secondary: #ffffff;
-  --tertiary: #bda361;
-  /* Gold */
+  --primary: #154CB3;
+  --primary-light: #30A4EF;
+  --primary-dark: #0D3070;
+  --secondary: #FFCC00;
+  --accent: #30A4EF;
 
   /* Modern UI Variables */
   --background: #f8fafc;
@@ -24,37 +22,39 @@
   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
   --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
   --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-  --shadow-glass: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+  --shadow-glass: 0 8px 32px 0 rgba(21, 76, 179, 0.12);
 }
 
 body {
   @apply bg-slate-50 text-slate-900 font-sans antialiased;
   font-family: 'Inter', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-/* Modern Button Styles - Compact */
+/* ─── Button System ─── */
 .btn-primary {
-  @apply relative overflow-hidden bg-primary-600 text-white px-4 py-2 text-sm rounded-lg font-medium hover:bg-primary-700 transition-all duration-300 shadow-sm hover:shadow-md hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-1;
+  @apply relative overflow-hidden bg-primary-600 text-white px-4 py-2.5 text-sm rounded-xl font-semibold hover:bg-primary-700 transition-all duration-200 shadow-sm hover:shadow-md active:scale-[0.98] outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-1;
 }
 
 .btn-secondary {
-  @apply relative overflow-hidden bg-white text-primary-700 border border-primary-200 px-4 py-2 text-sm rounded-lg font-medium hover:bg-primary-50 hover:border-primary-300 transition-all duration-300 shadow-sm hover:shadow-md active:scale-[0.98] outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-1;
+  @apply relative overflow-hidden bg-white text-primary-600 border border-primary-200 px-4 py-2.5 text-sm rounded-xl font-semibold hover:bg-primary-50 hover:border-primary-300 transition-all duration-200 shadow-sm active:scale-[0.98] outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-1;
 }
 
 .btn-tertiary {
-  @apply bg-tertiary-600 text-white px-4 py-2 text-sm rounded-lg font-medium hover:bg-tertiary-700 transition-all duration-300 shadow-sm hover:shadow-md active:scale-[0.98];
+  @apply bg-secondary-500 text-primary-900 px-4 py-2.5 text-sm rounded-xl font-semibold hover:bg-secondary-400 transition-all duration-200 shadow-sm active:scale-[0.98];
 }
 
-/* Modern Card Styles - Compact */
+/* ─── Card System ─── */
 .card {
-  @apply bg-white rounded-xl shadow-sm border border-slate-100 p-4 transition-all duration-300 hover:shadow-md;
+  @apply bg-white rounded-2xl shadow-sm border border-slate-100/80 p-4 transition-all duration-200;
 }
 
 .card-hover {
   @apply hover:-translate-y-0.5 hover:shadow-md hover:border-primary-100;
 }
 
-/* Glassmorphism Utilities */
+/* ─── Glass ─── */
 .glass {
   @apply bg-white/80 backdrop-blur-md border border-white/20 shadow-sm;
 }
@@ -63,26 +63,26 @@ body {
   @apply bg-slate-900/80 backdrop-blur-md border border-white/10 shadow-lg;
 }
 
-/* Form Input Styles - Compact */
+/* ─── Form Inputs ─── */
 .input-label {
-  @apply block text-xs font-semibold text-slate-700 mb-1 ml-0.5 uppercase tracking-wide;
+  @apply block text-xs font-semibold text-slate-600 mb-1.5 uppercase tracking-wide;
 }
 
 .input-field {
-  @apply w-full px-3 py-2 text-sm bg-white border border-slate-200 rounded-lg text-slate-900 placeholder-slate-400 transition-all duration-200 ease-in-out focus:border-primary-500 focus:ring-1 focus:ring-primary-100 focus:outline-none disabled:bg-slate-50 disabled:text-slate-500;
+  @apply w-full px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 transition-all duration-200 ease-in-out focus:bg-white focus:border-primary-500 focus:ring-2 focus:ring-primary-100 focus:outline-none disabled:bg-slate-100 disabled:text-slate-500;
 }
 
 .input-field.error {
-  @apply border-red-500 focus:ring-red-100;
+  @apply border-red-400 bg-red-50/50 focus:ring-red-100;
 }
 
 .error-msg {
-  @apply text-xs text-red-600 mt-0.5 ml-0.5;
+  @apply text-xs text-red-600 mt-1 ml-0.5 font-medium;
 }
 
-/* Status Badges */
+/* ─── Badges ─── */
 .badge {
-  @apply inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold ring-1 ring-inset uppercase tracking-wider;
+  @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold ring-1 ring-inset uppercase tracking-wider;
 }
 
 .badge-pending {
@@ -97,11 +97,11 @@ body {
   @apply bg-red-50 text-red-700 ring-red-600/10;
 }
 
-/* Animations */
+/* ─── Animations ─── */
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(10px);
+    transform: translateY(8px);
   }
 
   to {
@@ -114,7 +114,7 @@ body {
   animation: fadeIn 0.4s ease-out forwards;
 }
 
-/* Loading Effects */
+/* ─── Loading Shimmer ─── */
 .shimmer {
   background: linear-gradient(90deg,
       rgba(255, 255, 255, 0) 0%,
@@ -134,10 +134,10 @@ body {
   }
 }
 
-/* Custom Scrollbar */
+/* ─── Custom Scrollbar ─── */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
@@ -145,22 +145,21 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply bg-slate-300 rounded-full hover:bg-slate-400 transition-colors;
+  @apply bg-slate-300 rounded-full hover:bg-slate-400;
 }
 
-/* Mobile Optimizations (PWA) */
+/* ─── Mobile Touch Targets ─── */
 @media (max-width: 768px) {
 
   .btn-primary,
   .btn-secondary,
   .btn-tertiary,
   .input-field {
-    @apply min-h-[48px];
-    /* Larger touch targets */
+    @apply min-h-[44px];
   }
 }
 
-/* Print Styles */
+/* ─── Print ─── */
 @media print {
   .no-print {
     display: none !important;

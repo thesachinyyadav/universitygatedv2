@@ -299,12 +299,7 @@ export default function OrganiserDashboard() {
   const selectStyles = "w-full px-3 py-2 rounded-lg border border-gray-200 focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all duration-200 bg-gray-50/50 hover:bg-white text-gray-800 font-medium text-sm";
 
   return (
-    <div className="min-h-screen bg-gray-50 relative overflow-hidden">
-      {/* Background Decorative Elements */}
-      <div className="fixed top-0 left-0 w-full h-full overflow-hidden z-0 pointer-events-none">
-        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary-500/5 rounded-full blur-[100px]" />
-        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-tertiary-600/5 rounded-full blur-[100px]" />
-      </div>
+    <div className="min-h-screen bg-gray-50">
 
       <div className="container mx-auto px-4 py-4 relative z-10 max-w-7xl">
         <div className="mb-6 md:flex md:items-center md:justify-between">

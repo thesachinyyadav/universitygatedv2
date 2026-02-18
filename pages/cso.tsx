@@ -223,12 +223,7 @@ export default function CSODashboard() {
   });
 
   return (
-    <div className="min-h-screen bg-gray-50 relative overflow-hidden">
-      {/* Background Decorative Elements */}
-      <div className="fixed top-0 left-0 w-full h-full overflow-hidden z-0 pointer-events-none">
-        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary-500/5 rounded-full blur-[100px]" />
-        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-tertiary-600/5 rounded-full blur-[100px]" />
-      </div>
+    <div className="min-h-screen bg-gray-50">
 
       <div className="container mx-auto px-4 py-4 relative z-10 max-w-7xl">
         <div className="mb-4 flex flex-col md:flex-row md:items-center justify-between gap-3">
