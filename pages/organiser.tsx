@@ -246,30 +246,31 @@ export default function OrganiserDashboard() {
   if (generatedVisitors.length > 0 && currentVisitorIndex < generatedVisitors.length) {
     const currentVisitor = generatedVisitors[currentVisitorIndex];
     return (
-      <div className="min-h-screen bg-gray-50 py-8 px-4 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 py-4 px-3 flex items-center justify-center">
         <Card className="max-w-xl w-full">
-          <div className="mb-6 text-center">
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">QR Code Generated</h2>
-            <p className="text-gray-500">
+          <div className="mb-4 text-center">
+            <h2 className="text-xl font-bold text-gray-900 mb-1">QR Code Generated</h2>
+            <p className="text-gray-500 text-sm">
               Visitor {currentVisitorIndex + 1} of {generatedVisitors.length}
             </p>
-            <div className="flex justify-center gap-2 mt-4">
+            <div className="flex justify-center gap-1.5 mt-3">
               {generatedVisitors.map((_, idx) => (
-                <div key={idx} className={`h-2 w-2 rounded-full ${idx === currentVisitorIndex ? 'bg-primary-600' : 'bg-gray-300'}`} />
+                <div key={idx} className={`h-1.5 w-1.5 rounded-full ${idx === currentVisitorIndex ? 'bg-primary-600' : 'bg-gray-300'}`} />
               ))}
             </div>
           </div>
 
-          <div className="flex justify-center mb-8">
+          <div className="flex justify-center mb-6">
             <QRGenerator visitorId={currentVisitor.id} visitorName={currentVisitor.name} />
           </div>
 
-          <div className="flex gap-4">
+          <div className="flex gap-3">
             <Button
               onClick={() => setCurrentVisitorIndex(prev => prev - 1)}
               disabled={currentVisitorIndex === 0}
               variant="outline"
               className="flex-1"
+              size="sm"
             >
               Previous
             </Button>
@@ -285,6 +286,7 @@ export default function OrganiserDashboard() {
               }}
               variant="primary"
               className="flex-1"
+              size="sm"
             >
               {currentVisitorIndex < generatedVisitors.length - 1 ? 'Next Visitor' : 'Finish'}
             </Button>
@@ -294,7 +296,7 @@ export default function OrganiserDashboard() {
     );
   }
 
-  const selectStyles = "w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all duration-200 bg-gray-50/50 hover:bg-white text-gray-800 font-medium";
+  const selectStyles = "w-full px-3 py-2 rounded-lg border border-gray-200 focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 outline-none transition-all duration-200 bg-gray-50/50 hover:bg-white text-gray-800 font-medium text-sm";
 
   return (
     <div className="min-h-screen bg-gray-50 relative overflow-hidden">
@@ -304,35 +306,36 @@ export default function OrganiserDashboard() {
         <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-tertiary-600/5 rounded-full blur-[100px]" />
       </div>
 
-      <div className="container mx-auto px-4 py-8 relative z-10 max-w-7xl">
-        <div className="mb-8 md:flex md:items-center md:justify-between">
+      <div className="container mx-auto px-4 py-4 relative z-10 max-w-7xl">
+        <div className="mb-6 md:flex md:items-center md:justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Organiser Dashboard</h1>
-            <p className="text-gray-600">Welcome, <strong>{user.full_name || user.username}</strong></p>
+            <h1 className="text-2xl font-bold text-gray-900 mb-1">Organiser Dashboard</h1>
+            <p className="text-gray-600 text-sm">Welcome, <strong>{user.full_name || user.username}</strong></p>
           </div>
 
-          <div className="flex gap-4 mt-4 md:mt-0">
-            <div className="bg-white rounded-xl shadow-sm border border-gray-100 px-4 py-2 text-center min-w-[100px]">
-              <p className="text-xs text-gray-500 font-bold uppercase tracking-wider">Total</p>
-              <p className="text-xl font-bold text-blue-600">{stats.total}</p>
+          <div className="flex gap-3 mt-3 md:mt-0">
+            <div className="bg-white rounded-lg shadow-sm border border-gray-100 px-3 py-1.5 text-center min-w-[80px]">
+              <p className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">Total</p>
+              <p className="text-lg font-bold text-blue-600 leading-tight">{stats.total}</p>
             </div>
-            <div className="bg-white rounded-xl shadow-sm border border-gray-100 px-4 py-2 text-center min-w-[100px]">
-              <p className="text-xs text-gray-500 font-bold uppercase tracking-wider">Pending</p>
-              <p className="text-xl font-bold text-yellow-500">{stats.pending}</p>
+            <div className="bg-white rounded-lg shadow-sm border border-gray-100 px-3 py-1.5 text-center min-w-[80px]">
+              <p className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">Pending</p>
+              <p className="text-lg font-bold text-yellow-500 leading-tight">{stats.pending}</p>
             </div>
-            <div className="bg-white rounded-xl shadow-sm border border-gray-100 px-4 py-2 text-center min-w-[100px]">
-              <p className="text-xs text-gray-500 font-bold uppercase tracking-wider">Approved</p>
-              <p className="text-xl font-bold text-green-500">{stats.approved}</p>
+            <div className="bg-white rounded-lg shadow-sm border border-gray-100 px-3 py-1.5 text-center min-w-[80px]">
+              <p className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">Approved</p>
+              <p className="text-lg font-bold text-green-500 leading-tight">{stats.approved}</p>
             </div>
           </div>
         </div>
 
         {/* Tab Navigation */}
-        <div className="flex gap-2 mb-8 bg-white/50 backdrop-blur-sm p-1 rounded-xl w-fit border border-gray-200/50">
+        <div className="flex gap-2 mb-6 bg-white/50 backdrop-blur-sm p-1 rounded-xl w-fit border border-gray-200/50">
           <Button
             variant={activeTab === 'events' ? 'primary' : 'ghost'}
             onClick={() => setActiveTab('events')}
             size="sm"
+            className="text-xs px-3 py-1.5"
           >
             Event Requests
           </Button>
@@ -340,6 +343,7 @@ export default function OrganiserDashboard() {
             variant={activeTab === 'bulk-qr' ? 'primary' : 'ghost'}
             onClick={() => setActiveTab('bulk-qr')}
             size="sm"
+            className="text-xs px-3 py-1.5"
           >
             Bulk QR Generator
           </Button>

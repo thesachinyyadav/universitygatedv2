@@ -230,11 +230,11 @@ export default function CSODashboard() {
         <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-tertiary-600/5 rounded-full blur-[100px]" />
       </div>
 
-      <div className="container mx-auto px-4 py-8 relative z-10 max-w-7xl">
-        <div className="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="container mx-auto px-4 py-4 relative z-10 max-w-7xl">
+        <div className="mb-4 flex flex-col md:flex-row md:items-center justify-between gap-3">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">CSO Dashboard</h1>
-            <p className="text-gray-600">
+            <h1 className="text-2xl font-bold text-gray-900 mb-1">CSO Dashboard</h1>
+            <p className="text-sm text-gray-600">
               Welcome back, <strong>{user.username}</strong>
             </p>
           </div>
@@ -243,11 +243,12 @@ export default function CSODashboard() {
             <Button
               variant={activeTab === 'events' ? 'primary' : 'outline'}
               onClick={() => setActiveTab('events')}
-              className="relative"
+              className="relative text-xs px-3 py-1.5"
+              size="sm"
             >
               Event Approvals
               {pendingRequestsCount > 0 && (
-                <span className="absolute -top-2 -right-2 w-5 h-5 bg-red-500 text-white text-xs flex items-center justify-center rounded-full border-2 border-white">
+                <span className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-red-500 text-white text-[10px] flex items-center justify-center rounded-full border-2 border-white">
                   {pendingRequestsCount}
                 </span>
               )}
@@ -255,6 +256,8 @@ export default function CSODashboard() {
             <Button
               variant={activeTab === 'visitors' ? 'primary' : 'outline'}
               onClick={() => setActiveTab('visitors')}
+              className="text-xs px-3 py-1.5"
+              size="sm"
             >
               Visitor Management
             </Button>
@@ -262,29 +265,29 @@ export default function CSODashboard() {
         </div>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
           <Card className="bg-gradient-to-br from-blue-500 to-blue-600 text-white border-none shadow-lg shadow-blue-500/20">
-            <div className="p-1">
-              <p className="text-blue-100 text-sm font-medium mb-1">Total Visitors</p>
-              <p className="text-3xl font-bold">{stats.total}</p>
+            <div className="p-0.5">
+              <p className="text-blue-100 text-xs font-medium mb-0.5">Total Visitors</p>
+              <p className="text-2xl font-bold">{stats.total}</p>
             </div>
           </Card>
           <Card className="bg-gradient-to-br from-yellow-500 to-yellow-600 text-white border-none shadow-lg shadow-yellow-500/20">
-            <div className="p-1">
-              <p className="text-yellow-100 text-sm font-medium mb-1">Pending Visitors</p>
-              <p className="text-3xl font-bold">{stats.pending}</p>
+            <div className="p-0.5">
+              <p className="text-yellow-100 text-xs font-medium mb-0.5">Pending Visitors</p>
+              <p className="text-2xl font-bold">{stats.pending}</p>
             </div>
           </Card>
           <Card className="bg-gradient-to-br from-green-500 to-green-600 text-white border-none shadow-lg shadow-green-500/20">
-            <div className="p-1">
-              <p className="text-green-100 text-sm font-medium mb-1">Approved Visitors</p>
-              <p className="text-3xl font-bold">{stats.approved}</p>
+            <div className="p-0.5">
+              <p className="text-green-100 text-xs font-medium mb-0.5">Approved Visitors</p>
+              <p className="text-2xl font-bold">{stats.approved}</p>
             </div>
           </Card>
           <Card className="bg-gradient-to-br from-red-500 to-red-600 text-white border-none shadow-lg shadow-red-500/20">
-            <div className="p-1">
-              <p className="text-red-100 text-sm font-medium mb-1">Revoked Visitors</p>
-              <p className="text-3xl font-bold">{stats.revoked}</p>
+            <div className="p-0.5">
+              <p className="text-red-100 text-xs font-medium mb-0.5">Revoked Visitors</p>
+              <p className="text-2xl font-bold">{stats.revoked}</p>
             </div>
           </Card>
         </div>
@@ -296,10 +299,10 @@ export default function CSODashboard() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
-              className="space-y-6"
+              className="space-y-3"
             >
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-xl font-bold text-gray-800">Pending Event Requests</h3>
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="text-lg font-bold text-gray-800">Pending Event Requests</h3>
               </div>
 
               {isLoading ? (
@@ -308,23 +311,23 @@ export default function CSODashboard() {
                   <p className="text-gray-600 mt-4">Loading requests...</p>
                 </div>
               ) : eventRequests.filter(r => r.status === 'pending').length === 0 ? (
-                <Card className="text-center py-12 border-dashed border-2 bg-gray-50/50">
+                <Card className="text-center py-8 border-dashed border-2 bg-gray-50/50">
                   <p className="text-gray-500">No pending event requests</p>
                 </Card>
               ) : (
-                <div className="grid gap-6">
+                <div className="grid gap-4">
                   {eventRequests.filter(r => r.status === 'pending').map((request) => (
                     <Card key={request.id} className="border-l-4 border-l-yellow-500">
-                      <div className="flex flex-col md:flex-row justify-between md:items-start gap-6">
+                      <div className="flex flex-col md:flex-row justify-between md:items-start gap-4">
                         <div className="flex-1">
                           <div className="flex items-center gap-3 mb-2">
                             <h3 className="text-lg font-bold text-gray-900">{request.event_name}</h3>
-                            <span className="px-3 py-1 bg-yellow-100 text-yellow-800 text-xs font-bold rounded-full">PENDING</span>
+                            <span className="px-2 py-0.5 bg-yellow-100 text-yellow-800 text-[10px] font-bold rounded-full">PENDING</span>
                           </div>
-                          <p className="text-sm text-gray-500 mb-4">{request.department}</p>
-                          <p className="text-gray-700 mb-4 bg-gray-50 p-3 rounded-lg text-sm">{request.event_description}</p>
+                          <p className="text-xs text-gray-500 mb-3">{request.department}</p>
+                          <p className="text-gray-700 mb-3 bg-gray-50 p-2 rounded-lg text-sm">{request.event_description}</p>
 
-                          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm text-gray-600">
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs text-gray-600">
                             <div>
                               <p className="font-semibold text-gray-900">Date</p>
                               <p>{new Date(request.date_from).toLocaleDateString()}</p>
@@ -344,18 +347,18 @@ export default function CSODashboard() {
                           </div>
                         </div>
 
-                        <div className="flex flex-col gap-3 min-w-[250px]">
+                        <div className="flex flex-col gap-2 min-w-[200px]">
                           <Input
-                            placeholder="Reason for rejection (optional)..."
+                            placeholder="Reason for rejection..."
                             value={rejectionReason[request.id] || ''}
                             onChange={(e) => setRejectionReason(prev => ({ ...prev, [request.id]: e.target.value }))}
-                            className="text-sm"
+                            className="text-xs"
                           />
                           <div className="flex gap-2">
                             <Button
                               onClick={() => handleApproveEvent(request.id, false)}
                               disabled={isApprovingEvent === request.id || !rejectionReason[request.id]}
-                              variant="danger" // Assuming danger variant exists or fallback to custom style
+                              variant="danger"
                               className="flex-1 bg-red-600 hover:bg-red-700 text-white"
                               size="sm"
                             >
@@ -379,20 +382,20 @@ export default function CSODashboard() {
               )}
 
               {/* History Section */}
-              <div className="mt-12">
-                <h3 className="text-xl font-bold text-gray-800 mb-6">Request History</h3>
-                <div className="grid gap-4 md:grid-cols-2">
+              <div className="mt-8">
+                <h3 className="text-lg font-bold text-gray-800 mb-4">Request History</h3>
+                <div className="grid gap-3 md:grid-cols-2">
                   {eventRequests.filter(r => r.status !== 'pending').map((request) => (
                     <Card key={request.id} className={`opacity-80 hover:opacity-100 transition-opacity ${request.status === 'approved' ? 'border-l-4 border-l-green-500' : 'border-l-4 border-l-red-500'}`}>
-                      <div className="flex justify-between items-start mb-2">
-                        <h4 className="font-semibold text-gray-900">{request.event_name}</h4>
-                        <span className={`text-xs font-bold px-2 py-1 rounded-full ${request.status === 'approved' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                      <div className="flex justify-between items-start mb-1">
+                        <h4 className="font-semibold text-gray-900 text-sm">{request.event_name}</h4>
+                        <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${request.status === 'approved' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
                           {request.status.toUpperCase()}
                         </span>
                       </div>
-                      <p className="text-xs text-gray-500 mb-2">{new Date(request.date_from).toLocaleDateString()}</p>
+                      <p className="text-[10px] text-gray-500 mb-1">{new Date(request.date_from).toLocaleDateString()}</p>
                       {request.status === 'rejected' && (
-                        <p className="text-sm text-red-600 bg-red-50 p-2 rounded">Reason: {request.rejection_reason}</p>
+                        <p className="text-xs text-red-600 bg-red-50 p-1.5 rounded">Reason: {request.rejection_reason}</p>
                       )}
                     </Card>
                   ))}
@@ -408,73 +411,78 @@ export default function CSODashboard() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
-              className="space-y-6"
+              className="space-y-4"
             >
-              <div className="grid lg:grid-cols-3 gap-6">
-                <div className="lg:col-span-2 space-y-6">
+              <div className="grid lg:grid-cols-3 gap-4">
+                <div className="lg:col-span-2 space-y-4">
                   <Card>
-                    <div className="flex flex-col md:flex-row gap-4 justify-between mb-6">
+                    <div className="flex flex-col md:flex-row gap-3 justify-between mb-4">
                       <div className="flex-1">
                         <Input
                           placeholder="Search visitors..."
                           value={searchTerm}
                           onChange={(e) => setSearchTerm(e.target.value)}
                           leftIcon={
-                            <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                             </svg>
                           }
+                          className="text-sm"
                         />
                       </div>
                       <div className="flex gap-2">
-                        <Button variant="outline" onClick={fetchVisitors} size="sm">Refresh</Button>
-                        <Button variant="outline" onClick={exportToCSV} size="sm">Export CSV</Button>
+                        <Button variant="outline" onClick={fetchVisitors} size="sm" className="text-xs">Refresh</Button>
+                        <Button variant="outline" onClick={exportToCSV} size="sm" className="text-xs">Export CSV</Button>
                       </div>
                     </div>
 
                     {selectedEventFilter && (
-                      <div className="mb-4 inline-flex items-center gap-2 px-3 py-1 bg-primary-50 text-primary-700 rounded-full text-sm">
+                      <div className="mb-3 inline-flex items-center gap-2 px-3 py-1 bg-primary-50 text-primary-700 rounded-full text-xs">
                         <span>Filter: {selectedEventFilter}</span>
                         <button onClick={() => setSelectedEventFilter('')} className="hover:text-primary-900">×</button>
                       </div>
                     )}
 
                     {filteredVisitors.length === 0 ? (
-                      <p className="text-center text-gray-500 py-8">No visitors found.</p>
+                      <p className="text-center text-gray-500 py-8 text-sm">No visitors found.</p>
                     ) : (
                       <div className="overflow-x-auto">
                         <table className="w-full text-sm text-left">
                           <thead className="text-xs text-gray-500 uppercase bg-gray-50">
                             <tr>
-                              <th className="px-4 py-3">Visitor</th>
-                              <th className="px-4 py-3">Event</th>
-                              <th className="px-4 py-3">Status</th>
-                              <th className="px-4 py-3 text-right">Actions</th>
+                              <th className="px-3 py-2">Visitor</th>
+                              <th className="px-3 py-2">Event</th>
+                              <th className="px-3 py-2">Status</th>
+                              <th className="px-3 py-2 text-right">Actions</th>
                             </tr>
                           </thead>
                           <tbody className="divide-y divide-gray-100">
                             {filteredVisitors.map((visitor) => (
                               <tr key={visitor.id} className="hover:bg-gray-50/50">
-                                <td className="px-4 py-3">
-                                  <p className="font-medium text-gray-900">{visitor.name}</p>
-                                  <p className="text-xs text-gray-500">{visitor.email || visitor.phone}</p>
+                                <td className="px-3 py-2">
+                                  <p className="font-medium text-gray-900 text-sm">{visitor.name}</p>
+                                  <p className="text-[10px] text-gray-500">{visitor.email || visitor.phone}</p>
                                 </td>
-                                <td className="px-4 py-3 text-gray-600">{visitor.event_name || '-'}</td>
-                                <td className="px-4 py-3">
-                                  <span className={`px-2 py-1 rounded-full text-xs font-bold ${visitor.status === 'approved' ? 'bg-green-100 text-green-700' :
-                                      visitor.status === 'revoked' ? 'bg-red-100 text-red-700' :
-                                        'bg-yellow-100 text-yellow-700'
+                                <td className="px-3 py-2 text-gray-600 text-xs">{visitor.event_name || '-'}</td>
+                                <td className="px-3 py-2">
+                                  <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold ${visitor.status === 'approved' ? 'bg-green-100 text-green-700' :
+                                    visitor.status === 'revoked' ? 'bg-red-100 text-red-700' :
+                                      'bg-yellow-100 text-yellow-700'
                                     }`}>
                                     {visitor.status.toUpperCase()}
                                   </span>
                                 </td>
-                                <td className="px-4 py-3 text-right">
-                                  <div className="flex justify-end gap-2">
+                                <td className="px-3 py-2 text-right">
+                                  <div className="flex justify-end gap-1">
                                     {visitor.status !== 'approved' && (
-                                      <button onClick={() => updateStatus(visitor.id, 'approved')} className="text-green-600 hover:bg-green-50 p-1 rounded">✓</button>
+                                      <button onClick={() => updateStatus(visitor.id, 'approved')} className="text-green-600 hover:bg-green-50 p-1 rounded">
+                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
+                                      </button>
                                     )}
                                     {visitor.status !== 'revoked' && (
-                                      <button onClick={() => updateStatus(visitor.id, 'revoked')} className="text-red-600 hover:bg-red-50 p-1 rounded">✕</button>
+                                      <button onClick={() => updateStatus(visitor.id, 'revoked')} className="text-red-600 hover:bg-red-50 p-1 rounded">
+                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                                      </button>
                                     )}
                                   </div>
                                 </td>
@@ -487,26 +495,26 @@ export default function CSODashboard() {
                   </Card>
                 </div>
 
-                <div className="lg:col-span-1 space-y-6">
+                <div className="lg:col-span-1 space-y-4">
                   <Card>
-                    <h3 className="font-bold text-gray-900 mb-4">Top Events</h3>
-                    <div className="space-y-2">
+                    <h3 className="font-bold text-gray-900 mb-3 text-sm">Top Events</h3>
+                    <div className="space-y-1">
                       {topEvents.length > 0 ? topEvents.map(([event, count], idx) => (
                         <button
                           key={event}
                           onClick={() => setSelectedEventFilter(event)}
-                          className="w-full flex items-center justify-between p-2 hover:bg-gray-50 rounded-lg transition-colors text-left"
+                          className="w-full flex items-center justify-between p-1.5 hover:bg-gray-50 rounded-lg transition-colors text-left"
                         >
-                          <div className="flex items-center gap-3">
-                            <span className="w-6 h-6 flex items-center justify-center bg-gray-100 text-gray-600 rounded-full text-xs font-bold">
+                          <div className="flex items-center gap-2">
+                            <span className="w-5 h-5 flex items-center justify-center bg-gray-100 text-gray-600 rounded-full text-[10px] font-bold">
                               {idx + 1}
                             </span>
-                            <span className="text-sm font-medium text-gray-700 truncate max-w-[150px]">{event}</span>
+                            <span className="text-xs font-medium text-gray-700 truncate max-w-[120px]">{event}</span>
                           </div>
-                          <span className="text-xs font-bold text-gray-500">{count}</span>
+                          <span className="text-[10px] font-bold text-gray-500">{count}</span>
                         </button>
                       )) : (
-                        <p className="text-sm text-gray-500">No event data available.</p>
+                        <p className="text-xs text-gray-500">No event data available.</p>
                       )}
                     </div>
                   </Card>

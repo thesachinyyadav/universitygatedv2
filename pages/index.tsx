@@ -33,8 +33,7 @@ export default function Home() {
         <div className="absolute top-[20%] right-[20%] w-[20%] h-[20%] bg-blue-400/10 rounded-full blur-[80px]" />
       </div>
 
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-20 relative z-10 flex flex-col items-center justify-center min-h-[calc(100vh-80px)]">
-
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 relative z-10 flex flex-col items-center justify-center min-h-[calc(100vh-60px)]">
         <motion.div
           variants={containerVariants}
           initial="hidden"
@@ -42,32 +41,32 @@ export default function Home() {
           className="w-full max-w-4xl mx-auto text-center"
         >
           {/* Main Content */}
-          <motion.div variants={itemVariants} className="mb-8 relative inline-block">
+          <motion.div variants={itemVariants} className="mb-6 relative inline-block">
             <div className="absolute inset-0 bg-white/20 blur-xl rounded-full transform scale-150 opacity-50"></div>
-            <div className="relative bg-white/10 backdrop-blur-md border border-white/20 p-6 rounded-3xl shadow-2xl inline-flex items-center justify-center">
+            <div className="relative bg-white/10 backdrop-blur-md border border-white/20 p-4 rounded-3xl shadow-2xl inline-flex items-center justify-center">
               <Image
                 src="/christunilogo.png"
                 alt="Christ University"
-                width={200}
-                height={60}
-                className="h-16 w-auto object-contain brightness-0 invert opacity-90"
+                width={160}
+                height={48}
+                className="h-12 w-auto object-contain brightness-0 invert opacity-90"
               />
             </div>
           </motion.div>
 
           <motion.h1
             variants={itemVariants}
-            className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-white tracking-tight mb-4 drop-shadow-sm"
+            className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-white tracking-tight mb-3 drop-shadow-sm"
           >
             Christ University
-            <span className="block text-2xl sm:text-3xl md:text-4xl mt-2 font-medium text-tertiary-200">
+            <span className="block text-xl sm:text-2xl md:text-3xl mt-1 font-medium text-tertiary-200">
               Gated Access System
             </span>
           </motion.h1>
 
           <motion.p
             variants={itemVariants}
-            className="text-base sm:text-lg md:text-xl text-primary-100 max-w-2xl mx-auto mb-10 leading-relaxed font-light"
+            className="text-sm sm:text-base md:text-lg text-primary-100 max-w-2xl mx-auto mb-8 leading-relaxed font-light"
           >
             Streamlined security and seamless campus entry for students, visitors, and faculty.
             Experience the next generation of campus access.
@@ -75,11 +74,11 @@ export default function Home() {
 
           <motion.div
             variants={itemVariants}
-            className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16"
+            className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-10"
           >
             <Link href="/visitor-register" className="w-full sm:w-auto">
               <Button
-                size="xl"
+                size="md"
                 variant="white"
                 rightIcon={
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -94,7 +93,7 @@ export default function Home() {
 
             <Link href="/retrieve-qr" className="w-full sm:w-auto">
               <Button
-                size="xl"
+                size="md"
                 variant="glass"
                 className="w-full sm:w-auto hover:bg-white/10 border-white/30 text-white"
               >
@@ -106,12 +105,12 @@ export default function Home() {
           {/* Features Grid */}
           <motion.div
             variants={containerVariants}
-            className="grid grid-cols-1 sm:grid-cols-3 gap-6 text-left"
+            className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-left"
           >
             {[
               {
                 icon: (
-                  <svg className="w-6 h-6 text-tertiary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-5 h-5 text-tertiary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
                   </svg>
                 ),
@@ -120,7 +119,7 @@ export default function Home() {
               },
               {
                 icon: (
-                  <svg className="w-6 h-6 text-tertiary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-5 h-5 text-tertiary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                   </svg>
                 ),
@@ -129,7 +128,7 @@ export default function Home() {
               },
               {
                 icon: (
-                  <svg className="w-6 h-6 text-tertiary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-5 h-5 text-tertiary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                   </svg>
                 ),
@@ -140,10 +139,10 @@ export default function Home() {
               <motion.div
                 key={idx}
                 variants={itemVariants}
-                whileHover={{ y: -5 }}
-                className="bg-white/5 backdrop-blur-sm border border-white/10 p-6 rounded-2xl hover:bg-white/10 transition-colors group"
+                whileHover={{ y: -3 }}
+                className="bg-white/5 backdrop-blur-sm border border-white/10 p-4 rounded-xl hover:bg-white/10 transition-colors group"
               >
-                <div className="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center mb-4 group-hover:bg-white/20 transition-colors">
+                <div className="w-10 h-10 bg-white/10 rounded-lg flex items-center justify-center mb-3 group-hover:bg-white/20 transition-colors">
                   {feature.icon}
                 </div>
                 <h3 className="text-lg font-bold text-white mb-2">{feature.title}</h3>

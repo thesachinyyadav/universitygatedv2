@@ -68,27 +68,27 @@ export default function Navbar() {
       className="bg-primary-600/95 backdrop-blur-md text-white sticky top-0 z-50 border-b border-primary-500/50 shadow-glass"
     >
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16 md:h-20">
+        <div className="flex justify-between items-center h-14 md:h-16">
           {/* Logo and Title */}
-          <Link href="/" className="flex items-center space-x-3 group outline-none">
+          <Link href="/" className="flex items-center space-x-2 group outline-none">
             <motion.div
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="w-10 h-10 md:w-12 md:h-12 bg-white rounded-xl p-1.5 flex items-center justify-center shadow-lg ring-2 ring-primary-400/50 group-focus-visible:ring-tertiary-400"
+              className="w-8 h-8 md:w-10 md:h-10 bg-white rounded-lg p-1 flex items-center justify-center shadow-lg ring-2 ring-primary-400/50 group-focus-visible:ring-tertiary-400"
             >
               <Image
                 src="/christunifavcion.png"
                 alt="Christ University"
-                width={48}
-                height={48}
+                width={32}
+                height={32}
                 className="w-full h-full object-contain"
               />
             </motion.div>
             <div className="flex flex-col">
-              <h1 className="text-lg md:text-xl font-bold leading-none tracking-tight text-white group-hover:text-tertiary-200 transition-colors">
+              <h1 className="text-base md:text-lg font-bold leading-none tracking-tight text-white group-hover:text-tertiary-200 transition-colors">
                 Christ University
               </h1>
-              <p className="text-[10px] md:text-xs text-primary-200 font-medium tracking-wider uppercase mt-1">
+              <p className="text-[9px] md:text-[10px] text-primary-200 font-medium tracking-wider uppercase mt-0.5">
                 Gated Access Portal
               </p>
             </div>
@@ -124,8 +124,8 @@ export default function Navbar() {
                   whileTap={{ scale: 0.98 }}
                   onClick={() => setShowLoginDropdown(!showLoginDropdown)}
                   className={`px-6 py-2.5 rounded-lg transition-all font-semibold shadow-lg flex items-center space-x-2 ${showLoginDropdown
-                      ? 'bg-white text-primary-700 ring-2 ring-primary-300'
-                      : 'bg-tertiary-600 hover:bg-tertiary-500 text-white'
+                    ? 'bg-white text-primary-700 ring-2 ring-primary-300'
+                    : 'bg-tertiary-600 hover:bg-tertiary-500 text-white'
                     }`}
                 >
                   <span>Login Portal</span>

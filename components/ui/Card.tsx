@@ -26,12 +26,12 @@ export default function Card({
 }: CardProps) {
   const variantStyles = {
     default: 'card',
-    bordered: 'card border-2 border-slate-200 shadow-none',
-    elevated: 'card shadow-lg border-transparent',
-    glass: 'glass rounded-xl p-5 border-white/40' // New glassmorphism variant
+    bordered: 'card border border-slate-200 shadow-none',
+    elevated: 'card shadow-md border-transparent',
+    glass: 'glass rounded-xl p-3 sm:p-4 border-white/40' // New glassmorphism variant
   };
 
-  const hoverStyles = hoverable || onClick ? 'cursor-pointer hover:shadow-lg hover:-translate-y-1 transition-all duration-300' : '';
+  const hoverStyles = hoverable || onClick ? 'cursor-pointer hover:shadow-md hover:-translate-y-0.5 transition-all duration-300' : '';
 
   return (
     <motion.div
@@ -42,19 +42,19 @@ export default function Card({
       transition={{ duration: 0.4, ease: "easeOut" }}
     >
       {(title || subtitle || headerAction) && (
-        <div className="flex items-start justify-between mb-4 pb-4 border-b border-gray-100/50">
+        <div className="flex items-start justify-between mb-2 pb-2 border-b border-gray-100/50">
           <div className="flex-1">
             {title && (
-              <h3 className="text-lg md:text-xl font-bold text-slate-800 mb-0.5">
+              <h3 className="text-base font-bold text-slate-800 mb-0.5">
                 {title}
               </h3>
             )}
             {subtitle && (
-              <p className="text-sm text-slate-500">{subtitle}</p>
+              <p className="text-xs text-slate-500">{subtitle}</p>
             )}
           </div>
           {headerAction && (
-            <div className="ml-4">{headerAction}</div>
+            <div className="ml-2">{headerAction}</div>
           )}
         </div>
       )}
@@ -62,7 +62,7 @@ export default function Card({
       <div>{children}</div>
 
       {footer && (
-        <div className="mt-5 pt-4 border-t border-gray-100/50">
+        <div className="mt-3 pt-2 border-t border-gray-100/50">
           {footer}
         </div>
       )}
@@ -105,13 +105,13 @@ export function QuickActionCard({
         </div>
       )}
 
-      <div className="flex flex-col items-center text-center p-2">
-        <div className="w-14 h-14 bg-primary-50 rounded-2xl flex items-center justify-center mb-4 text-primary-600 group-hover:bg-primary-600 group-hover:text-white transition-colors duration-300">
+      <div className="flex flex-col items-center text-center p-1">
+        <div className="w-10 h-10 bg-primary-50 rounded-xl flex items-center justify-center mb-2 text-primary-600 group-hover:bg-primary-600 group-hover:text-white transition-colors duration-300">
           {icon}
         </div>
-        <h4 className="font-bold text-slate-800 mb-1.5 text-base">{title}</h4>
+        <h4 className="font-bold text-slate-800 mb-1 text-sm">{title}</h4>
         {description && (
-          <p className="text-sm text-slate-500 leading-snug">{description}</p>
+          <p className="text-xs text-slate-500 leading-snug">{description}</p>
         )}
       </div>
     </motion.div>
@@ -138,8 +138,8 @@ export function StatsCard({
     <div className={`card ${className}`}>
       <div className="flex items-center justify-between">
         <div className="flex-1">
-          <p className="text-sm font-medium text-slate-500 mb-1">{title}</p>
-          <h3 className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">
+          <p className="text-xs font-medium text-slate-500 mb-0.5">{title}</p>
+          <h3 className="text-xl md:text-2xl font-bold text-slate-900 tracking-tight">
             {value}
           </h3>
           {change && (

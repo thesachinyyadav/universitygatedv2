@@ -148,7 +148,7 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary-600 via-primary-700 to-primary-800 flex items-center justify-center px-3 sm:px-4 py-6 sm:py-8 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-primary-600 via-primary-700 to-primary-800 flex items-center justify-center px-4 py-4 relative overflow-hidden">
       {/* Background Decorative Elements */}
       <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0 pointer-events-none">
         <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary-500/20 rounded-full blur-[100px] animate-pulse" />
@@ -157,19 +157,19 @@ export default function Login() {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="w-full max-w-md"
+        className="w-full max-w-sm"
       >
         <Card className="shadow-2xl">
           {/* Logo and Header */}
-          <div className="text-center mb-6 sm:mb-8">
-            <div className="mb-4 sm:mb-6 flex justify-center">
-              <div className="bg-white p-2 rounded-lg">
+          <div className="text-center mb-4 sm:mb-6">
+            <div className="mb-3 sm:mb-4 flex justify-center">
+              <div className="bg-white p-1.5 rounded-lg">
                 <Image
                   src="/christunilogo.png"
                   alt="Christ University"
-                  width={160}
-                  height={50}
-                  className="w-32 h-auto sm:w-40 sm:h-auto object-contain"
+                  width={140}
+                  height={42}
+                  className="w-24 h-auto sm:w-32 sm:h-auto object-contain"
                   priority
                 />
               </div>
@@ -179,20 +179,20 @@ export default function Login() {
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               transition={{ delay: 0.2, type: 'spring' }}
-              className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 mx-auto bg-primary-600 rounded-xl sm:rounded-2xl flex items-center justify-center mb-3 sm:mb-4 shadow-lg text-white"
+              className="w-10 h-10 sm:w-12 sm:h-12 mx-auto bg-primary-600 rounded-lg sm:rounded-xl flex items-center justify-center mb-2 sm:mb-3 shadow-lg text-white"
             >
               {getRoleIcon()}
             </motion.div>
 
-            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-800 mb-1 sm:mb-2">
+            <h1 className="text-lg sm:text-xl font-bold text-gray-800 mb-0.5 sm:mb-1">
               {getRoleTitle()} Login
             </h1>
-            <p className="text-gray-600 text-xs sm:text-sm md:text-base">
+            <p className="text-gray-600 text-[10px] sm:text-xs">
               Enter your credentials to access the system
             </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
+          <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
             <Input
               label="Username"
               name="username"
@@ -228,7 +228,7 @@ export default function Login() {
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-[42px] text-gray-400 hover:text-gray-600 transition-colors"
+                className="absolute right-3 top-[34px] text-gray-400 hover:text-gray-600 transition-colors"
               >
                 {showPassword ? (
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

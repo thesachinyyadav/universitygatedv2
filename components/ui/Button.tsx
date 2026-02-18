@@ -44,10 +44,10 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     };
 
     const sizeStyles = {
-      sm: 'px-3 py-1.5 text-sm',
-      md: 'px-5 py-2.5 text-base',
-      lg: 'px-8 py-3.5 text-lg',
-      xl: 'px-10 py-4 text-xl font-bold'
+      sm: 'px-2 py-1 text-xs',
+      md: 'px-3 py-1.5 text-sm',
+      lg: 'px-5 py-2 text-base',
+      xl: 'px-6 py-2.5 text-lg font-bold'
     };
 
     const widthStyle = fullWidth ? 'w-full' : '';

@@ -115,7 +115,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
               {error}
             </motion.p>
           ) : helperText ? (
-            <p className="mt-1.5 text-xs text-slate-500 ml-1">{helperText}</p>
+            <p className="mt-0.5 text-[10px] text-slate-500 ml-1">{helperText}</p>
           ) : null}
         </AnimatePresence>
       </div>
