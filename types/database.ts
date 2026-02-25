@@ -62,6 +62,8 @@ export interface EventRequest {
   rejection_reason?: string;
   approved_by?: string;
   approved_at?: string;
+  source?: string;
+  socio_event_id?: string;
   created_at: string;
   updated_at: string;
 }

@@ -16,6 +16,8 @@ interface EventRequest {
   max_capacity: number;
   status: 'pending' | 'approved' | 'rejected';
   rejection_reason?: string;
+  source?: string;
+  socio_event_id?: string;
   created_at: string;
 }
 
@@ -370,7 +372,14 @@ export default function CSODashboard() {
                       >
                         <div className="flex justify-between items-start mb-4">
                           <div>
-                            <h4 className="text-xl font-bold text-gray-800">{request.event_name}</h4>
+                            <h4 className="text-xl font-bold text-gray-800">
+                              {request.event_name}
+                              {request.source === 'socio' && (
+                                <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800 border border-blue-200">
+                                  SOCIO Event
+                                </span>
+                              )}
+                            </h4>
                             <p className="text-sm text-gray-600">{request.department}</p>
                           </div>
                           <span className="px-4 py-2 rounded-full text-sm font-bold bg-yellow-600 text-white">
@@ -471,7 +480,14 @@ export default function CSODashboard() {
                       }`}
                     >
                       <div className="flex justify-between items-start mb-2">
-                        <h4 className="font-bold text-gray-800">{request.event_name}</h4>
+                        <h4 className="font-bold text-gray-800">
+                          {request.event_name}
+                          {request.source === 'socio' && (
+                            <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800 border border-blue-200">
+                              SOCIO Event
+                            </span>
+                          )}
+                        </h4>
                         <span
                           className={`px-3 py-1 rounded-full text-xs font-bold ${
                             request.status === 'approved'
