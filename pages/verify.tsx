@@ -35,7 +35,7 @@ export default function VerifyPage() {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 sm:h-16 sm:w-16 border-b-2 border-maroon-600 mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-12 w-12 sm:h-16 sm:w-16 border-b-2 border-primary-700 mx-auto mb-4"></div>
           <p className="text-gray-600 text-sm sm:text-base">Verifying access...</p>
         </div>
       </div>
@@ -151,7 +151,7 @@ export default function VerifyPage() {
               QR code invalid or access revoked
             </p>
             <div className="bg-white p-2 sm:p-3 rounded-lg text-xs text-gray-600 flex items-start space-x-2">
-              <svg className="w-4 h-4 text-yellow-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-4 h-4 text-tertiary-700 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
               </svg>
               <p>Contact organiser if error</p>

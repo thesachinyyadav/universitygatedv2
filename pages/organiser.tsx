@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { motion } from 'framer-motion';
 import QRGenerator from '@/components/QRGenerator';
+import { Pagination } from '@/components/ui';
 
 interface EventRequest {
   id: string;
@@ -31,6 +32,7 @@ export default function OrganiserDashboard() {
   const [generatedVisitors, setGeneratedVisitors] = useState<any[]>([]);
   const [currentVisitorIndex, setCurrentVisitorIndex] = useState(0);
   const [bulkProgress, setBulkProgress] = useState({ current: 0, total: 0 });
+  const [currentRequestPage, setCurrentRequestPage] = useState(1);
 
   // Form state for event request
   const [formData, setFormData] = useState({
@@ -166,13 +168,6 @@ export default function OrganiserDashboard() {
       return;
     }
 
-    console.log('[BULK QR] Selected event:', {
-      id: selectedEvent.id,
-      name: selectedEvent.event_name,
-      date_from: selectedEvent.date_from,
-      date_to: selectedEvent.date_to
-    });
-
     // Validate at least one visitor with name
     const validVisitors = bulkFormData.visitors.filter(v => v.name.trim());
     if (validVisitors.length === 0) {
@@ -185,14 +180,11 @@ export default function OrganiserDashboard() {
       const results = [];
       const errors = [];
 
-      console.log(`[BULK QR] Starting bulk registration for ${validVisitors.length} visitors...`);
       setBulkProgress({ current: 0, total: validVisitors.length });
 
       for (let i = 0; i < validVisitors.length; i++) {
         const visitor = validVisitors[i];
         setBulkProgress({ current: i + 1, total: validVisitors.length });
-        console.log(`[BULK QR] Registering visitor ${i + 1}/${validVisitors.length}:`, visitor.name);
-
         try {
           const payload = {
             name: visitor.name,
@@ -206,8 +198,6 @@ export default function OrganiserDashboard() {
             purpose: `${visitor.category === 'speaker' ? 'Speaker' : 'VIP Guest'} for ${selectedEvent.event_name}`,
           };
           
-          console.log(`[BULK QR] Payload for ${visitor.name}:`, payload);
-          
           const response = await fetch('/api/registerVisitor', {
             method: 'POST',
             headers: {
@@ -219,7 +209,6 @@ export default function OrganiserDashboard() {
           const data = await response.json();
           
           if (response.ok && data.visitor) {
-            console.log(`[BULK QR] ✓ Registered:`, data.visitor.id);
             results.push(data.visitor);
           } else {
             console.error(`[BULK QR] ✗ Failed:`, data.error);
@@ -230,8 +219,6 @@ export default function OrganiserDashboard() {
           errors.push(`${visitor.name}: Network error`);
         }
       }
-
-      console.log(`[BULK QR] Complete. Success: ${results.length}, Failed: ${errors.length}`);
 
       if (results.length > 0) {
         setGeneratedVisitors(results);
@@ -248,7 +235,7 @@ export default function OrganiserDashboard() {
       }
 
       if (errors.length > 0 && results.length > 0) {
-        console.warn('[BULK QR] Partial failures:', errors);
+        setErrorMessage(`Some entries failed: ${errors.slice(0, 2).join(', ')}${errors.length > 2 ? ` and ${errors.length - 2} more` : ''}`);
       }
     } catch (error) {
       console.error('[BULK QR] Unexpected error:', error);
@@ -271,6 +258,18 @@ export default function OrganiserDashboard() {
   };
 
   const approvedEvents = eventRequests.filter(r => r.status === 'approved');
+  const requestsPerPage = 6;
+  const totalRequestPages = Math.max(1, Math.ceil(eventRequests.length / requestsPerPage));
+  const paginatedEventRequests = eventRequests.slice(
+    (currentRequestPage - 1) * requestsPerPage,
+    currentRequestPage * requestsPerPage
+  );
+
+  useEffect(() => {
+    if (currentRequestPage > totalRequestPages) {
+      setCurrentRequestPage(totalRequestPages);
+    }
+  }, [currentRequestPage, totalRequestPages]);
 
   // Show QR Generator if there are generated visitors
   if (generatedVisitors.length > 0 && currentVisitorIndex < generatedVisitors.length) {
@@ -358,13 +357,13 @@ export default function OrganiserDashboard() {
                 </div>
               </div>
               
-              <div className="flex flex-col sm:flex-row items-center sm:space-x-1.5 bg-white px-2 sm:px-3 py-2 rounded-lg shadow-sm border border-yellow-200">
-                <svg className="w-4 h-4 text-yellow-600 animate-pulse mb-1 sm:mb-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="flex flex-col sm:flex-row items-center sm:space-x-1.5 bg-white px-2 sm:px-3 py-2 rounded-lg shadow-sm border border-tertiary-200">
+                <svg className="w-4 h-4 text-tertiary-700 animate-pulse mb-1 sm:mb-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
                 <div className="text-center">
                   <p className="text-xs text-gray-500 font-medium">Pending</p>
-                  <p className="text-lg font-bold text-yellow-600">{stats.pending}</p>
+                  <p className="text-lg font-bold text-tertiary-700">{stats.pending}</p>
                 </div>
               </div>
               
@@ -649,7 +648,7 @@ export default function OrganiserDashboard() {
                 </div>
               ) : (
                 <div className="space-y-4">
-                  {eventRequests.map((request) => (
+                  {paginatedEventRequests.map((request) => (
                     <motion.div
                       key={request.id}
                       initial={{ opacity: 0, y: 20 }}
@@ -659,7 +658,7 @@ export default function OrganiserDashboard() {
                           ? 'border-green-200 bg-green-50'
                           : request.status === 'rejected'
                           ? 'border-red-200 bg-red-50'
-                          : 'border-yellow-200 bg-yellow-50'
+                            : 'border-tertiary-200 bg-tertiary-50'
                       }`}
                     >
                       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3 mb-4">
@@ -673,7 +672,7 @@ export default function OrganiserDashboard() {
                               ? 'bg-green-600 text-white'
                               : request.status === 'rejected'
                               ? 'bg-red-600 text-white'
-                              : 'bg-yellow-600 text-white'
+                                : 'bg-tertiary-700 text-white'
                           }`}
                         >
                           {request.status.toUpperCase()}
@@ -743,17 +742,24 @@ export default function OrganiserDashboard() {
                       )}
 
                       {request.status === 'pending' && (
-                        <div className="mt-4 p-3 bg-yellow-100 rounded-lg flex items-center space-x-2 text-xs sm:text-sm">
-                          <svg className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-600 animate-pulse flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div className="mt-4 p-3 bg-tertiary-100 rounded-lg flex items-center space-x-2 text-xs sm:text-sm">
+                          <svg className="w-4 h-4 sm:w-5 sm:h-5 text-tertiary-700 animate-pulse flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                           </svg>
-                          <p className="text-yellow-700">
+                          <p className="text-tertiary-800">
                             Waiting for CSO approval...
                           </p>
                         </div>
                       )}
                     </motion.div>
                   ))}
+
+                  <Pagination
+                    currentPage={currentRequestPage}
+                    totalPages={totalRequestPages}
+                    onPageChange={setCurrentRequestPage}
+                    className="pt-2"
+                  />
                 </div>
               )}
             </div>
@@ -874,7 +880,7 @@ export default function OrganiserDashboard() {
                       <p className="font-semibold">About Bulk QR Generation:</p>
                       <ul className="mt-1 space-y-1 list-disc list-inside">
                         <li>Speakers get Amber/Orange QR codes</li>
-                        <li>VIPs get Maroon/Red QR codes</li>
+                        <li>VIPs get Gold-accent QR codes</li>
                         <li>You can download each QR individually</li>
                       </ul>
                     </div>

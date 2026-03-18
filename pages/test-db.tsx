@@ -21,13 +21,9 @@ export default function TestDB() {
 
   async function testConnection() {
     try {
-      console.log('Testing Supabase connection...');
-      
       const { data, error: queryError } = await supabase
         .from('users')
         .select('*');
-
-      console.log('Query result:', { data, queryError });
 
       if (queryError) {
         setError(`Database Error: ${queryError.message}`);
@@ -44,7 +40,6 @@ export default function TestDB() {
 
       setUsers(data);
       setStatus('✅ Connection Successful!');
-      console.log('Found users:', data);
     } catch (err: any) {
       setError(`Exception: ${err.message}`);
       setStatus('❌ Connection Failed');

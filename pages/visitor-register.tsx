@@ -131,7 +131,7 @@ export default function VisitorRegister() {
           className="card p-3 sm:p-4 md:p-6"
         >
           <div className="text-center mb-3 sm:mb-4">
-            <h1 className="text-xl sm:text-2xl font-bold text-maroon-600 mb-1">
+            <h1 className="text-xl sm:text-2xl font-bold text-primary-700 mb-1">
               Visitor Registration
             </h1>
             <p className="text-gray-600 text-xs sm:text-sm">

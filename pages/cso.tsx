@@ -3,6 +3,7 @@ import { useRouter } from 'next/router';
 import { motion } from 'framer-motion';
 import { supabase } from '@/lib/supabaseClient';
 import type { Visitor } from '@/types/database';
+import { Pagination } from '@/components/ui';
 
 interface EventRequest {
   id: string;
@@ -61,6 +62,9 @@ export default function CSODashboard() {
   const [rejectionReason, setRejectionReason] = useState<{ [key: string]: string }>({});
   const [activeTab, setActiveTab] = useState<'events' | 'visitors'>('events');
   const [selectedEventFilter, setSelectedEventFilter] = useState<string>('');
+  const [eventPage, setEventPage] = useState(1);
+  const [historyPage, setHistoryPage] = useState(1);
+  const [visitorPage, setVisitorPage] = useState(1);
 
   useEffect(() => {
     const userData = localStorage.getItem('user');
@@ -221,10 +225,6 @@ export default function CSODashboard() {
     link.click();
   };
 
-  if (!user) {
-    return null;
-  }
-
   const unreadNotificationCount = notifications.filter((item) => !item.is_read).length;
 
   const stats = {
@@ -242,9 +242,6 @@ export default function CSODashboard() {
 
   const pendingRequests = eventRequests.filter((request) => request.status === 'pending');
   const historyRequests = eventRequests.filter((request) => request.status !== 'pending');
-
-  const uniqueEvents = Array.from(new Set(visitors.map((visitor) => visitor.event_name).filter(Boolean))) as string[];
-
   const filteredVisitors = visitors.filter((visitor) => {
     const query = searchTerm.toLowerCase();
     const matchesSearch =
@@ -256,6 +253,40 @@ export default function CSODashboard() {
     const matchesEvent = !selectedEventFilter || visitor.event_name === selectedEventFilter;
     return matchesSearch && matchesEvent;
   });
+
+  const eventPageSize = 4;
+  const historyPageSize = 6;
+  const visitorPageSize = 10;
+
+  const totalEventPages = Math.max(1, Math.ceil(pendingRequests.length / eventPageSize));
+  const totalHistoryPages = Math.max(1, Math.ceil(historyRequests.length / historyPageSize));
+  const totalVisitorPages = Math.max(1, Math.ceil(filteredVisitors.length / visitorPageSize));
+
+  const paginatedPendingRequests = pendingRequests.slice((eventPage - 1) * eventPageSize, eventPage * eventPageSize);
+  const paginatedHistoryRequests = historyRequests.slice((historyPage - 1) * historyPageSize, historyPage * historyPageSize);
+  const paginatedVisitors = filteredVisitors.slice((visitorPage - 1) * visitorPageSize, visitorPage * visitorPageSize);
+
+  const uniqueEvents = Array.from(new Set(visitors.map((visitor) => visitor.event_name).filter(Boolean))) as string[];
+
+  useEffect(() => {
+    setVisitorPage(1);
+  }, [searchTerm, selectedEventFilter]);
+
+  useEffect(() => {
+    if (eventPage > totalEventPages) setEventPage(totalEventPages);
+  }, [eventPage, totalEventPages]);
+
+  useEffect(() => {
+    if (historyPage > totalHistoryPages) setHistoryPage(totalHistoryPages);
+  }, [historyPage, totalHistoryPages]);
+
+  useEffect(() => {
+    if (visitorPage > totalVisitorPages) setVisitorPage(totalVisitorPages);
+  }, [visitorPage, totalVisitorPages]);
+
+  if (!user) {
+    return null;
+  }
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900">
@@ -425,7 +456,7 @@ export default function CSODashboard() {
                 </div>
               ) : (
                 <div className="space-y-4">
-                  {pendingRequests.map((request) => (
+                  {paginatedPendingRequests.map((request) => (
                     <div key={request.id} className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
                       <div className="p-4 sm:p-5 border-b border-slate-100 flex items-start justify-between gap-3">
                         <div>
@@ -477,6 +508,8 @@ export default function CSODashboard() {
                       </div>
                     </div>
                   ))}
+
+                  <Pagination currentPage={eventPage} totalPages={totalEventPages} onPageChange={setEventPage} className="pt-2" />
                 </div>
               )}
 
@@ -486,7 +519,7 @@ export default function CSODashboard() {
                   <p className="text-sm text-slate-400">No processed requests yet.</p>
                 ) : (
                   <div className="grid md:grid-cols-2 gap-3">
-                    {historyRequests.map((request) => (
+                    {paginatedHistoryRequests.map((request) => (
                       <div key={request.id} className="border border-slate-200 rounded-lg p-3">
                         <div className="flex items-start justify-between gap-2">
                           <div>
@@ -505,6 +538,7 @@ export default function CSODashboard() {
                     ))}
                   </div>
                 )}
+                <Pagination currentPage={historyPage} totalPages={totalHistoryPages} onPageChange={setHistoryPage} className="pt-4" />
               </div>
             </motion.section>
           )}
@@ -568,7 +602,7 @@ export default function CSODashboard() {
               ) : (
                 <>
                   <div className="lg:hidden space-y-3">
-                    {filteredVisitors.map((visitor) => (
+                    {paginatedVisitors.map((visitor) => (
                       <div key={visitor.id} className="bg-white border border-slate-200 rounded-xl p-3.5 shadow-sm">
                         <div className="flex items-center justify-between gap-3">
                           <div className="flex items-center gap-3 min-w-0">
@@ -611,6 +645,7 @@ export default function CSODashboard() {
                         </div>
                       </div>
                     ))}
+                    <Pagination currentPage={visitorPage} totalPages={totalVisitorPages} onPageChange={setVisitorPage} className="pt-1" />
                   </div>
 
                   <div className="hidden lg:block bg-white rounded-xl border border-slate-200 overflow-hidden">
@@ -627,7 +662,7 @@ export default function CSODashboard() {
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-slate-100">
-                        {filteredVisitors.map((visitor) => (
+                        {paginatedVisitors.map((visitor) => (
                           <tr key={visitor.id} className="hover:bg-slate-50">
                             <td className="px-4 py-3">
                               <div className="flex items-center gap-3">
@@ -680,6 +715,9 @@ export default function CSODashboard() {
                         ))}
                       </tbody>
                     </table>
+                    <div className="p-4 border-t border-slate-100">
+                      <Pagination currentPage={visitorPage} totalPages={totalVisitorPages} onPageChange={setVisitorPage} />
+                    </div>
                   </div>
                 </>
               )}

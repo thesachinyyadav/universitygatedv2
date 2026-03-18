@@ -8,4 +8,5 @@ export { default as Card, QuickActionCard, StatsCard } from './Card';
 export { default as Modal, ConfirmModal } from './Modal';
 export { default as Badge, StatusBadge, CategoryBadge } from './Badge';
 export { default as Skeleton, CardSkeleton, TableRowSkeleton, ListItemSkeleton } from './Skeleton';
+export { default as Pagination } from './Pagination';
 export { useToast, ToastProvider } from './Toast';

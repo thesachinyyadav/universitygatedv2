@@ -3,6 +3,7 @@ import { useRouter } from 'next/router';
 import { motion, AnimatePresence } from 'framer-motion';
 import QRScanner from '@/components/QRScanner';
 import ManualEntry from '@/components/ManualEntry';
+import { Pagination } from '@/components/ui';
 import type { Visitor } from '@/types/database';
 
 interface ScanHistoryItem {
@@ -28,6 +29,7 @@ export default function GuardDashboard() {
   } | null>(null);
   const [isVerifying, setIsVerifying] = useState(false);
   const [scanHistory, setScanHistory] = useState<ScanHistoryItem[]>([]);
+  const [scanPage, setScanPage] = useState(1);
   const [selectedVisitor, setSelectedVisitor] = useState<Partial<Visitor> | null>(null);
   const [notification, setNotification] = useState<NotificationProps | null>(null);
 
@@ -51,12 +53,9 @@ export default function GuardDashboard() {
 
     try {
       const guardUsername = user?.username || 'unknown';
-      console.log(`[GUARD] Verifying visitor ${visitorId} as guard: ${guardUsername}`);
       
       const response = await fetch(`/api/verifyVisitor?id=${encodeURIComponent(visitorId)}&guard_username=${encodeURIComponent(guardUsername)}`);
       const data = await response.json();
-      
-      console.log('[GUARD] Verification result:', data);
 
       setVerificationResult(data);
       
@@ -79,6 +78,7 @@ export default function GuardDashboard() {
         verified: data.verified,
         visitor: data.visitor
       };
+      setScanPage(1);
       setScanHistory(prev => [historyItem, ...prev]); // Add to top of list
       
       // Auto-clear result after 3 seconds for continuous scanning
@@ -105,6 +105,7 @@ export default function GuardDashboard() {
         timestamp: new Date(),
         verified: false
       };
+      setScanPage(1);
       setScanHistory(prev => [historyItem, ...prev]);
       
       // Auto-clear error after 3 seconds
@@ -117,8 +118,13 @@ export default function GuardDashboard() {
   };
 
   const clearHistory = () => {
+    setScanPage(1);
     setScanHistory([]);
   };
+
+  const scanPageSize = 9;
+  const totalScanPages = Math.max(1, Math.ceil(scanHistory.length / scanPageSize));
+  const paginatedScanHistory = scanHistory.slice((scanPage - 1) * scanPageSize, scanPage * scanPageSize);
 
   if (!user) {
     return null;
@@ -177,9 +183,10 @@ export default function GuardDashboard() {
                 <p className="text-xs">No scans yet</p>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 max-h-[400px] overflow-y-auto">
+              <div className="space-y-3">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
                 <AnimatePresence>
-                  {scanHistory.map((item, index) => (
+                  {paginatedScanHistory.map((item) => (
                     <motion.div
                       key={`${item.id}-${item.timestamp.getTime()}`}
                       initial={{ opacity: 0, x: -20 }}
@@ -244,6 +251,12 @@ export default function GuardDashboard() {
                     </motion.div>
                   ))}
                 </AnimatePresence>
+                </div>
+                <Pagination
+                  currentPage={scanPage}
+                  totalPages={totalScanPages}
+                  onPageChange={setScanPage}
+                />
               </div>
             )}
           </div>
@@ -259,7 +272,7 @@ export default function GuardDashboard() {
 
               {isVerifying && (
                 <div className="text-center py-6 sm:py-8">
-                  <div className="animate-spin rounded-full h-10 w-10 sm:h-12 sm:w-12 border-b-2 border-maroon-600 mx-auto mb-3"></div>
+                  <div className="animate-spin rounded-full h-10 w-10 sm:h-12 sm:w-12 border-b-2 border-primary-600 mx-auto mb-3"></div>
                   <p className="text-gray-600 text-xs sm:text-sm">Verifying...</p>
                 </div>
               )}
@@ -479,7 +492,7 @@ export default function GuardDashboard() {
                       selectedVisitor.status === 'approved' 
                         ? 'bg-green-100 text-green-700'
                         : selectedVisitor.status === 'pending'
-                        ? 'bg-yellow-100 text-yellow-700'
+                        ? 'bg-tertiary-100 text-tertiary-700'
                         : 'bg-red-100 text-red-700'
                     }`}>
                       {selectedVisitor.status?.toUpperCase()}
