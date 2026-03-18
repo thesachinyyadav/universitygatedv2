@@ -30,6 +30,25 @@ interface Notification {
   related_id?: string;
 }
 
+const statusBadgeMap: Record<string, string> = {
+  approved: 'bg-green-100 text-green-700',
+  pending: 'bg-amber-100 text-amber-700',
+  revoked: 'bg-red-100 text-red-700',
+  rejected: 'bg-red-100 text-red-700',
+};
+
+function getInitials(value: string) {
+  if (!value) return 'NA';
+  const parts = value.trim().split(' ').filter(Boolean);
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
+}
+
+function formatDateRange(from?: string, to?: string) {
+  if (!from || !to) return 'N/A';
+  return `${new Date(from).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })} - ${new Date(to).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}`;
+}
+
 export default function CSODashboard() {
   const router = useRouter();
   const [user, setUser] = useState<any>(null);
@@ -49,11 +68,13 @@ export default function CSODashboard() {
       router.push('/login?role=cso');
       return;
     }
+
     const parsedUser = JSON.parse(userData);
     if (parsedUser.role !== 'cso') {
       router.push('/');
       return;
     }
+
     setUser(parsedUser);
     fetchVisitors();
     fetchEventRequests();
@@ -62,7 +83,6 @@ export default function CSODashboard() {
 
   const fetchEventRequests = async () => {
     try {
-      // CSO needs to fetch ALL event requests, not filtered by organiser
       const { data: requests, error } = await supabase
         .from('event_requests')
         .select('*')
@@ -72,7 +92,6 @@ export default function CSODashboard() {
         console.error('[CSO] Error fetching event requests:', error);
       } else {
         setEventRequests(requests || []);
-        console.log('[CSO] Fetched event requests:', requests?.length || 0);
       }
     } catch (error) {
       console.error('[CSO] Error fetching event requests:', error);
@@ -87,7 +106,7 @@ export default function CSODashboard() {
         setNotifications(data.notifications || []);
       }
     } catch (error) {
-      console.error('Error fetching notifications:', error);
+      console.error('[CSO] Error fetching notifications:', error);
     }
   };
 
@@ -97,7 +116,7 @@ export default function CSODashboard() {
       const data = await response.json();
       setVisitors(data.visitors || []);
     } catch (error) {
-      console.error('Error fetching visitors:', error);
+      console.error('[CSO] Error fetching visitors:', error);
     } finally {
       setIsLoading(false);
     }
@@ -120,7 +139,25 @@ export default function CSODashboard() {
         fetchVisitors();
       }
     } catch (error) {
-      console.error('Error updating status:', error);
+      console.error('[CSO] Error updating status:', error);
+    }
+  };
+
+  const markNotificationAsRead = async (relatedId: string) => {
+    try {
+      const notification = notifications.find((item) => item.related_id === relatedId);
+      if (notification) {
+        const { error } = await supabase
+          .from('notifications')
+          .update({ is_read: true })
+          .eq('id', notification.id);
+
+        if (error) {
+          console.error('[CSO] Error marking notification as read:', error);
+        }
+      }
+    } catch (error) {
+      console.error('[CSO] Error marking notification as read:', error);
     }
   };
 
@@ -141,62 +178,39 @@ export default function CSODashboard() {
       });
 
       if (response.ok) {
-        // Mark related notification as read
         await markNotificationAsRead(requestId);
-        
         fetchEventRequests();
         fetchNotifications(user.id);
-        setRejectionReason(prev => {
+        setRejectionReason((prev) => {
           const newState = { ...prev };
           delete newState[requestId];
           return newState;
         });
       }
     } catch (error) {
-      console.error('Error approving/rejecting event:', error);
+      console.error('[CSO] Error approving/rejecting event:', error);
     } finally {
       setIsApprovingEvent(null);
     }
   };
 
-  const markNotificationAsRead = async (relatedId: string) => {
-    try {
-      // Find notification related to this event request
-      const notification = notifications.find(n => n.related_id === relatedId);
-      if (notification) {
-        const { error } = await supabase
-          .from('notifications')
-          .update({ is_read: true })
-          .eq('id', notification.id);
-        
-        if (error) {
-          console.error('[CSO] Error marking notification as read:', error);
-        }
-      }
-    } catch (error) {
-      console.error('[CSO] Error marking notification as read:', error);
-    }
-  };
-
   const exportToCSV = () => {
     const headers = ['Name', 'Email', 'Phone', 'Event', 'Date', 'Status', 'Created'];
-    const rows = visitors.map(v => [
-      v.name,
-      v.email || '',
-      v.phone || '',
-      v.event_name || '',
-      (v.date_of_visit && v.date_of_visit !== '') 
-        ? new Date(v.date_of_visit).toLocaleDateString() 
-        : (v.date_of_visit_from && v.date_of_visit_to) 
-          ? `${new Date(v.date_of_visit_from).toLocaleDateString()} - ${new Date(v.date_of_visit_to).toLocaleDateString()}` 
-          : 'N/A',
-      v.status,
-      new Date(v.created_at).toLocaleString(),
+    const rows = visitors.map((visitor) => [
+      visitor.name,
+      visitor.email || '',
+      visitor.phone || '',
+      visitor.event_name || '',
+      visitor.date_of_visit
+        ? new Date(visitor.date_of_visit).toLocaleDateString('en-IN')
+        : formatDateRange(visitor.date_of_visit_from, visitor.date_of_visit_to),
+      visitor.status,
+      new Date(visitor.created_at).toLocaleString('en-IN'),
     ]);
 
     const csvContent = [
       headers.join(','),
-      ...rows.map(row => row.map(cell => `"${cell}"`).join(',')),
+      ...rows.map((row) => row.map((cell) => `"${cell}"`).join(',')),
     ].join('\n');
 
     const blob = new Blob([csvContent], { type: 'text/csv' });
@@ -211,507 +225,497 @@ export default function CSODashboard() {
     return null;
   }
 
+  const unreadNotificationCount = notifications.filter((item) => !item.is_read).length;
+
   const stats = {
     total: visitors.length,
-    pending: visitors.filter(v => v.status === 'pending').length,
-    approved: visitors.filter(v => v.status === 'approved').length,
-    revoked: visitors.filter(v => v.status === 'revoked').length,
+    pending: visitors.filter((visitor) => visitor.status === 'pending').length,
+    approved: visitors.filter((visitor) => visitor.status === 'approved').length,
+    revoked: visitors.filter((visitor) => visitor.status === 'revoked').length,
   };
 
   const eventRequestStats = {
-    pending: eventRequests.filter(r => r.status === 'pending').length,
-    approved: eventRequests.filter(r => r.status === 'approved').length,
-    rejected: eventRequests.filter(r => r.status === 'rejected').length,
+    pending: eventRequests.filter((request) => request.status === 'pending').length,
+    approved: eventRequests.filter((request) => request.status === 'approved').length,
+    rejected: eventRequests.filter((request) => request.status === 'rejected').length,
   };
 
-  // Count actual pending requests, not unread notifications
-  const pendingRequestsCount = eventRequestStats.pending;
+  const pendingRequests = eventRequests.filter((request) => request.status === 'pending');
+  const historyRequests = eventRequests.filter((request) => request.status !== 'pending');
 
-  // Event analytics
-  const eventStats = visitors.reduce((acc, v) => {
-    if (v.event_name) {
-      acc[v.event_name] = (acc[v.event_name] || 0) + 1;
-    }
-    return acc;
-  }, {} as Record<string, number>);
+  const uniqueEvents = Array.from(new Set(visitors.map((visitor) => visitor.event_name).filter(Boolean))) as string[];
 
-  const topEvents = Object.entries(eventStats)
-    .sort(([, a], [, b]) => b - a)
-    .slice(0, 5);
+  const filteredVisitors = visitors.filter((visitor) => {
+    const query = searchTerm.toLowerCase();
+    const matchesSearch =
+      visitor.name.toLowerCase().includes(query) ||
+      visitor.email?.toLowerCase().includes(query) ||
+      visitor.event_name?.toLowerCase().includes(query) ||
+      visitor.register_number?.toLowerCase().includes(query);
 
-  const filteredVisitors = visitors.filter(v => {
-    const matchesSearch = v.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      v.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      v.event_name?.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    const matchesEvent = !selectedEventFilter || v.event_name === selectedEventFilter;
-    
+    const matchesEvent = !selectedEventFilter || visitor.event_name === selectedEventFilter;
     return matchesSearch && matchesEvent;
   });
 
   return (
-    <div className="min-h-screen bg-gray-50 py-3 sm:py-4 md:py-6 px-3 sm:px-4">
-      <div className="container mx-auto max-w-7xl">
-        <div className="mb-3 sm:mb-4">
-          <h1 className="text-base sm:text-lg md:text-xl font-bold text-primary-600 mb-1 flex items-center space-x-2">
-            <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-            </svg>
-            <span className="text-sm sm:text-base md:text-lg">CSO Dashboard</span>
-          </h1>
-          <p className="text-gray-600 text-xs sm:text-sm">
-            Welcome, <strong>{user.username}</strong> | Oversight & Analytics
-            {pendingRequestsCount > 0 && (
-              <span className="ml-2 sm:ml-3 inline-flex items-center px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-semibold bg-red-100 text-red-700">
-                {pendingRequestsCount} pending event request{pendingRequestsCount !== 1 ? 's' : ''}
-              </span>
-            )}
-          </p>
+    <div className="min-h-screen bg-slate-50 text-slate-900">
+      <aside className="hidden lg:flex fixed left-0 top-0 h-full w-72 border-r border-slate-200 bg-white flex-col z-20">
+        <div className="px-6 py-6 border-b border-slate-200">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-primary-600 text-white flex items-center justify-center">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+              </svg>
+            </div>
+            <div>
+              <h1 className="text-lg font-bold">CSO Dashboard</h1>
+              <p className="text-xs text-slate-500">Powered by SOCIO</p>
+            </div>
+          </div>
         </div>
 
-        {/* Tabs */}
-        <div className="mb-4 sm:mb-6 overflow-x-auto">
-          <div className="flex space-x-1 sm:space-x-2 border-b border-gray-200 min-w-max">
+        <nav className="p-4 space-y-2 flex-1">
+          <button
+            onClick={() => setActiveTab('events')}
+            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold transition ${
+              activeTab === 'events'
+                ? 'bg-primary-50 text-primary-700 border border-primary-100'
+                : 'text-slate-600 hover:bg-slate-100'
+            }`}
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            <span>Events</span>
+            {eventRequestStats.pending > 0 && (
+              <span className="ml-auto inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full text-[10px] font-bold bg-red-500 text-white">
+                {eventRequestStats.pending}
+              </span>
+            )}
+          </button>
+
+          <button
+            onClick={() => setActiveTab('visitors')}
+            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold transition ${
+              activeTab === 'visitors'
+                ? 'bg-primary-50 text-primary-700 border border-primary-100'
+                : 'text-slate-600 hover:bg-slate-100'
+            }`}
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0" />
+            </svg>
+            <span>Visitors</span>
+          </button>
+        </nav>
+
+        <div className="p-4 border-t border-slate-200">
+          <button
+            onClick={() => {
+              localStorage.removeItem('user');
+              router.push('/login?role=cso');
+            }}
+            className="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg text-sm font-semibold text-slate-600 hover:bg-slate-100"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+            </svg>
+            Logout
+          </button>
+        </div>
+      </aside>
+
+      <div className="lg:ml-72">
+        <header className="sticky top-0 z-10 bg-white/95 backdrop-blur border-b border-slate-200">
+          <div className="px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div className="lg:hidden w-9 h-9 rounded-lg bg-primary-600 text-white flex items-center justify-center">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                </svg>
+              </div>
+              <div>
+                <h2 className="text-base sm:text-lg font-bold leading-tight">{activeTab === 'events' ? 'Event Requests' : 'Visitor Management'}</h2>
+                <p className="text-[11px] sm:text-xs text-slate-500">Welcome, {user.username}</p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 sm:gap-3">
+              {activeTab === 'visitors' && (
+                <div className="hidden md:block relative">
+                  <svg className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-4.35-4.35m1.6-5.15a6.75 6.75 0 11-13.5 0 6.75 6.75 0 0113.5 0z" />
+                  </svg>
+                  <input
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    placeholder="Search visitors..."
+                    className="pl-9 pr-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-300"
+                  />
+                </div>
+              )}
+
+              <button className="relative p-2 rounded-full hover:bg-slate-100 transition-colors" aria-label="Notifications">
+                <svg className="w-5 h-5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V4a2 2 0 10-4 0v1.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                </svg>
+                {unreadNotificationCount > 0 && <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-red-500" />}
+              </button>
+            </div>
+          </div>
+
+          <div className="lg:hidden px-4 flex gap-6 overflow-x-auto no-scrollbar">
             <button
               onClick={() => setActiveTab('events')}
-              className={`px-3 sm:px-4 md:px-6 py-2 sm:py-3 font-semibold transition relative text-sm sm:text-base whitespace-nowrap ${
-                activeTab === 'events'
-                  ? 'text-primary-600 border-b-2 border-primary-600'
-                  : 'text-gray-600 hover:text-gray-800'
+              className={`pb-3 pt-2 border-b-2 text-sm font-semibold whitespace-nowrap ${
+                activeTab === 'events' ? 'border-primary-600 text-primary-700' : 'border-transparent text-slate-500'
               }`}
             >
-              Event Approvals
-              {pendingRequestsCount > 0 && (
-                <span className="ml-1 sm:ml-2 inline-flex items-center justify-center w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-red-500 text-white text-xs font-bold">
-                  {pendingRequestsCount}
-                </span>
-              )}
+              Events
             </button>
             <button
               onClick={() => setActiveTab('visitors')}
-              className={`px-3 sm:px-4 md:px-6 py-2 sm:py-3 font-semibold transition text-sm sm:text-base whitespace-nowrap ${
-                activeTab === 'visitors'
-                  ? 'text-primary-600 border-b-2 border-primary-600'
-                  : 'text-gray-600 hover:text-gray-800'
+              className={`pb-3 pt-2 border-b-2 text-sm font-semibold whitespace-nowrap ${
+                activeTab === 'visitors' ? 'border-primary-600 text-primary-700' : 'border-transparent text-slate-500'
               }`}
             >
-              Visitor Management
+              Visitors
             </button>
           </div>
-        </div>
+        </header>
 
-        {/* Statistics Grid */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3 mb-3 sm:mb-4">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="card bg-gradient-to-br from-blue-500 to-blue-600 text-white p-2 sm:p-3"
-          >
-            <h3 className="text-xs opacity-90 mb-0.5">Total Visitors</h3>
-            <p className="text-xl sm:text-2xl font-bold">{stats.total}</p>
-          </motion.div>
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="card bg-gradient-to-br from-yellow-500 to-yellow-600 text-white p-2 sm:p-3"
-          >
-            <h3 className="text-xs opacity-90 mb-0.5">Pending</h3>
-            <p className="text-xl sm:text-2xl font-bold">{stats.pending}</p>
-          </motion.div>
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="card bg-gradient-to-br from-green-500 to-green-600 text-white p-2 sm:p-3"
-          >
-            <h3 className="text-xs opacity-90 mb-0.5">Approved</h3>
-            <p className="text-xl sm:text-2xl font-bold">{stats.approved}</p>
-          </motion.div>
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-            className="card bg-gradient-to-br from-red-500 to-red-600 text-white p-2 sm:p-3"
-          >
-            <h3 className="text-xs opacity-90 mb-0.5">Revoked</h3>
-            <p className="text-xl sm:text-2xl font-bold">{stats.revoked}</p>
-          </motion.div>
-        </div>
+        <main className="px-4 sm:px-6 lg:px-8 py-5 pb-24 lg:pb-8 max-w-7xl">
+          <div className="grid grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-4 mb-6">
+            <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="bg-white rounded-xl border border-slate-200 p-4">
+              <p className="text-[11px] uppercase tracking-wider font-semibold text-slate-500">Total Visitors</p>
+              <p className="text-2xl font-bold mt-1">{stats.total}</p>
+            </motion.div>
 
-        {/* Event Approval Section */}
-        {activeTab === 'events' && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="space-y-6"
-          >
-            <div className="card">
-              <h3 className="text-xl font-semibold text-gray-800 mb-6">Pending Event Requests</h3>
-              
+            <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="bg-white rounded-xl border border-slate-200 p-4">
+              <p className="text-[11px] uppercase tracking-wider font-semibold text-amber-600">Pending</p>
+              <p className="text-2xl font-bold mt-1">{stats.pending}</p>
+            </motion.div>
+
+            <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="bg-white rounded-xl border border-slate-200 p-4">
+              <p className="text-[11px] uppercase tracking-wider font-semibold text-green-600">Approved</p>
+              <p className="text-2xl font-bold mt-1">{stats.approved}</p>
+            </motion.div>
+
+            <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="bg-white rounded-xl border border-slate-200 p-4">
+              <p className="text-[11px] uppercase tracking-wider font-semibold text-red-600">Revoked</p>
+              <p className="text-2xl font-bold mt-1">{stats.revoked}</p>
+            </motion.div>
+          </div>
+
+          {activeTab === 'events' && (
+            <motion.section initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg sm:text-xl font-bold">Event Requests</h3>
+                <span className="text-xs font-semibold text-slate-500">Pending: {eventRequestStats.pending} · Approved: {eventRequestStats.approved} · Rejected: {eventRequestStats.rejected}</span>
+              </div>
+
               {isLoading ? (
-                <div className="text-center py-12">
-                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
-                  <p className="text-gray-600 mt-4">Loading requests...</p>
+                <div className="bg-white rounded-xl border border-slate-200 p-12 text-center">
+                  <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary-600 mx-auto" />
+                  <p className="text-slate-500 text-sm mt-3">Loading requests...</p>
                 </div>
-              ) : eventRequests.filter(r => r.status === 'pending').length === 0 ? (
-                <div className="text-center py-12 text-gray-400">
-                  <svg className="w-16 h-16 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  <p className="text-lg">No pending event requests</p>
+              ) : pendingRequests.length === 0 ? (
+                <div className="bg-white rounded-xl border border-slate-200 p-12 text-center">
+                  <p className="text-slate-400">No pending event requests</p>
                 </div>
               ) : (
                 <div className="space-y-4">
-                  {eventRequests
-                    .filter(r => r.status === 'pending')
-                    .map((request) => (
-                      <div
-                        key={request.id}
-                        className="border-2 border-yellow-200 bg-yellow-50 rounded-lg p-6"
-                      >
-                        <div className="flex justify-between items-start mb-4">
-                          <div>
-                            <h4 className="text-xl font-bold text-gray-800">
-                              {request.event_name}
-                              {request.source === 'socio' && (
-                                <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800 border border-blue-200">
-                                  SOCIO Event
-                                </span>
-                              )}
-                            </h4>
-                            <p className="text-sm text-gray-600">{request.department}</p>
+                  {pendingRequests.map((request) => (
+                    <div key={request.id} className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
+                      <div className="p-4 sm:p-5 border-b border-slate-100 flex items-start justify-between gap-3">
+                        <div>
+                          <h4 className="font-bold text-lg leading-tight">{request.event_name}</h4>
+                          <p className="text-sm text-slate-500 mt-1">{request.department}</p>
+                        </div>
+                        <span className="text-[10px] uppercase tracking-widest font-bold bg-amber-100 text-amber-700 px-2 py-1 rounded">Pending</span>
+                      </div>
+
+                      <div className="p-4 sm:p-5 space-y-3">
+                        {request.event_description && <p className="text-sm text-slate-600">{request.event_description}</p>}
+
+                        <div className="grid sm:grid-cols-2 gap-2 text-sm text-slate-600">
+                          <p>📅 {formatDateRange(request.date_from, request.date_to)}</p>
+                          <p>👥 Expected: {request.expected_students || 'N/A'}</p>
+                          <p>🏢 Capacity: {request.max_capacity || 'N/A'}</p>
+                          <p>🕒 Submitted: {new Date(request.created_at).toLocaleDateString('en-IN')}</p>
+                        </div>
+
+                        <div className="pt-3 border-t border-slate-100">
+                          <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">
+                            Rejection Reason
+                          </label>
+                          <textarea
+                            value={rejectionReason[request.id] || ''}
+                            onChange={(e) => setRejectionReason((prev) => ({ ...prev, [request.id]: e.target.value }))}
+                            className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-300"
+                            placeholder="Enter reason if rejecting this request"
+                            rows={2}
+                          />
+
+                          <div className="mt-3 flex gap-2">
+                            <button
+                              onClick={() => handleApproveEvent(request.id, true)}
+                              disabled={isApprovingEvent === request.id}
+                              className="flex-1 bg-primary-600 hover:bg-primary-700 text-white rounded-lg py-2.5 text-sm font-bold disabled:opacity-50"
+                            >
+                              {isApprovingEvent === request.id ? 'Processing...' : 'Approve'}
+                            </button>
+                            <button
+                              onClick={() => handleApproveEvent(request.id, false)}
+                              disabled={isApprovingEvent === request.id || !rejectionReason[request.id]}
+                              className="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg py-2.5 text-sm font-bold disabled:opacity-50"
+                            >
+                              {isApprovingEvent === request.id ? 'Processing...' : 'Reject'}
+                            </button>
                           </div>
-                          <span className="px-4 py-2 rounded-full text-sm font-bold bg-yellow-600 text-white">
-                            PENDING
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              <div className="bg-white rounded-xl border border-slate-200 p-4 sm:p-5">
+                <h4 className="font-bold text-base sm:text-lg mb-4">Event History</h4>
+                {historyRequests.length === 0 ? (
+                  <p className="text-sm text-slate-400">No processed requests yet.</p>
+                ) : (
+                  <div className="grid md:grid-cols-2 gap-3">
+                    {historyRequests.map((request) => (
+                      <div key={request.id} className="border border-slate-200 rounded-lg p-3">
+                        <div className="flex items-start justify-between gap-2">
+                          <div>
+                            <p className="font-semibold text-sm">{request.event_name}</p>
+                            <p className="text-xs text-slate-500">{request.department}</p>
+                          </div>
+                          <span className={`text-[10px] uppercase tracking-wide font-bold px-2 py-1 rounded ${request.status === 'approved' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                            {request.status}
+                          </span>
+                        </div>
+                        <p className="text-xs text-slate-600 mt-2">{formatDateRange(request.date_from, request.date_to)}</p>
+                        {request.status === 'rejected' && request.rejection_reason && (
+                          <p className="text-xs text-red-600 mt-2"><strong>Reason:</strong> {request.rejection_reason}</p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </motion.section>
+          )}
+
+          {activeTab === 'visitors' && (
+            <motion.section initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="space-y-4 sm:space-y-5">
+              <div className="bg-white rounded-xl border border-slate-200 p-4 sm:p-5">
+                <div className="flex flex-col lg:flex-row lg:items-center gap-3 lg:justify-between">
+                  <h3 className="text-lg sm:text-xl font-bold">Visitor Records</h3>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <div className="relative flex-1 min-w-[220px]">
+                      <svg className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-4.35-4.35m1.6-5.15a6.75 6.75 0 11-13.5 0 6.75 6.75 0 0113.5 0z" />
+                      </svg>
+                      <input
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        placeholder="Search by name, email or ID..."
+                        className="w-full pl-9 pr-3 py-2.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-300"
+                      />
+                    </div>
+
+                    <select
+                      value={selectedEventFilter}
+                      onChange={(e) => setSelectedEventFilter(e.target.value)}
+                      className="px-3 py-2.5 border border-slate-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary-300"
+                    >
+                      <option value="">All Events</option>
+                      {uniqueEvents.map((eventName) => (
+                        <option key={eventName} value={eventName}>{eventName}</option>
+                      ))}
+                    </select>
+
+                    <button
+                      onClick={() => {
+                        setIsLoading(true);
+                        fetchVisitors();
+                      }}
+                      className="px-3 py-2.5 rounded-lg border border-slate-200 text-sm font-semibold hover:bg-slate-50"
+                    >
+                      Refresh
+                    </button>
+
+                    <button
+                      onClick={exportToCSV}
+                      className="px-3 py-2.5 rounded-lg bg-primary-600 text-white text-sm font-semibold hover:bg-primary-700"
+                    >
+                      CSV Export
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {isLoading ? (
+                <div className="bg-white rounded-xl border border-slate-200 p-12 text-center">
+                  <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary-600 mx-auto" />
+                  <p className="text-slate-500 text-sm mt-3">Loading visitors...</p>
+                </div>
+              ) : filteredVisitors.length === 0 ? (
+                <div className="bg-white rounded-xl border border-slate-200 p-12 text-center text-slate-400">No visitors found.</div>
+              ) : (
+                <>
+                  <div className="lg:hidden space-y-3">
+                    {filteredVisitors.map((visitor) => (
+                      <div key={visitor.id} className="bg-white border border-slate-200 rounded-xl p-3.5 shadow-sm">
+                        <div className="flex items-center justify-between gap-3">
+                          <div className="flex items-center gap-3 min-w-0">
+                            <div className="size-10 rounded-full bg-primary-100 text-primary-700 font-bold text-sm flex items-center justify-center">
+                              {getInitials(visitor.name)}
+                            </div>
+                            <div className="min-w-0">
+                              <p className="text-sm font-bold truncate">{visitor.name}</p>
+                              <p className="text-[11px] text-slate-500 truncate">{visitor.event_name || 'No event'} · ID: {visitor.register_number || 'N/A'}</p>
+                            </div>
+                          </div>
+                          <span className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded ${statusBadgeMap[visitor.status] || 'bg-slate-100 text-slate-600'}`}>
+                            {visitor.status}
                           </span>
                         </div>
 
-                        {request.event_description && (
-                          <p className="text-gray-700 mb-4">{request.event_description}</p>
-                        )}
-
-                        <div className="grid md:grid-cols-2 gap-4 text-sm mb-6">
-                          <div className="flex items-center space-x-2">
-                            <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                            </svg>
-                            <span className="text-gray-700">
-                              <strong>Dates:</strong> {new Date(request.date_from).toLocaleDateString()} - {new Date(request.date_to).toLocaleDateString()}
-                            </span>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                            </svg>
-                            <span className="text-gray-700">
-                              <strong>Expected:</strong> {request.expected_students || 'N/A'}
-                            </span>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                            </svg>
-                            <span className="text-gray-700">
-                              <strong>Capacity:</strong> {request.max_capacity || 'N/A'}
-                            </span>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                            <span className="text-gray-700">
-                              <strong>Submitted:</strong> {new Date(request.created_at).toLocaleDateString()}
-                            </span>
-                          </div>
+                        <div className="mt-3 text-[11px] text-slate-500 space-y-1">
+                          {visitor.email && <p>{visitor.email}</p>}
+                          {visitor.phone && <p>{visitor.phone}</p>}
+                          <p>{visitor.date_of_visit ? new Date(visitor.date_of_visit).toLocaleDateString('en-IN') : formatDateRange(visitor.date_of_visit_from, visitor.date_of_visit_to)}</p>
                         </div>
 
-                        <div className="border-t border-yellow-300 pt-4">
-                          <div className="flex flex-col md:flex-row md:items-end gap-4">
-                            <div className="flex-1">
-                              <label className="block text-sm font-semibold text-gray-700 mb-2">
-                                Rejection Reason (optional if rejecting)
-                              </label>
-                              <input
-                                type="text"
-                                value={rejectionReason[request.id] || ''}
-                                onChange={(e) => setRejectionReason(prev => ({ ...prev, [request.id]: e.target.value }))}
-                                placeholder="Enter reason for rejection..."
-                                className="input-field"
-                              />
-                            </div>
-                            <div className="flex space-x-3">
-                              <button
-                                onClick={() => handleApproveEvent(request.id, false)}
-                                disabled={isApprovingEvent === request.id || !rejectionReason[request.id]}
-                                className="btn-secondary bg-red-600 hover:bg-red-700 text-white disabled:opacity-50 disabled:cursor-not-allowed"
-                              >
-                                {isApprovingEvent === request.id ? 'Processing...' : 'Reject'}
-                              </button>
-                              <button
-                                onClick={() => handleApproveEvent(request.id, true)}
-                                disabled={isApprovingEvent === request.id}
-                                className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
-                              >
-                                {isApprovingEvent === request.id ? 'Processing...' : 'Approve Event'}
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                </div>
-              )}
-            </div>
-
-            {/* Approved/Rejected History */}
-            <div className="card">
-              <h3 className="text-xl font-semibold text-gray-800 mb-6">Event Request History</h3>
-              <div className="grid md:grid-cols-2 gap-4">
-                {eventRequests
-                  .filter(r => r.status !== 'pending')
-                  .map((request) => (
-                    <div
-                      key={request.id}
-                      className={`border-2 rounded-lg p-4 ${
-                        request.status === 'approved'
-                          ? 'border-green-200 bg-green-50'
-                          : 'border-red-200 bg-red-50'
-                      }`}
-                    >
-                      <div className="flex justify-between items-start mb-2">
-                        <h4 className="font-bold text-gray-800">
-                          {request.event_name}
-                          {request.source === 'socio' && (
-                            <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800 border border-blue-200">
-                              SOCIO Event
-                            </span>
-                          )}
-                        </h4>
-                        <span
-                          className={`px-3 py-1 rounded-full text-xs font-bold ${
-                            request.status === 'approved'
-                              ? 'bg-green-600 text-white'
-                              : 'bg-red-600 text-white'
-                          }`}
-                        >
-                          {request.status.toUpperCase()}
-                        </span>
-                      </div>
-                      <p className="text-sm text-gray-600">{request.department}</p>
-                      <p className="text-sm text-gray-700 mt-2">
-                        {new Date(request.date_from).toLocaleDateString()} - {new Date(request.date_to).toLocaleDateString()}
-                      </p>
-                      {request.status === 'rejected' && request.rejection_reason && (
-                        <p className="text-sm text-red-600 mt-2">
-                          <strong>Reason:</strong> {request.rejection_reason}
-                        </p>
-                      )}
-                    </div>
-                  ))}
-              </div>
-            </div>
-          </motion.div>
-        )}
-
-        {/* Visitor Management Section */}
-        {activeTab === 'visitors' && (
-          <>
-            {/* Top Events */}
-            <div className="card mb-4 sm:mb-6">
-              <h3 className="text-lg sm:text-xl font-semibold text-gray-800 mb-3 flex items-center space-x-2">
-            <svg className="w-5 h-5 sm:w-6 sm:h-6 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-            </svg>
-            <span>Top Events by Visitor Count</span>
-          </h3>
-          {topEvents.length > 0 ? (
-            <div className="space-y-2">
-              {topEvents.map(([event, count], index) => (
-                <button
-                  key={event}
-                  onClick={() => {
-                    setSelectedEventFilter(event);
-                    setActiveTab('visitors');
-                  }}
-                  className="w-full flex items-center justify-between py-1 hover:bg-gray-100 px-2 rounded transition cursor-pointer"
-                >
-                  <div className="flex items-center space-x-2 sm:space-x-3">
-                    <div className="w-6 h-6 sm:w-8 sm:h-8 bg-maroon-600 text-white rounded-full flex items-center justify-center text-xs sm:text-sm font-bold">
-                      {index + 1}
-                    </div>
-                    <span className="font-medium text-sm sm:text-base text-gray-800">{event}</span>
-                  </div>
-                  <span className="text-xs sm:text-sm text-gray-600">{count} visitors</span>
-                </button>
-              ))}
-            </div>
-          ) : (
-            <p className="text-gray-400 text-sm">No event data available</p>
-          )}
-        </div>
-
-        {/* Search and Export */}
-        <div className="card mb-4 sm:mb-6">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center space-y-4 md:space-y-0 gap-3">
-            <div className="flex-1 max-w-md">
-              <input
-                type="text"
-                placeholder="Search by name, email, or event..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="input-field"
-              />
-            </div>
-            {selectedEventFilter && (
-              <div className="flex items-center space-x-2 bg-primary-100 text-primary-800 px-3 py-2 rounded-lg">
-                <span className="text-sm font-medium">Filtered by: {selectedEventFilter}</span>
-                <button
-                  onClick={() => setSelectedEventFilter('')}
-                  className="text-primary-600 hover:text-primary-800 font-bold"
-                >
-                  ✕
-                </button>
-              </div>
-            )}
-            <button
-              onClick={() => {
-                setIsLoading(true);
-                fetchVisitors();
-              }}
-              className="btn-secondary whitespace-nowrap flex items-center space-x-2"
-              title="Refresh visitor data"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-              </svg>
-              <span>Refresh</span>
-            </button>
-            <button
-              onClick={exportToCSV}
-              className="btn-secondary whitespace-nowrap flex items-center space-x-2"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-              </svg>
-              <span>Export to CSV</span>
-            </button>
-          </div>
-        </div>
-
-        {/* All Visitors Table */}
-        <div className="card overflow-x-auto">
-          <h3 className="text-lg sm:text-xl font-semibold text-gray-800 mb-3">
-            All Visitor Records ({filteredVisitors.length})
-          </h3>
-
-          {isLoading ? (
-            <div className="text-center py-8">
-              <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-maroon-600 mx-auto"></div>
-            </div>
-          ) : filteredVisitors.length === 0 ? (
-            <div className="text-center py-8 text-gray-400">
-              <p>No visitors found</p>
-            </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead className="bg-gray-100">
-                  <tr>
-                    <th className="px-2 py-2 text-left text-xs font-semibold text-gray-700">Name</th>
-                    <th className="px-2 py-2 text-left text-xs font-semibold text-gray-700">Event</th>
-                    <th className="px-2 py-2 text-left text-xs font-semibold text-gray-700">Verified By</th>
-                    <th className="px-2 py-2 text-left text-xs font-semibold text-gray-700">Verified At</th>
-                    <th className="px-2 py-2 text-left text-xs font-semibold text-gray-700">Contact</th>
-                    <th className="px-2 py-2 text-left text-xs font-semibold text-gray-700">Visit Date</th>
-                    <th className="px-2 py-2 text-left text-xs font-semibold text-gray-700">Status</th>
-                    <th className="px-2 py-2 text-left text-xs font-semibold text-gray-700">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredVisitors.map((visitor) => (
-                    <tr key={visitor.id} className="border-t hover:bg-gray-50">
-                      <td className="px-2 py-2">
-                        <div className="font-medium text-gray-800 text-sm">{visitor.name}</div>
-                        {visitor.register_number && (
-                          <div className="text-xs text-gray-500">ID: {visitor.register_number}</div>
-                        )}
-                      </td>
-                      <td className="px-2 py-2 text-gray-700 text-sm max-w-[150px] truncate">{visitor.event_name || 'N/A'}</td>
-                      <td className="px-2 py-2">
-                        {visitor.verified_by ? (
-                          <div className="flex items-center space-x-1">
-                            <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                            <span className="text-sm font-medium text-gray-700">{visitor.verified_by}</span>
-                          </div>
-                        ) : (
-                          <span className="text-xs text-gray-400">Not verified</span>
-                        )}
-                      </td>
-                      <td className="px-2 py-2 text-xs text-gray-600 whitespace-nowrap">
-                        {visitor.verified_at 
-                          ? new Date(visitor.verified_at).toLocaleString('en-IN', { 
-                              day: 'numeric', 
-                              month: 'short', 
-                              year: 'numeric',
-                              hour: '2-digit', 
-                              minute: '2-digit' 
-                            })
-                          : '-'}
-                      </td>
-                      <td className="px-2 py-2">
-                        <div className="text-xs text-gray-600">
-                          {visitor.email && <div className="truncate max-w-[150px]">{visitor.email}</div>}
-                          {visitor.phone && <div>{visitor.phone}</div>}
-                          {!visitor.email && !visitor.phone && <span className="text-gray-400">N/A</span>}
-                        </div>
-                      </td>
-                      <td className="px-2 py-2 text-gray-700 text-xs whitespace-nowrap">
-                        {(visitor.date_of_visit && visitor.date_of_visit !== '') 
-                          ? new Date(visitor.date_of_visit).toLocaleDateString() 
-                          : (visitor.date_of_visit_from && visitor.date_of_visit_to) 
-                            ? `${new Date(visitor.date_of_visit_from).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })} - ${new Date(visitor.date_of_visit_to).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}` 
-                            : 'N/A'}
-                      </td>
-                      <td className="px-2 py-2">
-                        <span className={`badge-${visitor.status} text-xs px-2 py-1`}>
-                          {visitor.status.toUpperCase()}
-                        </span>
-                      </td>
-                      <td className="px-2 py-2">
-                        <div className="flex space-x-1">
+                        <div className="mt-3 flex gap-2">
                           {visitor.status !== 'approved' && (
                             <button
                               onClick={() => updateStatus(visitor.id, 'approved')}
-                              className="px-2 py-1 bg-green-600 text-white rounded hover:bg-green-700 text-xs"
-                              title="Approve"
+                              className="flex-1 py-2 rounded-lg bg-green-600 text-white text-xs font-bold"
                             >
-                              ✓
+                              Approve
                             </button>
                           )}
                           {visitor.status !== 'revoked' && (
                             <button
                               onClick={() => updateStatus(visitor.id, 'revoked')}
-                              className="px-2 py-1 bg-red-600 text-white rounded hover:bg-red-700 text-xs"
-                              title="Revoke"
+                              className="flex-1 py-2 rounded-lg bg-red-600 text-white text-xs font-bold"
                             >
-                              ✕
+                              Revoke
                             </button>
                           )}
                         </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="hidden lg:block bg-white rounded-xl border border-slate-200 overflow-hidden">
+                    <table className="w-full text-left border-collapse">
+                      <thead>
+                        <tr className="bg-slate-50">
+                          <th className="px-4 py-3 text-xs uppercase tracking-wider text-slate-500">Name</th>
+                          <th className="px-4 py-3 text-xs uppercase tracking-wider text-slate-500">Contact</th>
+                          <th className="px-4 py-3 text-xs uppercase tracking-wider text-slate-500">Event</th>
+                          <th className="px-4 py-3 text-xs uppercase tracking-wider text-slate-500">Visit Date</th>
+                          <th className="px-4 py-3 text-xs uppercase tracking-wider text-slate-500">Verified</th>
+                          <th className="px-4 py-3 text-xs uppercase tracking-wider text-slate-500">Status</th>
+                          <th className="px-4 py-3 text-xs uppercase tracking-wider text-slate-500 text-right">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100">
+                        {filteredVisitors.map((visitor) => (
+                          <tr key={visitor.id} className="hover:bg-slate-50">
+                            <td className="px-4 py-3">
+                              <div className="flex items-center gap-3">
+                                <div className="size-9 rounded-full bg-primary-100 text-primary-700 text-xs font-bold flex items-center justify-center">
+                                  {getInitials(visitor.name)}
+                                </div>
+                                <div>
+                                  <p className="text-sm font-semibold">{visitor.name}</p>
+                                  <p className="text-xs text-slate-500">ID: {visitor.register_number || 'N/A'}</p>
+                                </div>
+                              </div>
+                            </td>
+                            <td className="px-4 py-3 text-sm text-slate-600">
+                              <p>{visitor.email || '-'}</p>
+                              <p className="text-xs">{visitor.phone || '-'}</p>
+                            </td>
+                            <td className="px-4 py-3 text-sm text-slate-700">{visitor.event_name || 'N/A'}</td>
+                            <td className="px-4 py-3 text-sm text-slate-600">
+                              {visitor.date_of_visit
+                                ? new Date(visitor.date_of_visit).toLocaleDateString('en-IN')
+                                : formatDateRange(visitor.date_of_visit_from, visitor.date_of_visit_to)}
+                            </td>
+                            <td className="px-4 py-3 text-sm text-slate-600">{visitor.verified_by || '-'}</td>
+                            <td className="px-4 py-3">
+                              <span className={`inline-flex px-2 py-0.5 rounded text-xs font-bold uppercase ${statusBadgeMap[visitor.status] || 'bg-slate-100 text-slate-600'}`}>
+                                {visitor.status}
+                              </span>
+                            </td>
+                            <td className="px-4 py-3">
+                              <div className="flex justify-end gap-2">
+                                {visitor.status !== 'approved' && (
+                                  <button
+                                    onClick={() => updateStatus(visitor.id, 'approved')}
+                                    className="px-2.5 py-1.5 rounded bg-green-600 text-white text-xs font-semibold"
+                                  >
+                                    Approve
+                                  </button>
+                                )}
+                                {visitor.status !== 'revoked' && (
+                                  <button
+                                    onClick={() => updateStatus(visitor.id, 'revoked')}
+                                    className="px-2.5 py-1.5 rounded bg-red-600 text-white text-xs font-semibold"
+                                  >
+                                    Revoke
+                                  </button>
+                                )}
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </>
+              )}
+            </motion.section>
           )}
-        </div>
-          </>
-        )}
+        </main>
       </div>
+
+      <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 px-6 py-2 pb-5 flex justify-between items-center z-20">
+        <button onClick={() => setActiveTab('events')} className={`flex flex-col items-center gap-1 ${activeTab === 'events' ? 'text-primary-700' : 'text-slate-400'}`}>
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+          </svg>
+          <span className="text-[10px] font-semibold">Events</span>
+        </button>
+
+        <button onClick={() => setActiveTab('visitors')} className={`flex flex-col items-center gap-1 ${activeTab === 'visitors' ? 'text-primary-700' : 'text-slate-400'}`}>
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0" />
+          </svg>
+          <span className="text-[10px] font-semibold">Visitors</span>
+        </button>
+
+        <button
+          onClick={() => {
+            localStorage.removeItem('user');
+            router.push('/login?role=cso');
+          }}
+          className="flex flex-col items-center gap-1 text-slate-400"
+        >
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+          </svg>
+          <span className="text-[10px] font-semibold">Logout</span>
+        </button>
+      </nav>
     </div>
   );
 }

@@ -40,14 +40,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // Example email template (implement with your email service):
     /*
     const emailHTML = `
-      <h2>Your Christ University Access Pass</h2>
+      <h2>Your SOCIO Access Pass</h2>
       <p>Dear ${visitor.name},</p>
       <p>Here is your QR code access pass for: <strong>${visitor.event_name}</strong></p>
       <p>Click the link below to view and download your QR code:</p>
       <p><a href="${qrLink}" style="padding: 10px 20px; background: #254a9a; color: white; text-decoration: none; border-radius: 5px;">View My QR Code</a></p>
       <p>Or copy this link: ${qrLink}</p>
       <p>Valid dates: ${new Date(visitor.date_of_visit_from).toLocaleDateString()} - ${new Date(visitor.date_of_visit_to).toLocaleDateString()}</p>
-      <p>Best regards,<br>Christ University Security</p>
+      <p>Best regards,<br>Security Team · Powered by SOCIO</p>
     `;
     */
 

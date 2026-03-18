@@ -9,18 +9,18 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Christ University Professional Theme
+        // SOCIO Brand Theme
         primary: {
-          50: '#fef5fa',
-          100: '#fde9f4',
-          200: '#fbd4ea',
-          300: '#f9b0da',
-          400: '#f57ec4',
-          500: '#ee4aaa',
-          600: '#254a9a', // Main primary
-          700: '#1f3d7f',
-          800: '#1a3168',
-          900: '#142651',
+          50: '#edf4ff',
+          100: '#dbe9ff',
+          200: '#b7d3ff',
+          300: '#83b2ff',
+          400: '#4c8cff',
+          500: '#2568e8',
+          600: '#154CB3',
+          700: '#123f95',
+          800: '#10357b',
+          900: '#0d2a61',
         },
         secondary: {
           50: '#ffffff',
@@ -35,16 +35,16 @@ const config: Config = {
           900: '#bababa',
         },
         tertiary: {
-          50: '#fdfaf6',
-          100: '#fbf5ed',
-          200: '#f7ebd9',
-          300: '#f0dbbe',
-          400: '#e6c49c',
-          500: '#d9aa72',
-          600: '#bda361', // Main tertiary/gold
-          700: '#9e8650',
-          800: '#7f6a40',
-          900: '#604f2f',
+          50: '#fffbed',
+          100: '#fff6d6',
+          200: '#ffecad',
+          300: '#ffe07a',
+          400: '#ffd94d',
+          500: '#ffd22a',
+          600: '#FFCC00',
+          700: '#cca300',
+          800: '#997a00',
+          900: '#665200',
         },
       },
     },

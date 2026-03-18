@@ -102,9 +102,9 @@ export default function QRGenerator({ visitorId, visitorName }: QRGeneratorProps
     try {
       console.log('[PDF_DOWNLOAD] Starting PDF generation...');
       
-      // Load the Christ University logo
+      // Load the SOCIO logo
       const logoImg = new Image();
-      logoImg.src = '/christunilogo.png';
+      logoImg.src = '/socio.svg';
       
       await new Promise((resolve, reject) => {
         logoImg.onload = resolve;
@@ -131,19 +131,22 @@ export default function QRGenerator({ visitorId, visitorName }: QRGeneratorProps
       pdf.setLineWidth(1);
       pdf.rect(10, 10, 190, 35, 'S');
       
-      // Add Christ University Logo (left corner inside border)
+      // Add SOCIO logo (left corner inside border)
       if (logoImg.complete && logoImg.naturalHeight !== 0) {
         try {
-          // Use actual image aspect ratio to avoid distortion
-          const imgWidth = logoImg.naturalWidth;
-          const imgHeight = logoImg.naturalHeight;
-          const aspectRatio = imgWidth / imgHeight;
-          
-          // Set height and calculate width based on aspect ratio
-          const logoHeight = 22;
-          const logoWidth = logoHeight * aspectRatio;
-          
-          pdf.addImage(logoImg, 'PNG', 15, 16, logoWidth, logoHeight);
+          const canvas = document.createElement('canvas');
+          const scale = 3;
+          canvas.width = logoImg.naturalWidth * scale;
+          canvas.height = logoImg.naturalHeight * scale;
+          const ctx = canvas.getContext('2d');
+          if (ctx) {
+            ctx.drawImage(logoImg, 0, 0, canvas.width, canvas.height);
+            const logoDataUrl = canvas.toDataURL('image/png');
+            const aspectRatio = logoImg.naturalWidth / logoImg.naturalHeight;
+            const logoHeight = 10;
+            const logoWidth = logoHeight * aspectRatio;
+            pdf.addImage(logoDataUrl, 'PNG', 15, 16, logoWidth, logoHeight);
+          }
         } catch (err) {
           console.warn('[PDF_DOWNLOAD] Could not add logo to PDF:', err);
         }
@@ -202,7 +205,7 @@ export default function QRGenerator({ visitorId, visitorName }: QRGeneratorProps
       pdf.setFontSize(9);
       pdf.setFont('helvetica', 'normal');
       pdf.setTextColor(120, 120, 120);
-      pdf.text('Access Management System', 195, 30, { align: 'right' });
+      pdf.text('Powered by SOCIO', 195, 30, { align: 'right' });
 
       // Main content area with better spacing
       pdf.setDrawColor(220, 220, 220);
@@ -337,7 +340,7 @@ export default function QRGenerator({ visitorId, visitorName }: QRGeneratorProps
 
       // Save PDF
       const safeEventName = visitorDetails?.event_name?.replace(/[^a-zA-Z0-9]/g, '_') || 'Event';
-      pdf.save(`ChristUniversity_AccessPass_${visitorName.replace(/\s+/g, '_')}_${safeEventName}.pdf`);
+      pdf.save(`SOCIO_AccessPass_${visitorName.replace(/\s+/g, '_')}_${safeEventName}.pdf`);
       console.log('[PDF_DOWNLOAD] ✓ PDF download initiated successfully');
     } catch (error) {
       console.error('[PDF_DOWNLOAD] Error generating PDF:', error);

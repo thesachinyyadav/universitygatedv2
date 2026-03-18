@@ -40,7 +40,7 @@ export default function App({ Component, pageProps }: AppProps) {
     <PWAProvider>
       <ToastProvider>
         {loading && <LoadingScreen />}
-        <Navbar />
+        {router.pathname !== '/' && router.pathname !== '/login' && router.pathname !== '/cso' && <Navbar />}
         <Component {...pageProps} />
       </ToastProvider>
     </PWAProvider>

@@ -50,19 +50,19 @@ export default function Navbar() {
           <Link href="/" className="flex items-center space-x-2 md:space-x-3 hover:opacity-90 transition">
             <div className="w-10 h-10 md:w-12 md:h-12 bg-white rounded-full p-1 md:p-2 flex items-center justify-center shadow-lg">
               <Image
-                src="/christunifavcion.png"
-                alt="Christ University"
+                src="/socio.svg"
+                alt="SOCIO"
                 width={48}
                 height={48}
                 className="w-full h-full object-contain"
               />
             </div>
             <div className="hidden sm:block">
-              <h1 className="text-base md:text-xl font-bold leading-tight">Christ University</h1>
-              <p className="text-xs text-tertiary-200">Gated Access Portal</p>
+              <h1 className="text-base md:text-xl font-bold leading-tight">SOCIO Gated</h1>
+              <p className="text-xs text-tertiary-200">Powered by SOCIO</p>
             </div>
             <div className="sm:hidden">
-              <h1 className="text-base font-bold">Christ Gated</h1>
+              <h1 className="text-base font-bold">SOCIO Gated</h1>
             </div>
           </Link>
 

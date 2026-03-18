@@ -2,230 +2,209 @@ import { motion } from 'framer-motion';
 import Link from 'next/link';
 import Image from 'next/image';
 
+const quickServices = [
+  {
+    title: 'Quick Register',
+    description: 'Instant visitor onboarding',
+    href: '/visitor-register',
+    icon: (
+      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3M5 20h7a2 2 0 002-2v-1a5 5 0 00-5-5H7a5 5 0 00-5 5v1a2 2 0 002 2zm7-14a4 4 0 11-8 0 4 4 0 018 0z" />
+      </svg>
+    ),
+  },
+  {
+    title: 'Scan & Verify',
+    description: 'Fast QR verification',
+    href: '/verify',
+    icon: (
+      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 7V4h3M4 17v3h3m10-16h3v3m0 10v3h-3M9 7h6v10H9V7z" />
+      </svg>
+    ),
+  },
+  {
+    title: 'Secure Access',
+    description: 'End-to-end safety flow',
+    href: '/retrieve-qr',
+    icon: (
+      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 11c0 .552-.448 1-1 1s-1-.448-1-1V9a3 3 0 116 0v2m-5 0h6m-8 0h10a2 2 0 012 2v5a2 2 0 01-2 2H7a2 2 0 01-2-2v-5a2 2 0 012-2z" />
+      </svg>
+    ),
+  },
+];
+
 export default function Home() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary-600 via-primary-700 to-primary-800">
-      <div className="container mx-auto px-3 sm:px-4 md:px-6 py-4 sm:py-6 md:py-8">
-          {/* Compact Hero Section */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="text-center text-white mb-6 sm:mb-8"
-          >
-            {/* Logo + Title - Inline on larger screens */}
-            <div className="flex flex-col md:flex-row items-center justify-center gap-3 sm:gap-4 mb-4 sm:mb-6">
-              <div className="h-12 sm:h-14 md:h-16 bg-white rounded-lg px-3 sm:px-4 py-2 shadow-2xl flex items-center">
-                <Image
-                  src="/christunilogo.png"
-                  alt="Christ University"
-                  width={160}
-                  height={50}
-                  className="h-full w-auto object-contain"
-                />
-              </div>
-              <div className="text-center md:text-left">
-                <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold leading-tight">
-                  Christ University
-                </h1>
-                <h2 className="text-sm sm:text-base md:text-lg font-light text-tertiary-200">
-                  Gated Access Management
-                </h2>
-              </div>
+    <div className="bg-gray-50 min-h-screen text-gray-900">
+      <header className="bg-white border-b border-gray-200 sticky top-0 z-40">
+        <div className="max-w-md mx-auto px-4 py-3 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="size-10 bg-primary-600 rounded-lg flex items-center justify-center text-white overflow-hidden">
+              <Image
+                src="/socio.svg"
+                alt="SOCIO logo"
+                width={40}
+                height={40}
+                className="w-full h-full object-cover"
+              />
             </div>
+            <div>
+              <h1 className="text-sm font-bold leading-tight text-gray-900">SOCIO GATED</h1>
+              <p className="text-[10px] uppercase tracking-wider text-gray-500 font-semibold">Powered by SOCIO</p>
+            </div>
+          </div>
+          <button
+            type="button"
+            aria-label="Notifications"
+            className="p-2 text-gray-600 hover:bg-gray-100 rounded-full transition-colors"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V4a2 2 0 10-4 0v1.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+            </svg>
+          </button>
+        </div>
+      </header>
 
-            {/* Tagline */}
-            <p className="text-xs sm:text-sm md:text-base text-gray-200 max-w-xl mx-auto mb-4 sm:mb-6 px-4">
-              Secure, efficient entry management for events and campus access
-            </p>
+      <main className="flex-1 max-w-md mx-auto w-full pb-24">
+        <section className="px-4 py-6">
+          <div className="relative rounded-xl overflow-hidden aspect-[16/9] mb-6 shadow-sm border border-gray-200">
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent z-10" />
+            <Image
+              src="/securityimage.jpg"
+              alt="University gate security"
+              fill
+              sizes="(max-width: 768px) 100vw, 448px"
+              className="object-cover"
+            />
+            <div className="absolute bottom-4 left-4 z-20 text-white">
+              <h2 className="text-xl font-bold">Secure Campus Entry</h2>
+              <p className="text-xs text-gray-200">Digital verification for a safer community</p>
+            </div>
+          </div>
 
-            {/* Main CTA */}
-            <Link href="/visitor-register">
-              <motion.button
-                whileHover={{ scale: 1.03 }}
-                whileTap={{ scale: 0.97 }}
-                className="bg-tertiary-600 hover:bg-tertiary-700 text-white font-bold text-sm sm:text-base md:text-lg px-6 sm:px-8 py-3 sm:py-3.5 rounded-lg inline-flex items-center space-x-2 shadow-2xl transition-all w-full sm:w-auto justify-center max-w-sm mx-auto"
+          <div className="space-y-3">
+            <Link href="/visitor-register" className="block">
+              <motion.div
+                whileTap={{ scale: 0.98 }}
+                className="w-full bg-tertiary-600 hover:bg-tertiary-700 text-white font-bold py-4 rounded-xl shadow-lg shadow-tertiary-600/20 flex items-center justify-center gap-2 transition-colors"
               >
-                <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
                 </svg>
                 <span>Request Entry Access</span>
-              </motion.button>
+              </motion.div>
             </Link>
 
-            {/* Retrieve QR Link */}
-            <div className="mt-3 sm:mt-4">
-              <Link href="/retrieve-qr">
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  className="text-white/90 hover:text-white font-medium text-xs sm:text-sm inline-flex items-center space-x-2 border border-white/30 hover:border-white/50 px-4 py-2 rounded-lg transition-all backdrop-blur-sm bg-white/10"
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                  </svg>
-                  <span>Retrieve Lost QR Code</span>
-                </motion.button>
+            <Link
+              href="/retrieve-qr"
+              className="w-full bg-white border border-gray-200 text-gray-700 font-semibold py-3 rounded-xl flex items-center justify-center gap-2 hover:bg-gray-50 transition-colors"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 4H6a2 2 0 00-2 2v2m0 8v2a2 2 0 002 2h2m8 0h2a2 2 0 002-2v-2m0-8V6a2 2 0 00-2-2h-2M8 8h8v8H8V8z" />
+              </svg>
+              <span>Retrieve Lost QR Code</span>
+            </Link>
+          </div>
+        </section>
+
+        <section className="px-4 mb-8">
+          <h3 className="text-sm font-bold text-gray-500 uppercase tracking-widest mb-4">Quick Services</h3>
+          <div className="grid grid-cols-3 gap-3">
+            {quickServices.map((service) => (
+              <Link
+                key={service.title}
+                href={service.href}
+                className="bg-white p-4 rounded-xl border border-gray-200 flex flex-col items-center text-center gap-2 shadow-sm hover:shadow-md transition-shadow"
+              >
+                <div className="size-10 rounded-full bg-primary-100 text-primary-600 flex items-center justify-center">
+                  {service.icon}
+                </div>
+                <span className="text-[11px] font-bold text-gray-700 leading-tight">{service.title}</span>
               </Link>
-            </div>
-          </motion.div>
-
-          {/* Compact Features - 3 columns always */}
-          <div className="grid grid-cols-3 gap-2 sm:gap-3 md:gap-4 max-w-4xl mx-auto mb-6 sm:mb-8 px-2">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-              className="card bg-white/95 backdrop-blur text-center hover:shadow-lg transition-all p-3 sm:p-4"
-            >
-              <div className="w-10 h-10 sm:w-12 sm:h-12 mx-auto bg-primary-100 rounded-lg flex items-center justify-center mb-2 sm:mb-3">
-                <svg className="text-primary-600 w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                </svg>
-              </div>
-              <h3 className="text-xs sm:text-sm md:text-base font-bold text-gray-800 mb-1">
-                Quick Register
-              </h3>
-              <p className="text-[10px] sm:text-xs text-gray-600 leading-tight">
-                Instant QR access
-              </p>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-              className="card bg-white/95 backdrop-blur text-center hover:shadow-lg transition-all p-3 sm:p-4"
-            >
-              <div className="w-10 h-10 sm:w-12 sm:h-12 mx-auto bg-tertiary-100 rounded-lg flex items-center justify-center mb-2 sm:mb-3">
-                <svg className="text-tertiary-600 w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
-                </svg>
-              </div>
-              <h3 className="text-xs sm:text-sm md:text-base font-bold text-gray-800 mb-1">
-                Scan & Verify
-              </h3>
-              <p className="text-[10px] sm:text-xs text-gray-600 leading-tight">
-                Contactless entry
-              </p>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4 }}
-              className="card bg-white/95 backdrop-blur text-center hover:shadow-lg transition-all p-3 sm:p-4"
-            >
-              <div className="w-10 h-10 sm:w-12 sm:h-12 mx-auto bg-primary-100 rounded-lg flex items-center justify-center mb-2 sm:mb-3">
-                <svg className="text-primary-600 w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                </svg>
-              </div>
-              <h3 className="text-xs sm:text-sm md:text-base font-bold text-gray-800 mb-1">
-                Secure Access
-              </h3>
-              <p className="text-[10px] sm:text-xs text-gray-600 leading-tight">
-                Encrypted data
-              </p>
-            </motion.div>
+            ))}
           </div>
+        </section>
 
-          {/* Compact How it Works */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.5 }}
-            className="max-w-3xl mx-auto card bg-white/90 backdrop-blur p-4 sm:p-5 md:p-6 mb-6 sm:mb-8"
-          >
-            <h3 className="text-base sm:text-lg md:text-xl font-bold text-center text-primary-600 mb-4 sm:mb-5">
-              How It Works
-            </h3>
-            <div className="flex justify-between items-start gap-2 sm:gap-4">
-              <div className="flex-1 text-center">
-                <div className="w-8 h-8 sm:w-10 sm:h-10 mx-auto bg-gradient-to-br from-primary-600 to-primary-700 text-white rounded-lg flex items-center justify-center text-sm sm:text-base font-bold mb-2 shadow-md">
-                  1
-                </div>
-                <h4 className="font-semibold text-gray-800 mb-1 text-xs sm:text-sm">Register</h4>
-                <p className="text-[10px] sm:text-xs text-gray-600">
-                  Fill quick form
-                </p>
+        <section className="px-6 py-6 bg-primary-50 rounded-t-[2rem] border-t border-primary-100">
+          <h3 className="text-lg font-bold text-gray-900 mb-6">How It Works</h3>
+          <div className="space-y-6">
+            <div className="flex gap-4">
+              <div className="flex flex-col items-center">
+                <div className="size-8 rounded-full bg-primary-600 text-white flex items-center justify-center text-sm font-bold z-10">1</div>
+                <div className="w-0.5 h-full bg-primary-200 -mt-1" />
               </div>
-              <div className="flex items-center pt-4">
-                <svg className="w-3 h-3 sm:w-4 sm:h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
-              </div>
-              <div className="flex-1 text-center">
-                <div className="w-8 h-8 sm:w-10 sm:h-10 mx-auto bg-gradient-to-br from-tertiary-600 to-tertiary-700 text-white rounded-lg flex items-center justify-center text-sm sm:text-base font-bold mb-2 shadow-md">
-                  2
-                </div>
-                <h4 className="font-semibold text-gray-800 mb-1 text-xs sm:text-sm">Download</h4>
-                <p className="text-[10px] sm:text-xs text-gray-600">
-                  Get QR pass
-                </p>
-              </div>
-              <div className="flex items-center pt-4">
-                <svg className="w-3 h-3 sm:w-4 sm:h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
-              </div>
-              <div className="flex-1 text-center">
-                <div className="w-8 h-8 sm:w-10 sm:h-10 mx-auto bg-gradient-to-br from-primary-600 to-primary-700 text-white rounded-lg flex items-center justify-center text-sm sm:text-base font-bold mb-2 shadow-md">
-                  3
-                </div>
-                <h4 className="font-semibold text-gray-800 mb-1 text-xs sm:text-sm">Enter</h4>
-                <p className="text-[10px] sm:text-xs text-gray-600">
-                  Show at gate
-                </p>
+              <div className="pb-2">
+                <h4 className="font-bold text-gray-800 text-sm">Submit Request</h4>
+                <p className="text-xs text-gray-500 mt-1">Fill in your basic details and entry purpose for validation.</p>
               </div>
             </div>
-          </motion.div>
 
-          {/* Compact Security Image Section */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.6 }}
-            className="max-w-3xl mx-auto mb-6 sm:mb-8 px-2"
-          >
-            <div className="card overflow-hidden">
-              <div className="relative w-full h-32 sm:h-48 md:h-64">
-                <Image
-                  src="/securityimage.jpg"
-                  alt="Campus Security"
-                  fill
-                  className="object-cover"
-                />
+            <div className="flex gap-4">
+              <div className="flex flex-col items-center">
+                <div className="size-8 rounded-full bg-primary-600 text-white flex items-center justify-center text-sm font-bold z-10">2</div>
+                <div className="w-0.5 h-full bg-primary-200 -mt-1" />
               </div>
-              <div className="p-3 sm:p-4 bg-white">
-                <h3 className="text-sm sm:text-base md:text-lg font-bold text-primary-600 mb-1 sm:mb-2">
-                  Campus Safety & Security
-                </h3>
-                <p className="text-gray-600 mb-2 sm:mb-3 text-xs sm:text-sm leading-relaxed">
-                  Christ University provides a safe environment for all students, faculty, and visitors.
-                </p>
-                <a
-                  href="https://christuniversity.in/view-pdf/safety-and-security-of-students-on-campus"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center space-x-1.5 text-primary-600 hover:text-primary-700 font-semibold transition-colors text-xs sm:text-sm"
-                >
-                  <svg className="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                  </svg>
-                  <span>Full Safety Policy</span>
-                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                  </svg>
-                </a>
+              <div className="pb-2">
+                <h4 className="font-bold text-gray-800 text-sm">Receive QR Code</h4>
+                <p className="text-xs text-gray-500 mt-1">Once approved, a secure digital pass is sent to your device.</p>
               </div>
             </div>
-          </motion.div>
 
-          {/* Compact Footer */}
-          <div className="mt-6 sm:mt-8 text-center text-white/80 text-[10px] sm:text-xs px-4">
-            <p>© 2025 Christ University • Secure Gated Access Management</p>
+            <div className="flex gap-4">
+              <div className="flex flex-col items-center">
+                <div className="size-8 rounded-full bg-primary-600 text-white flex items-center justify-center text-sm font-bold z-10">3</div>
+              </div>
+              <div className="pb-2">
+                <h4 className="font-bold text-gray-800 text-sm">Scan & Enter</h4>
+                <p className="text-xs text-gray-500 mt-1">Scan the QR code at the gate terminal for instant access.</p>
+              </div>
+            </div>
           </div>
+        </section>
+
+        <section className="px-4 pb-6 text-center">
+          <p className="text-xs text-gray-500">Powered by <span className="font-semibold text-primary-700">SOCIO</span></p>
+        </section>
+      </main>
+
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50">
+        <div className="max-w-md mx-auto flex gap-2 px-4 pb-4 pt-2">
+          <Link href="/" className="flex flex-1 flex-col items-center justify-center gap-1 rounded-xl text-primary-600">
+            <div className="flex h-8 items-center justify-center">
+              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M10.707 1.293a1 1 0 00-1.414 0l-8 8A1 1 0 002 11h1v6a1 1 0 001 1h4a1 1 0 001-1V13h2v4a1 1 0 001 1h4a1 1 0 001-1v-6h1a1 1 0 00.707-1.707l-8-8z" />
+              </svg>
+            </div>
+            <p className="text-[10px] font-bold leading-normal uppercase">Home</p>
+          </Link>
+          <Link href="/visitor-register" className="flex flex-1 flex-col items-center justify-center gap-1 text-gray-400">
+            <div className="flex h-8 items-center justify-center">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-3-3v6m8 4H4a2 2 0 01-2-2V7a2 2 0 012-2h5.586a1 1 0 01.707.293l9.414 9.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+            </div>
+            <p className="text-[10px] font-medium leading-normal uppercase">Requests</p>
+          </Link>
+          <Link href="/retrieve-qr" className="flex flex-1 flex-col items-center justify-center gap-1 text-gray-400">
+            <div className="flex h-8 items-center justify-center">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4h6v6H3V4zm12 0h6v6h-6V4zM3 14h6v6H3v-6zm8 0h2m2 0h6m-6 0v6" />
+              </svg>
+            </div>
+            <p className="text-[10px] font-medium leading-normal uppercase">Retrieve</p>
+          </Link>
+          <Link href="/login" className="flex flex-1 flex-col items-center justify-center gap-1 text-gray-400">
+            <div className="flex h-8 items-center justify-center">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5.121 17.804A9 9 0 1118.88 17.8M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+            </div>
+            <p className="text-[10px] font-medium leading-normal uppercase">Profile</p>
+          </Link>
         </div>
       </div>
+    </div>
   );
 }

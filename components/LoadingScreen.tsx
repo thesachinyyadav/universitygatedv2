@@ -17,8 +17,8 @@ export default function LoadingScreen() {
         >
           <div className="relative w-32 h-32 mx-auto">
             <Image
-              src="/christunilogo.png"
-              alt="Christ University Logo"
+              src="/socio.svg"
+              alt="SOCIO Logo"
               width={128}
               height={128}
               className="object-contain"
@@ -41,7 +41,7 @@ export default function LoadingScreen() {
             GATED
           </h1>
           <p className="text-sm text-gray-600 font-medium">
-            University Access Management
+            Powered by SOCIO
           </p>
         </motion.div>
 
