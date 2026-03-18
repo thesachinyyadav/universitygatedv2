@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react'
 import type { AppProps } from 'next/app'
 import { useRouter } from 'next/router'
 import Navbar from '@/components/Navbar'
+import FooterHolder from '@/components/FooterHolder'
 import PWAProvider from '@/components/PWAProvider'
 import LoadingScreen from '@/components/LoadingScreen'
 import { ToastProvider } from '@/components/ui/Toast'
@@ -40,8 +41,9 @@ export default function App({ Component, pageProps }: AppProps) {
     <PWAProvider>
       <ToastProvider>
         {loading && <LoadingScreen />}
-        {router.pathname !== '/' && router.pathname !== '/login' && router.pathname !== '/cso' && <Navbar />}
+        {router.pathname !== '/login' && router.pathname !== '/cso' && router.pathname !== '/guard' && router.pathname !== '/organiser' && <Navbar />}
         <Component {...pageProps} />
+        {router.pathname !== '/login' && router.pathname !== '/cso' && router.pathname !== '/guard' && router.pathname !== '/organiser' && <FooterHolder />}
       </ToastProvider>
     </PWAProvider>
   )
