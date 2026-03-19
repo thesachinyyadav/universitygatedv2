@@ -152,6 +152,11 @@ export default function OrganiserDashboard() {
     }));
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem('user');
+    router.push('/login?role=organiser');
+  };
+
   const handleBulkSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -278,19 +283,37 @@ export default function OrganiserDashboard() {
     return (
       <div className="min-h-screen bg-gray-50 py-4 sm:py-6 md:py-8 px-3 sm:px-4">
         <div className="container mx-auto max-w-3xl">
-          <div className="mb-4 text-center">
-            <p className="text-sm sm:text-base text-gray-600">
-              QR Code {currentVisitorIndex + 1} of {generatedVisitors.length}
-            </p>
-            <div className="flex justify-center space-x-2 mt-2">
-              {generatedVisitors.map((_, idx) => (
-                <div
-                  key={idx}
-                  className={`h-2 w-2 rounded-full ${
-                    idx === currentVisitorIndex ? 'bg-primary-600' : 'bg-gray-300'
-                  }`}
-                />
-              ))}
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <p className="text-sm sm:text-base text-gray-600">
+                QR Code {currentVisitorIndex + 1} of {generatedVisitors.length}
+              </p>
+              <div className="flex space-x-2 mt-2">
+                {generatedVisitors.map((_, idx) => (
+                  <div
+                    key={idx}
+                    className={`h-2 w-2 rounded-full ${
+                      idx === currentVisitorIndex ? 'bg-primary-600' : 'bg-gray-300'
+                    }`}
+                  />
+                ))}
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => router.push('/')}
+                className="px-3 py-2 rounded-lg text-xs sm:text-sm font-semibold text-slate-600 hover:bg-slate-100 border border-slate-200"
+              >
+                Home
+              </button>
+              <button
+                onClick={handleLogout}
+                className="px-3 py-2 rounded-lg text-xs sm:text-sm font-semibold text-red-600 hover:bg-red-50 border border-red-200"
+              >
+                Logout
+              </button>
+            </div>
             </div>
           </div>
           
@@ -343,6 +366,20 @@ export default function OrganiserDashboard() {
               <p className="text-xs sm:text-sm md:text-base text-gray-600">
                 Welcome, <strong>{user.full_name || user.username}</strong>
               </p>
+              <div className="mt-2 flex items-center gap-2">
+                <button
+                  onClick={() => router.push('/')}
+                  className="px-3 py-2 rounded-lg text-xs sm:text-sm font-semibold text-slate-600 hover:bg-slate-100 border border-slate-200"
+                >
+                  Home
+                </button>
+                <button
+                  onClick={handleLogout}
+                  className="px-3 py-2 rounded-lg text-xs sm:text-sm font-semibold text-red-600 hover:bg-red-50 border border-red-200"
+                >
+                  Logout
+                </button>
+              </div>
             </div>
             
             {/* Compact Stats Row */}

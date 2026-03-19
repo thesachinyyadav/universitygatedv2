@@ -307,6 +307,16 @@ export default function CSODashboard() {
 
         <nav className="p-4 space-y-2 flex-1">
           <button
+            onClick={() => router.push('/')}
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold text-slate-600 hover:bg-slate-100 transition"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10.5L12 3l9 7.5M5.25 9.75V20a1 1 0 001 1h4.5v-6h2.5v6h4.5a1 1 0 001-1V9.75" />
+            </svg>
+            <span>Home</span>
+          </button>
+
+          <button
             onClick={() => setActiveTab('events')}
             className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold transition ${
               activeTab === 'events'
@@ -372,6 +382,17 @@ export default function CSODashboard() {
             </div>
 
             <div className="flex items-center gap-2 sm:gap-3">
+              <button
+                onClick={() => router.push('/')}
+                className="inline-flex items-center gap-1.5 px-2.5 py-2 rounded-lg text-xs sm:text-sm font-semibold text-slate-600 hover:bg-slate-100 transition-colors"
+                aria-label="Go to Home"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10.5L12 3l9 7.5M5.25 9.75V20a1 1 0 001 1h4.5v-6h2.5v6h4.5a1 1 0 001-1V9.75" />
+                </svg>
+                <span className="hidden sm:inline">Home</span>
+              </button>
+
               {activeTab === 'visitors' && (
                 <div className="hidden md:block relative">
                   <svg className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
