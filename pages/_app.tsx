@@ -68,6 +68,7 @@ export default function App({ Component, pageProps }: AppProps) {
     <PWAProvider>
       <ToastProvider>
         {loading && <LoadingScreen />}
+        {showSharedShell && <div className="fixed top-0 left-0 right-0 z-[60] h-[env(safe-area-inset-top)] bg-white" />}
         {showSharedShell && <Navbar />}
         <main className={mainClassName}>
           <Component {...pageProps} />

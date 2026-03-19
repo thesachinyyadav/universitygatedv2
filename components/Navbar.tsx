@@ -43,8 +43,8 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-sm">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-[max(0px,env(safe-area-inset-top))]">
+    <nav className="fixed top-[env(safe-area-inset-top)] left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-sm">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo and Title */}
           <Link href="/" className="flex items-center space-x-2 sm:space-x-3 hover:opacity-90 transition">
