@@ -5,7 +5,7 @@
 :root {
   --primary: #154CB3;
   --secondary: #ffffff;
-  --tertiary: #C9A227;
+  --tertiary: #C8A761;
 }
 
 body {
@@ -45,7 +45,7 @@ body {
 
 /* Badge Styles */
 .badge-pending {
-  @apply bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-xs md:text-sm font-semibold;
+  @apply bg-tertiary-100 text-tertiary-800 px-3 py-1 rounded-full text-xs md:text-sm font-semibold;
 }
 
 .badge-approved {

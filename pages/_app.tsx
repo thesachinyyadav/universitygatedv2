@@ -11,6 +11,7 @@ import { ToastProvider } from '@/components/ui/Toast'
 export default function App({ Component, pageProps }: AppProps) {
   const [loading, setLoading] = useState(true)
   const router = useRouter()
+  const showSharedShell = router.pathname !== '/login' && router.pathname !== '/cso' && router.pathname !== '/guard' && router.pathname !== '/organiser'
 
   useEffect(() => {
     // Initial loading
@@ -41,9 +42,11 @@ export default function App({ Component, pageProps }: AppProps) {
     <PWAProvider>
       <ToastProvider>
         {loading && <LoadingScreen />}
-        {router.pathname !== '/login' && router.pathname !== '/cso' && router.pathname !== '/guard' && router.pathname !== '/organiser' && <Navbar />}
-        <Component {...pageProps} />
-        {router.pathname !== '/login' && router.pathname !== '/cso' && router.pathname !== '/guard' && router.pathname !== '/organiser' && <FooterHolder />}
+        {showSharedShell && <Navbar />}
+        <main className={showSharedShell ? 'pt-[calc(4rem+max(0px,env(safe-area-inset-top)))] pb-[calc(4.5rem+max(0px,env(safe-area-inset-bottom)))]' : ''}>
+          <Component {...pageProps} />
+        </main>
+        {showSharedShell && <FooterHolder />}
       </ToastProvider>
     </PWAProvider>
   )
