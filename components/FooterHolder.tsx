@@ -114,6 +114,16 @@ export default function FooterHolder() {
         ),
       },
       {
+        key: 'onspot',
+        label: 'On-Spot',
+        href: '/on-spot-registration',
+        icon: (
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+          </svg>
+        ),
+      },
+      {
         key: 'history',
         label: 'History',
         href: '/retrieve-qr',
@@ -146,7 +156,7 @@ export default function FooterHolder() {
     <footer className="fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-slate-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 sm:py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
         <div className="md:hidden">
-          <nav className="grid grid-cols-4 gap-1">
+          <nav className="grid grid-cols-5 gap-1">
             {navItems.map((item) => {
               const active = isActive(item.href);
               const className = `flex flex-col items-center justify-center gap-1 rounded-xl py-2 transition ${
