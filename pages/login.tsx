@@ -148,20 +148,20 @@ export default function Login() {
 
   return (
     <div className="min-h-screen bg-slate-100 text-slate-900 flex flex-col">
-      <main className="flex-1 flex items-center justify-center px-4 py-8 sm:py-10 relative overflow-hidden">
-        <div className="absolute -top-20 -left-20 w-72 h-72 bg-primary-100 rounded-full blur-3xl opacity-30 pointer-events-none" />
-        <div className="absolute -bottom-24 -right-16 w-96 h-96 bg-primary-50 rounded-full blur-3xl opacity-60 pointer-events-none" />
+      <main className="flex-1 flex items-center justify-center px-3 sm:px-5 py-4 sm:py-8 relative overflow-hidden">
+        <div className="absolute -top-20 -left-20 w-64 sm:w-72 h-64 sm:h-72 bg-primary-100 rounded-full blur-3xl opacity-30 pointer-events-none" />
+        <div className="absolute -bottom-24 -right-16 w-80 sm:w-96 h-80 sm:h-96 bg-primary-50 rounded-full blur-3xl opacity-60 pointer-events-none" />
 
       <motion.div
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         className="w-full max-w-[440px] relative z-10"
       >
-        <div className="bg-white rounded-xl border border-slate-200 shadow-[0_20px_45px_-18px_rgba(0,31,76,0.16)] p-6 sm:p-8">
+        <div className="bg-white rounded-xl border border-slate-200 shadow-[0_20px_45px_-18px_rgba(0,31,76,0.16)] p-4 sm:p-6">
           <button
             type="button"
             onClick={() => router.push('/')}
-            className="inline-flex items-center text-xs text-slate-500 hover:text-primary-700 transition-colors mb-6"
+            className="inline-flex items-center text-xs text-slate-500 hover:text-primary-700 transition-colors mb-4"
           >
             <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -169,20 +169,20 @@ export default function Login() {
             Back
           </button>
 
-          <div className="text-center mb-7">
-            <div className="w-16 h-16 mb-4 mx-auto rounded-xl bg-primary-600 flex items-center justify-center">
-              <Image src="/gated.svg" alt="GATED" width={40} height={40} className="w-10 h-10 object-contain" priority />
+          <div className="text-center mb-5">
+            <div className="inline-flex items-center justify-center bg-white border border-primary-100 rounded-lg px-4 py-2 mb-3 shadow-sm">
+              <Image src="/gated.svg" alt="GATED" width={132} height={34} className="h-6 sm:h-7 w-auto object-contain" priority />
             </div>
-            <div className="inline-flex items-center gap-2 mb-2 text-[10px] uppercase tracking-[0.2em] font-semibold text-slate-500">
+            <div className="inline-flex items-center gap-1.5 mb-2 text-[10px] uppercase tracking-[0.16em] font-semibold text-slate-500">
               <span className="text-primary-700">{getRoleIcon()}</span>
               Secure Access
             </div>
-            <h1 className="text-3xl font-extrabold text-primary-900 tracking-tight">Secure Login</h1>
-            <p className="text-sm text-slate-500 mt-2">{getRoleTitle()} Portal</p>
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-primary-900 tracking-tight">Secure Login</h1>
+            <p className="text-xs sm:text-sm text-slate-500 mt-1.5">{getRoleTitle()} Portal</p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-5">
-            <div className="space-y-2">
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-1.5">
               <label htmlFor="username" className="block text-xs font-semibold text-slate-600 px-1 tracking-wide">
                 {role === 'guard' ? 'Staff ID' : 'Username'}
               </label>
@@ -199,7 +199,7 @@ export default function Login() {
                   value={formData.username}
                   onChange={handleChange}
                   placeholder={role === 'guard' ? 'University ID' : 'Enter your username'}
-                  className={`w-full bg-slate-50 border rounded-lg py-3 pl-10 pr-3 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-300 ${
+                  className={`w-full bg-slate-50 border rounded-lg py-2.5 pl-10 pr-3 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-300 ${
                     errors.username ? 'border-red-400' : 'border-slate-200 focus:border-primary-400'
                   }`}
                   required
@@ -208,7 +208,7 @@ export default function Login() {
               {errors.username && <p className="text-xs text-red-600 px-1">{errors.username}</p>}
             </div>
 
-            <div className="space-y-2">
+            <div className="space-y-1.5">
               <div className="flex items-center justify-between px-1">
                 <label htmlFor="password" className="block text-xs font-semibold text-slate-600 tracking-wide">Password</label>
                 <button type="button" className="text-[11px] font-medium text-primary-700 hover:underline">Forgot?</button>
@@ -226,7 +226,7 @@ export default function Login() {
                   value={formData.password}
                   onChange={handleChange}
                   placeholder="••••••••"
-                  className={`w-full bg-slate-50 border rounded-lg py-3 pl-10 pr-10 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-300 ${
+                  className={`w-full bg-slate-50 border rounded-lg py-2.5 pl-10 pr-10 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-300 ${
                     errors.password ? 'border-red-400' : 'border-slate-200 focus:border-primary-400'
                   }`}
                   required
@@ -252,7 +252,7 @@ export default function Login() {
               {errors.password && <p className="text-xs text-red-600 px-1">{errors.password}</p>}
             </div>
 
-            <div className="flex items-center gap-2 px-3 py-2 rounded-full bg-primary-50 border border-primary-100 text-[11px] text-primary-800">
+            <div className="flex items-center gap-2 px-3 py-2 rounded-full bg-primary-50 border border-primary-100 text-[10px] sm:text-[11px] text-primary-800">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3l7 4v5c0 5-3.5 7.5-7 9-3.5-1.5-7-4-7-9V7l7-4z" />
               </svg>
@@ -262,7 +262,7 @@ export default function Login() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full bg-primary-700 hover:bg-primary-600 disabled:opacity-60 text-white font-bold py-3.5 rounded-lg shadow-lg shadow-primary-900/20 transition-all active:scale-[0.98] flex items-center justify-center gap-2"
+              className="w-full bg-primary-700 hover:bg-primary-600 disabled:opacity-60 text-white font-bold py-3 rounded-lg shadow-lg shadow-primary-900/20 transition-all active:scale-[0.98] flex items-center justify-center gap-2"
             >
               <span>{isSubmitting ? 'Logging in...' : 'Login'}</span>
               {!isSubmitting && (
@@ -273,7 +273,7 @@ export default function Login() {
             </button>
           </form>
 
-          <div className="mt-8 pt-5 border-t border-slate-200 text-center">
+          <div className="mt-6 pt-4 border-t border-slate-200 text-center">
             <button
               type="button"
               onClick={() => router.push('/')}
@@ -287,8 +287,8 @@ export default function Login() {
           </div>
         </div>
 
-        <div className="mt-6 text-center flex flex-col items-center gap-3">
-          <div className="flex items-center gap-3 text-[10px] text-slate-500 font-semibold tracking-widest uppercase">
+        <div className="mt-4 text-center flex flex-col items-center gap-2">
+          <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 text-[10px] text-slate-500 font-semibold tracking-widest uppercase">
             <span className="hover:text-primary-700 cursor-pointer transition-colors">Help</span>
             <span className="w-1 h-1 bg-slate-300 rounded-full" />
             <span className="hover:text-primary-700 cursor-pointer transition-colors">Privacy</span>
