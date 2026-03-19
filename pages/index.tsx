@@ -4,8 +4,8 @@ import Image from 'next/image';
 
 const quickServices = [
   {
-    title: 'Quick Register',
-    description: 'Instant visitor onboarding in under a minute',
+    title: 'Seek QR Code for Event',
+    description: 'Register and generate your event entry QR pass',
     href: '/visitor-register',
     icon: (
       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -24,8 +24,8 @@ const quickServices = [
     ),
   },
   {
-    title: 'Retrieve Pass',
-    description: 'Recover your QR pass using registered details',
+    title: 'Alumni Entrance / Retrieve Pass',
+    description: 'Find and recover your QR pass for campus entry',
     href: '/retrieve-qr',
     icon: (
       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -35,7 +35,7 @@ const quickServices = [
   },
   {
     title: 'Staff Login',
-    description: 'Access guard, organiser, and CSO dashboards',
+    description: 'Authorized staff members only',
     href: '/login',
     icon: (
       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -105,33 +105,6 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-4">
-          <div className="bg-white rounded-2xl border border-slate-200 p-4 sm:p-5 shadow-sm">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
-              <h2 className="text-xl sm:text-2xl font-bold text-slate-900 flex items-center gap-2">
-                <span className="w-2 h-6 bg-primary-600 rounded-full" />
-                Role Access
-              </h2>
-              <Link href="/login" className="text-primary-700 font-semibold text-sm hover:underline">Open Staff Portals</Link>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              <Link href="/login?role=guard" className="rounded-xl border border-slate-200 p-3 hover:border-primary-300 hover:bg-primary-50/50 transition">
-                <p className="text-sm font-bold text-slate-900">Security Guard</p>
-                <p className="text-xs text-slate-500 mt-1">Scan & verify campus entry</p>
-              </Link>
-              <Link href="/login?role=organiser" className="rounded-xl border border-slate-200 p-3 hover:border-primary-300 hover:bg-primary-50/50 transition">
-                <p className="text-sm font-bold text-slate-900">Event Organiser</p>
-                <p className="text-xs text-slate-500 mt-1">Manage requests and guest passes</p>
-              </Link>
-              <Link href="/login?role=cso" className="rounded-xl border border-slate-200 p-3 hover:border-primary-300 hover:bg-primary-50/50 transition">
-                <p className="text-sm font-bold text-slate-900">CSO Dashboard</p>
-                <p className="text-xs text-slate-500 mt-1">Approval and oversight controls</p>
-              </Link>
-            </div>
-          </div>
-        </section>
-
         <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-5">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl sm:text-2xl font-bold text-slate-900 flex items-center gap-2">
@@ -141,7 +114,7 @@ export default function Home() {
             <Link href="/visitor-register" className="text-primary-700 font-semibold text-sm hover:underline">Start now</Link>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
             {quickServices.map((service) => (
               <Link
                 key={service.title}
