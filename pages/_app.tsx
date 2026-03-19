@@ -12,6 +12,8 @@ export default function App({ Component, pageProps }: AppProps) {
   const [loading, setLoading] = useState(true)
   const router = useRouter()
   const showSharedShell = router.pathname !== '/login' && router.pathname !== '/cso' && router.pathname !== '/guard' && router.pathname !== '/organiser'
+  const noScrollRoutes = ['/login', '/verify', '/retrieve-qr']
+  const isNoScrollRoute = noScrollRoutes.includes(router.pathname)
 
   useEffect(() => {
     // Initial loading
@@ -38,12 +40,36 @@ export default function App({ Component, pageProps }: AppProps) {
     }
   }, [router])
 
+  useEffect(() => {
+    if (typeof document === 'undefined') return
+
+    if (isNoScrollRoute) {
+      document.documentElement.classList.add('overflow-hidden')
+      document.body.classList.add('overflow-hidden')
+    } else {
+      document.documentElement.classList.remove('overflow-hidden')
+      document.body.classList.remove('overflow-hidden')
+    }
+
+    return () => {
+      document.documentElement.classList.remove('overflow-hidden')
+      document.body.classList.remove('overflow-hidden')
+    }
+  }, [isNoScrollRoute])
+
+  const mainClassName = [
+    showSharedShell
+      ? 'pt-[calc(4rem+max(0px,env(safe-area-inset-top)))] pb-[calc(5.25rem+max(0px,env(safe-area-inset-bottom)))] md:pb-[calc(4.5rem+max(0px,env(safe-area-inset-bottom)))]'
+      : '',
+    isNoScrollRoute ? 'h-dvh overflow-hidden' : ''
+  ].filter(Boolean).join(' ')
+
   return (
     <PWAProvider>
       <ToastProvider>
         {loading && <LoadingScreen />}
         {showSharedShell && <Navbar />}
-        <main className={showSharedShell ? 'pt-[calc(4rem+max(0px,env(safe-area-inset-top)))] pb-[calc(5.25rem+max(0px,env(safe-area-inset-bottom)))] md:pb-[calc(4.5rem+max(0px,env(safe-area-inset-bottom)))]' : ''}>
+        <main className={mainClassName}>
           <Component {...pageProps} />
         </main>
         {showSharedShell && <FooterHolder />}
