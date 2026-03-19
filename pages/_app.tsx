@@ -43,7 +43,7 @@ export default function App({ Component, pageProps }: AppProps) {
       <ToastProvider>
         {loading && <LoadingScreen />}
         {showSharedShell && <Navbar />}
-        <main className={showSharedShell ? 'pt-[calc(4rem+max(0px,env(safe-area-inset-top)))] pb-[calc(4.5rem+max(0px,env(safe-area-inset-bottom)))]' : ''}>
+        <main className={showSharedShell ? 'pt-[calc(4rem+max(0px,env(safe-area-inset-top)))] pb-[calc(5.25rem+max(0px,env(safe-area-inset-bottom)))] md:pb-[calc(4.5rem+max(0px,env(safe-area-inset-bottom)))]' : ''}>
           <Component {...pageProps} />
         </main>
         {showSharedShell && <FooterHolder />}
