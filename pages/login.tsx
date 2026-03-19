@@ -167,11 +167,16 @@ export default function Login() {
           </button>
 
           <div className="text-center mb-6">
-            <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-primary-50 border border-primary-100 flex items-center justify-center">
-              <Image src="/gated.svg" alt="GATED logo" width={40} height={40} className="w-10 h-10 object-contain" priority />
+            <div className="inline-flex items-center justify-center px-5 py-2 rounded-full bg-primary-50 border border-primary-100 mb-3">
+              <span className="text-primary-700 font-extrabold tracking-wide text-sm">GATED</span>
             </div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary-50 border border-primary-100 text-primary-700 text-xs font-semibold mb-3">
-              <span className="w-4 h-4">{getRoleIcon()}</span>
+            <div className="mx-auto mb-3 w-11 h-11 rounded-full bg-primary-50 border border-primary-100 text-primary-700 flex items-center justify-center">
+              {getRoleIcon()}
+            </div>
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary-50 border border-primary-100 text-primary-700 text-[11px] font-semibold mb-3">
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3l7 4v5c0 5-3.5 7.5-7 9-3.5-1.5-7-4-7-9V7l7-4z" />
+              </svg>
               <span>GATED · {getRoleTitle()} Access</span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-1">{getRoleTitle()} Login</h1>
