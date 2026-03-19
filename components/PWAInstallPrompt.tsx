@@ -29,8 +29,8 @@ export default function PWAInstallPrompt({ onInstall, onDismiss }: PWAInstallPro
             <div className="flex items-center space-x-4">
               <div className="w-16 h-16 bg-white rounded-2xl p-2 flex items-center justify-center shadow-lg">
                 <Image
-                  src="/socio.svg"
-                  alt="SOCIO"
+                  src="/gated.svg"
+                  alt="GATED"
                   width={64}
                   height={64}
                   className="w-full h-full object-contain"
@@ -46,7 +46,7 @@ export default function PWAInstallPrompt({ onInstall, onDismiss }: PWAInstallPro
           {/* Content */}
           <div className="p-6">
             <h4 className="text-lg font-semibold text-gray-800 mb-3">
-              Install SOCIO Gated Access
+              Install GATED Access
             </h4>
             <p className="text-gray-600 mb-4 text-sm leading-relaxed">
               Add this app to your home screen for quick and easy access to campus entry management, powered by SOCIO.

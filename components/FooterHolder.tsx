@@ -174,9 +174,9 @@ export default function FooterHolder() {
 
         <div className="hidden md:flex flex-col md:flex-row justify-between items-center gap-2 sm:gap-3">
           <div className="flex items-center gap-3">
-            <Image src="/socio.svg" alt="SOCIO" width={24} height={24} className="w-6 h-6 opacity-75" />
+            <Image src="/gated.svg" alt="GATED" width={24} height={24} className="w-6 h-6 opacity-75" />
             <span className="text-slate-500 text-xs sm:text-sm font-medium text-center md:text-left">
-              © 2026 SOCIO Gated Access. Powered by SOCIO.
+              © 2026 GATED Access. Powered by SOCIO.
             </span>
           </div>
 

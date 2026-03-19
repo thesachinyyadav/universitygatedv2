@@ -52,7 +52,7 @@ export default function Home() {
 
             <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="relative z-10 max-w-2xl">
               <span className="inline-block px-3 py-1 rounded-full bg-tertiary-600 text-slate-900 text-[11px] font-bold uppercase tracking-wider mb-3">
-                Powered by SOCIO
+                GATED · Powered by SOCIO
               </span>
               <h1 className="text-white text-2xl sm:text-3xl md:text-5xl font-black tracking-tight mb-4">
                 Secure Campus Entry

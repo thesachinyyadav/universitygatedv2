@@ -102,9 +102,9 @@ export default function QRGenerator({ visitorId, visitorName }: QRGeneratorProps
     try {
       console.log('[PDF_DOWNLOAD] Starting PDF generation...');
       
-      // Load the SOCIO logo
+      // Load the GATED logo
       const logoImg = new Image();
-      logoImg.src = '/socio.svg';
+      logoImg.src = '/gated.svg';
       
       await new Promise((resolve, reject) => {
         logoImg.onload = resolve;
@@ -131,7 +131,7 @@ export default function QRGenerator({ visitorId, visitorName }: QRGeneratorProps
       pdf.setLineWidth(1);
       pdf.rect(10, 10, 190, 35, 'S');
       
-      // Add SOCIO logo (left corner inside border)
+      // Add GATED logo (left corner inside border)
       if (logoImg.complete && logoImg.naturalHeight !== 0) {
         try {
           const canvas = document.createElement('canvas');
@@ -152,38 +152,38 @@ export default function QRGenerator({ visitorId, visitorName }: QRGeneratorProps
         }
       }
       
-      // SOCIO logo + "Gated" text (right side)
+      // GATED logo + "Gated" text (right side)
       try {
         // Convert SVG to PNG via canvas for jsPDF compatibility
-        const socioLogoImg = new Image();
-        socioLogoImg.src = '/socio.svg';
-        const socioLoaded = await new Promise<boolean>((resolve) => {
-          socioLogoImg.onload = () => resolve(true);
-          socioLogoImg.onerror = () => {
-            console.warn('[PDF_DOWNLOAD] SOCIO logo failed to load');
+        const gatedLogoImg = new Image();
+        gatedLogoImg.src = '/gated.svg';
+        const gatedLoaded = await new Promise<boolean>((resolve) => {
+          gatedLogoImg.onload = () => resolve(true);
+          gatedLogoImg.onerror = () => {
+            console.warn('[PDF_DOWNLOAD] GATED logo failed to load');
             resolve(false);
           };
           setTimeout(() => resolve(false), 2000);
         });
 
-        if (socioLoaded && socioLogoImg.naturalWidth > 0) {
+        if (gatedLoaded && gatedLogoImg.naturalWidth > 0) {
           // Render SVG to canvas, then extract as PNG data URL
           const canvas = document.createElement('canvas');
           const scale = 3; // High res
-          canvas.width = socioLogoImg.naturalWidth * scale;
-          canvas.height = socioLogoImg.naturalHeight * scale;
+          canvas.width = gatedLogoImg.naturalWidth * scale;
+          canvas.height = gatedLogoImg.naturalHeight * scale;
           const ctx = canvas.getContext('2d');
           if (ctx) {
-            ctx.drawImage(socioLogoImg, 0, 0, canvas.width, canvas.height);
-            const socioDataUrl = canvas.toDataURL('image/png');
+            ctx.drawImage(gatedLogoImg, 0, 0, canvas.width, canvas.height);
+            const gatedDataUrl = canvas.toDataURL('image/png');
             // Calculate dimensions maintaining aspect ratio
-            const aspect = socioLogoImg.naturalWidth / socioLogoImg.naturalHeight;
-            const socioHeight = 10;
-            const socioWidth = socioHeight * aspect;
+            const aspect = gatedLogoImg.naturalWidth / gatedLogoImg.naturalHeight;
+            const gatedHeight = 10;
+            const gatedWidth = gatedHeight * aspect;
             // Position: right-aligned, logo then "Gated" text
             const gatedTextWidth = 22; // approx width of 'Gated' at font size 18
-            const logoX = 195 - gatedTextWidth - socioWidth - 2;
-            pdf.addImage(socioDataUrl, 'PNG', logoX, 15, socioWidth, socioHeight);
+            const logoX = 195 - gatedTextWidth - gatedWidth - 2;
+            pdf.addImage(gatedDataUrl, 'PNG', logoX, 15, gatedWidth, gatedHeight);
           }
           // Add 'Gated' text after the logo
           pdf.setTextColor(37, 74, 154);
@@ -191,14 +191,14 @@ export default function QRGenerator({ visitorId, visitorName }: QRGeneratorProps
           pdf.setFont('helvetica', 'bold');
           pdf.text('Gated', 195, 23, { align: 'right' });
         } else {
-          throw new Error('SOCIO logo not loaded');
+          throw new Error('GATED logo not loaded');
         }
       } catch (err) {
-        // Fallback: just write 'SOCIO Gated' as text if logo fails
+        // Fallback: just write 'GATED' as text if logo fails
         pdf.setTextColor(37, 74, 154);
         pdf.setFontSize(18);
         pdf.setFont('helvetica', 'bold');
-        pdf.text('SOCIO Gated', 195, 23, { align: 'right' });
+        pdf.text('GATED', 195, 23, { align: 'right' });
       }
       
       // Subtitle below "University Gated"
@@ -332,7 +332,7 @@ export default function QRGenerator({ visitorId, visitorName }: QRGeneratorProps
       pdf.setTextColor(255, 255, 255);
       pdf.setFontSize(10);
       pdf.setFont('helvetica', 'bold');
-      pdf.text('SOCIO Gated Access Management', 105, 284, { align: 'center' });
+      pdf.text('GATED Access Management', 105, 284, { align: 'center' });
       
       pdf.setFontSize(7);
       pdf.setFont('helvetica', 'normal');
@@ -340,7 +340,7 @@ export default function QRGenerator({ visitorId, visitorName }: QRGeneratorProps
 
       // Save PDF
       const safeEventName = visitorDetails?.event_name?.replace(/[^a-zA-Z0-9]/g, '_') || 'Event';
-      pdf.save(`SOCIO_AccessPass_${visitorName.replace(/\s+/g, '_')}_${safeEventName}.pdf`);
+      pdf.save(`GATED_AccessPass_${visitorName.replace(/\s+/g, '_')}_${safeEventName}.pdf`);
       console.log('[PDF_DOWNLOAD] ✓ PDF download initiated successfully');
     } catch (error) {
       console.error('[PDF_DOWNLOAD] Error generating PDF:', error);

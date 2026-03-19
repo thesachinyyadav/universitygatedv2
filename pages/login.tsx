@@ -17,7 +17,6 @@ export default function Login() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [keepSignedIn, setKeepSignedIn] = useState(false);
 
   const getRoleTitle = () => {
     switch (role) {
@@ -149,230 +148,99 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-[#f5f7fb] px-3 sm:px-4 py-4 sm:py-8">
-      <div className="mx-auto w-full max-w-6xl">
-        <motion.div
-          initial={{ opacity: 0, y: -12 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="hidden md:flex items-center justify-between bg-white border border-gray-200 rounded-xl px-4 py-3 mb-6"
-        >
-          <div className="flex items-center gap-2">
-            <Image src="/socio.svg" alt="SOCIO" width={24} height={24} className="w-6 h-6" />
-            <p className="text-sm font-semibold text-gray-800">SOCIO Security</p>
-          </div>
-          <div className="flex items-center gap-6 text-xs text-gray-600">
-            <button type="button" onClick={() => router.push('/')} className="hover:text-primary-700 transition-colors">Home</button>
-            <button type="button" onClick={() => router.push('/retrieve-qr')} className="hover:text-primary-700 transition-colors">Help</button>
-            <button type="button" onClick={() => router.push('/')} className="px-3 py-1.5 rounded-lg bg-primary-600 text-white font-semibold hover:bg-primary-700 transition-colors">Support</button>
-          </div>
-        </motion.div>
+    <div className="min-h-screen bg-gray-100 px-4 py-6 sm:py-10 flex items-center justify-center">
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="w-full max-w-md"
+      >
+        <div className="bg-white rounded-2xl border border-primary-200 shadow-xl p-5 sm:p-7">
+          <button
+            type="button"
+            onClick={() => router.push('/')}
+            className="inline-flex items-center text-sm text-gray-600 hover:text-primary-700 transition-colors mb-6"
+          >
+            <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+            Back
+          </button>
 
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="md:hidden w-full max-w-sm mx-auto"
-        >
-          <div className="bg-white rounded-2xl border border-primary-300 shadow-lg p-5">
-            <button
-              type="button"
-              onClick={() => router.push('/')}
-              className="flex items-center text-gray-600 hover:text-primary-700 text-sm mb-6"
-            >
-              <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-              </svg>
-              Back
-            </button>
-
-            <div className="text-center mb-6">
-              <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-primary-50 border border-primary-100 flex items-center justify-center shadow-sm">
-                <Image src="/socio.svg" alt="SOCIO" width={40} height={40} className="w-10 h-10 object-contain" priority />
-              </div>
-              <h1 className="text-2xl font-bold text-gray-900 mb-1">{getRoleTitle()} Login</h1>
-              <p className="text-sm text-gray-500">Enter your credentials to access the system</p>
+          <div className="text-center mb-6">
+            <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-primary-50 border border-primary-100 flex items-center justify-center">
+              <Image src="/gated.svg" alt="GATED logo" width={40} height={40} className="w-10 h-10 object-contain" priority />
             </div>
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary-50 border border-primary-100 text-primary-700 text-xs font-semibold mb-3">
+              <span className="w-4 h-4">{getRoleIcon()}</span>
+              <span>GATED · {getRoleTitle()} Access</span>
+            </div>
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-1">{getRoleTitle()} Login</h1>
+            <p className="text-sm text-gray-500">Enter your credentials to access the system</p>
+          </div>
 
-            <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <Input
+              label={role === 'guard' ? 'Staff ID' : 'Username'}
+              name="username"
+              type="text"
+              value={formData.username}
+              onChange={handleChange}
+              error={errors.username}
+              placeholder={role === 'guard' ? 'Enter your staff ID' : 'Enter your username'}
+              leftIcon={
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+              }
+              required
+            />
+
+            <div className="relative">
               <Input
-                label={role === 'guard' ? 'Staff ID' : 'Username'}
-                name="username"
-                type="text"
-                value={formData.username}
+                label="Password"
+                name="password"
+                type={showPassword ? 'text' : 'password'}
+                value={formData.password}
                 onChange={handleChange}
-                error={errors.username}
-                placeholder={role === 'guard' ? 'Enter your staff ID' : 'Enter your username'}
-                leftIcon={
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                  </svg>
-                }
+                error={errors.password}
+                placeholder="Enter your password"
                 required
               />
-
-              <div className="relative">
-                <Input
-                  label="Password"
-                  name="password"
-                  type={showPassword ? "text" : "password"}
-                  value={formData.password}
-                  onChange={handleChange}
-                  error={errors.password}
-                  placeholder="Enter your password"
-                  required
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-[41px] text-gray-400 hover:text-gray-600"
-                  aria-label={showPassword ? 'Hide password' : 'Show password'}
-                >
-                  {showPassword ? (
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M3 3l18 18" />
-                    </svg>
-                  ) : (
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                    </svg>
-                  )}
-                </button>
-              </div>
-
-              <Button
-                type="submit"
-                variant="primary"
-                size="md"
-                fullWidth
-                isLoading={isSubmitting}
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-[41px] text-gray-400 hover:text-gray-600"
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
               >
-                {isSubmitting ? 'Logging in...' : 'Login'}
-              </Button>
-            </form>
-
-            <div className="mt-6 text-center text-xs text-gray-500">
-              Powered by <span className="font-semibold text-primary-700">SOCIO</span>
-            </div>
-          </div>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="hidden md:grid md:grid-cols-[1.05fr_0.95fr] overflow-hidden rounded-2xl shadow-xl border border-gray-200 bg-white"
-        >
-          <div className="bg-gradient-to-b from-primary-600 to-primary-700 text-white px-12 py-14 flex flex-col justify-center">
-            <div className="w-14 h-14 rounded-2xl bg-white/10 border border-white/20 flex items-center justify-center mb-6">
-              {getRoleIcon()}
-            </div>
-            <h2 className="text-4xl font-bold mb-4">{getRoleTitle()} Portal</h2>
-            <p className="text-white/85 text-lg leading-relaxed max-w-md mb-10">
-              Ensuring a safe and secure environment with real-time entry verification.
-            </p>
-            <div className="h-px bg-white/20 mb-6" />
-            <p className="text-xs tracking-[0.2em] uppercase text-white/75">Powered by SOCIO</p>
-          </div>
-
-          <div className="px-10 py-10 lg:px-12 lg:py-12">
-            <button
-              type="button"
-              onClick={() => router.push('/')}
-              className="inline-flex items-center text-sm text-gray-500 hover:text-primary-700 mb-6 transition-colors"
-            >
-              <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-              </svg>
-              Back to Home
-            </button>
-
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Staff Login</h1>
-            <p className="text-gray-500 mb-8">Please enter your credentials to access the secure portal.</p>
-
-            <form onSubmit={handleSubmit} className="space-y-5">
-              <Input
-                label="Staff ID / Username"
-                name="username"
-                type="text"
-                value={formData.username}
-                onChange={handleChange}
-                error={errors.username}
-                placeholder="Enter your staff ID"
-                leftIcon={
+                {showPassword ? (
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M3 3l18 18" />
                   </svg>
-                }
-                required
-              />
+                ) : (
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                  </svg>
+                )}
+              </button>
+            </div>
 
-              <div className="relative">
-                <Input
-                  label="Password"
-                  name="password"
-                  type={showPassword ? "text" : "password"}
-                  value={formData.password}
-                  onChange={handleChange}
-                  error={errors.password}
-                  placeholder="Enter your password"
-                  required
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-[41px] text-gray-400 hover:text-gray-600"
-                  aria-label={showPassword ? 'Hide password' : 'Show password'}
-                >
-                  {showPassword ? (
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M3 3l18 18" />
-                    </svg>
-                  ) : (
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                    </svg>
-                  )}
-                </button>
-              </div>
+            <Button
+              type="submit"
+              variant="primary"
+              size="lg"
+              fullWidth
+              isLoading={isSubmitting}
+            >
+              {isSubmitting ? 'Logging in...' : 'Secure Login'}
+            </Button>
+          </form>
 
-              <div className="flex items-center justify-between text-xs">
-                <label className="inline-flex items-center gap-2 text-gray-500 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={keepSignedIn}
-                    onChange={(e) => setKeepSignedIn(e.target.checked)}
-                    className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
-                  />
-                  Keep me logged in for this shift
-                </label>
-                <button type="button" className="text-primary-700 font-semibold hover:underline">
-                  Forgot password?
-                </button>
-              </div>
-
-              <Button
-                type="submit"
-                variant="primary"
-                size="lg"
-                fullWidth
-                isLoading={isSubmitting}
-                rightIcon={
-                  !isSubmitting ? (
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                    </svg>
-                  ) : undefined
-                }
-              >
-                {isSubmitting ? 'Logging in...' : 'Secure Login'}
-              </Button>
-            </form>
-
-            <p className="text-xs text-gray-400 mt-8 text-center">Authorized Access Only · Powered by SOCIO</p>
-          </div>
-        </motion.div>
-      </div>
-
+          <p className="mt-6 text-center text-xs text-gray-500">
+            Authorized Access Only · Powered by <span className="font-semibold text-primary-700">SOCIO</span>
+          </p>
+        </div>
+      </motion.div>
     </div>
   );
 }

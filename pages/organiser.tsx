@@ -314,7 +314,6 @@ export default function OrganiserDashboard() {
                 Logout
               </button>
             </div>
-            </div>
           </div>
           
           <QRGenerator

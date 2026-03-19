@@ -17,8 +17,8 @@ export default function LoadingScreen() {
         >
           <div className="relative w-32 h-32 mx-auto">
             <Image
-              src="/socio.svg"
-              alt="SOCIO Logo"
+              src="/gated.svg"
+              alt="GATED Logo"
               width={128}
               height={128}
               className="object-contain"

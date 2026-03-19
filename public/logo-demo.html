@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GATED Logo Demo</title>
+    <style>
+      :root {
+        --bg: #f1f5f9;
+        --card: #ffffff;
+        --text: #0f172a;
+        --muted: #64748b;
+        --border: #e2e8f0;
+        --brand: #154cb3;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        font-family: Inter, Arial, sans-serif;
+        background: var(--bg);
+        color: var(--text);
+      }
+      .wrap {
+        max-width: 980px;
+        margin: 0 auto;
+        padding: 28px 16px 40px;
+      }
+      h1 { margin: 0 0 8px; font-size: 28px; }
+      .sub { margin: 0 0 20px; color: var(--muted); }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 16px;
+      }
+      .card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 16px;
+      }
+      .label {
+        font-size: 12px;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        margin-bottom: 10px;
+      }
+      .preview {
+        height: 120px;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        background: #f8fafc;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .preview img {
+        max-height: 64px;
+        width: auto;
+      }
+      .bar {
+        margin-top: 16px;
+        background: white;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 10px 14px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .bar img { height: 32px; width: auto; }
+      .powered { color: var(--muted); font-size: 14px; }
+      .hint { margin-top: 16px; color: var(--muted); font-size: 14px; }
+      a { color: var(--brand); text-decoration: none; }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <h1>GATED Logo Demo</h1>
+      <p class="sub">Primary brand: <strong>GATED</strong> · Secondary: <strong>Powered by SOCIO</strong></p>
+
+      <div class="grid">
+        <section class="card">
+          <div class="label">Active app logo</div>
+          <div class="preview">
+            <img src="/gated.svg" alt="GATED logo" />
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="label">Proposed GATED logo</div>
+          <div class="preview">
+            <img src="/gated.svg" alt="GATED logo" />
+          </div>
+        </section>
+      </div>
+
+      <section class="card" style="margin-top:16px;">
+        <div class="label">Navbar-style preview</div>
+        <div class="bar">
+          <img src="/gated.svg" alt="GATED wordmark" />
+          <span class="powered">Powered by SOCIO</span>
+        </div>
+      </section>
+
+      <p class="hint">Open this demo at <a href="/logo-demo.html">/logo-demo.html</a>. The product now uses <code>/gated.svg</code> across key surfaces.</p>
+    </div>
+  </body>
+</html>

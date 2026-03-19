@@ -5,8 +5,8 @@ export default function Document() {
     <Html lang="en">
       <Head>
         {/* Favicon */}
-        <link rel="icon" href="/socio.svg" />
-        <link rel="apple-touch-icon" href="/socio.svg" />
+        <link rel="icon" href="/gated.svg" />
+        <link rel="apple-touch-icon" href="/gated.svg" />
         
         {/* PWA Manifest */}
         <link rel="manifest" href="/manifest.json" />
@@ -30,14 +30,14 @@ export default function Document() {
         <meta name="msapplication-tap-highlight" content="no" />
         
         {/* SEO */}
-        <meta name="description" content="Secure, efficient entry management for campus access and events. Powered by SOCIO." />
-        <meta name="keywords" content="SOCIO, Gated Access, QR Code, Campus Entry, Event Management, Security" />
+        <meta name="description" content="GATED provides secure, efficient entry management for campus access and events. Powered by SOCIO." />
+        <meta name="keywords" content="GATED, SOCIO, Gated Access, QR Code, Campus Entry, Event Management, Security" />
         
         {/* Open Graph / Social Media */}
         <meta property="og:type" content="website" />
-        <meta property="og:title" content="SOCIO Gated Access Management" />
-        <meta property="og:description" content="Secure, efficient entry management for campus events and access, powered by SOCIO." />
-        <meta property="og:image" content="/socio.svg" />
+        <meta property="og:title" content="GATED Access Management" />
+        <meta property="og:description" content="GATED secures campus events and access management, powered by SOCIO." />
+        <meta property="og:image" content="/gated.svg" />
         
         {/* iOS Splash Screens */}
         <link rel="apple-touch-startup-image" href="/icon-512x512.png" />
