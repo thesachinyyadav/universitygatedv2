@@ -7,7 +7,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   try {
-    const { name, purpose } = req.body;
+    const { name, purpose, phone } = req.body;
 
     if (!name || !purpose) {
       return res.status(400).json({ error: 'Name and reason are required' });
@@ -66,6 +66,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         {
           name,
           purpose,
+          phone: phone || null,
           event_id: eventId,
           event_name: 'On-Spot Campus Visit',
           date_of_visit_from: today,

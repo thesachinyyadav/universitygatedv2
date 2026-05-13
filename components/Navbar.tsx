@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
@@ -10,6 +10,7 @@ export default function Navbar() {
   const [userRole, setUserRole] = useState<UserRole | null>(null);
   const [showLoginDropdown, setShowLoginDropdown] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
+  const loginDropdownRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     // Check if user is logged in
@@ -20,6 +21,27 @@ export default function Navbar() {
       setUserRole(user.role);
     }
   }, [router.pathname]);
+
+  useEffect(() => {
+    if (!showLoginDropdown) return;
+    const handlePointerDown = (event: MouseEvent | TouchEvent) => {
+      const target = event.target as Node | null;
+      if (loginDropdownRef.current && target && !loginDropdownRef.current.contains(target)) {
+        setShowLoginDropdown(false);
+      }
+    };
+    const handleKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setShowLoginDropdown(false);
+    };
+    document.addEventListener('mousedown', handlePointerDown);
+    document.addEventListener('touchstart', handlePointerDown);
+    document.addEventListener('keydown', handleKey);
+    return () => {
+      document.removeEventListener('mousedown', handlePointerDown);
+      document.removeEventListener('touchstart', handlePointerDown);
+      document.removeEventListener('keydown', handleKey);
+    };
+  }, [showLoginDropdown]);
 
   const handleLogout = () => {
     localStorage.removeItem('user');
@@ -48,10 +70,10 @@ export default function Navbar() {
         <div className="flex justify-between items-center h-16">
           {/* Logo and Title */}
           <Link href="/" className="flex items-center space-x-2 sm:space-x-3 hover:opacity-90 transition">
-            <div className="w-9 h-9 sm:w-10 sm:h-10 bg-primary-50 rounded-lg p-1.5 flex items-center justify-center border border-primary-100">
+            <div className="w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center">
               <Image
-                src="/gated.svg"
-                alt="GATED"
+                src="/socio.svg"
+                alt="SOCIO"
                 width={48}
                 height={48}
                 className="w-full h-full object-contain"
@@ -90,7 +112,7 @@ export default function Navbar() {
                 </button>
               </>
             ) : (
-              <div className="relative">
+              <div className="relative" ref={loginDropdownRef}>
                 <button
                   onClick={() => setShowLoginDropdown(!showLoginDropdown)}
                   className="px-5 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition font-semibold shadow-sm active:scale-95"
@@ -105,26 +127,6 @@ export default function Navbar() {
                       Select Your Role
                     </div>
                     <Link
-                      href="/visitor-register"
-                      className="block px-4 py-3 hover:bg-primary-50 transition flex items-center space-x-3"
-                      onClick={() => setShowLoginDropdown(false)}
-                    >
-                      <svg className="w-5 h-5 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
-                      </svg>
-                      <span>Visitor / Participant</span>
-                    </Link>
-                    <Link
-                      href="/on-spot-registration"
-                      className="block px-4 py-3 hover:bg-primary-50 transition flex items-center space-x-3"
-                      onClick={() => setShowLoginDropdown(false)}
-                    >
-                      <svg className="w-5 h-5 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                      </svg>
-                      <span>On-Spot Registration</span>
-                    </Link>
-                    <Link
                       href="/login?role=guard"
                       className="block px-4 py-3 hover:bg-primary-50 transition flex items-center space-x-3"
                       onClick={() => setShowLoginDropdown(false)}
@@ -133,6 +135,16 @@ export default function Navbar() {
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                       </svg>
                       <span>Security Guard</span>
+                    </Link>
+                    <Link
+                      href="/login"
+                      className="block px-4 py-3 hover:bg-primary-50 transition flex items-center space-x-3"
+                      onClick={() => setShowLoginDropdown(false)}
+                    >
+                      <svg className="w-5 h-5 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                      </svg>
+                      <span>Staff Login</span>
                     </Link>
                     <Link
                       href="/login?role=organiser"
@@ -146,7 +158,7 @@ export default function Navbar() {
                     </Link>
                     <Link
                       href="/login?role=cso"
-                      className="block px-4 py-3 hover:bg-primary-50 transition flex items-center space-x-3 border-t border-gray-100"
+                      className="block px-4 py-3 hover:bg-primary-50 transition flex items-center space-x-3"
                       onClick={() => setShowLoginDropdown(false)}
                     >
                       <svg className="w-5 h-5 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -208,26 +220,6 @@ export default function Navbar() {
                   Select Your Role
                 </div>
                 <Link
-                  href="/visitor-register"
-                  className="block w-full px-4 py-3 hover:bg-slate-100 rounded-lg transition flex items-center space-x-3 text-slate-700"
-                  onClick={() => setShowMobileMenu(false)}
-                >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
-                  </svg>
-                  <span>Visitor / Participant</span>
-                </Link>
-                <Link
-                  href="/on-spot-registration"
-                  className="block w-full px-4 py-3 hover:bg-slate-100 rounded-lg transition flex items-center space-x-3 text-slate-700"
-                  onClick={() => setShowMobileMenu(false)}
-                >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                  </svg>
-                  <span>On-Spot Registration</span>
-                </Link>
-                <Link
                   href="/login?role=guard"
                   className="block w-full px-4 py-3 hover:bg-slate-100 rounded-lg transition flex items-center space-x-3 text-slate-700"
                   onClick={() => setShowMobileMenu(false)}
@@ -236,6 +228,16 @@ export default function Navbar() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                   </svg>
                   <span>Security Guard</span>
+                </Link>
+                <Link
+                  href="/login"
+                  className="block w-full px-4 py-3 hover:bg-slate-100 rounded-lg transition flex items-center space-x-3 text-slate-700"
+                  onClick={() => setShowMobileMenu(false)}
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                  </svg>
+                  <span>Staff Login</span>
                 </Link>
                 <Link
                   href="/login?role=organiser"
@@ -249,7 +251,7 @@ export default function Navbar() {
                 </Link>
                 <Link
                   href="/login?role=cso"
-                  className="block w-full px-4 py-3 hover:bg-slate-100 rounded-lg transition flex items-center space-x-3 border-t border-slate-100 text-slate-700"
+                  className="block w-full px-4 py-3 hover:bg-slate-100 rounded-lg transition flex items-center space-x-3 text-slate-700"
                   onClick={() => setShowMobileMenu(false)}
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

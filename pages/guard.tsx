@@ -148,7 +148,7 @@ export default function GuardDashboard() {
                 <span className="text-base sm:text-lg md:text-xl">Security Guard Dashboard</span>
               </h1>
               <p className="text-gray-600 text-xs sm:text-sm">
-                Welcome, <strong>{user.username}</strong> | Scan QR to verify
+                Welcome, <strong>{user.username}</strong>
               </p>
             </div>
 

@@ -6,6 +6,7 @@ const REASON_OPTIONS = ['Alumni', 'South Indian Bank', 'Department Visit'];
 
 export default function OnSpotRegistration() {
   const [name, setName] = useState('');
+  const [phone, setPhone] = useState('');
   const [reason, setReason] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
@@ -26,6 +27,7 @@ export default function OnSpotRegistration() {
     setError('');
 
     const trimmedName = name.trim();
+    const trimmedPhone = phone.trim();
     const trimmedReason = reason.trim();
 
     if (!trimmedName) {
@@ -38,6 +40,14 @@ export default function OnSpotRegistration() {
       return;
     }
 
+    if (trimmedPhone) {
+      const digitsOnly = trimmedPhone.replace(/\D/g, '');
+      if (digitsOnly.length !== 10 && digitsOnly.length !== 12) {
+        setError('Enter a valid phone number (10 digits, or 12 with country code)');
+        return;
+      }
+    }
+
     setIsSubmitting(true);
     try {
       const response = await fetch('/api/registerOnSpotVisitor', {
@@ -48,6 +58,7 @@ export default function OnSpotRegistration() {
         body: JSON.stringify({
           name: trimmedName,
           purpose: trimmedReason,
+          phone: trimmedPhone || undefined,
         }),
       });
 
@@ -114,6 +125,19 @@ export default function OnSpotRegistration() {
             </div>
 
             <div>
+              <label className="label text-xs sm:text-sm">Phone Number</label>
+              <input
+                type="tel"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value.replace(/[^\d+\s-]/g, ''))}
+                inputMode="tel"
+                maxLength={15}
+                className="input-field text-xs sm:text-sm py-2"
+                placeholder="+91 XXXXXXXXXX (optional)"
+              />
+            </div>
+
+            <div>
               <label className="label text-xs sm:text-sm">Date</label>
               <input
                 type="text"
@@ -124,20 +148,22 @@ export default function OnSpotRegistration() {
             </div>
 
             <div>
-              <label className="label text-xs sm:text-sm">Select OR Type *</label>
-              <input
-                list="on-spot-reasons"
+              <label className="label text-xs sm:text-sm">Reason for Visit *</label>
+              <select
                 value={reason}
                 onChange={(e) => setReason(e.target.value)}
                 required
-                className="input-field text-xs sm:text-sm py-2"
-                placeholder="Choose or type reason for your visit"
-              />
-              <datalist id="on-spot-reasons">
+                className="input-field text-xs sm:text-sm py-2 bg-white"
+              >
+                <option value="" disabled>
+                  Choose reason for your visit
+                </option>
                 {REASON_OPTIONS.map((option) => (
-                  <option key={option} value={option} />
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
                 ))}
-              </datalist>
+              </select>
             </div>
 
             <button

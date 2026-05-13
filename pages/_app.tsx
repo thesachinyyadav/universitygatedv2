@@ -59,7 +59,7 @@ export default function App({ Component, pageProps }: AppProps) {
 
   const mainClassName = [
     showSharedShell
-      ? 'pt-[calc(4rem+max(0px,env(safe-area-inset-top)))] pb-[calc(5.25rem+max(0px,env(safe-area-inset-bottom)))] md:pb-[calc(4.5rem+max(0px,env(safe-area-inset-bottom)))]'
+      ? 'pt-[calc(4rem+max(0px,env(safe-area-inset-top)))] pb-[calc(5.25rem+max(0px,env(safe-area-inset-bottom)))] md:pb-0'
       : '',
     isNoScrollRoute ? 'h-dvh overflow-hidden' : ''
   ].filter(Boolean).join(' ')
