@@ -11,7 +11,7 @@ import { ToastProvider } from '@/components/ui/Toast'
 export default function App({ Component, pageProps }: AppProps) {
   const [loading, setLoading] = useState(false)
   const router = useRouter()
-  const showSharedShell = router.pathname !== '/login' && router.pathname !== '/cso' && router.pathname !== '/guard' && router.pathname !== '/organiser'
+  const showSharedShell = router.pathname !== '/login'
   const noScrollRoutes = ['/login', '/verify', '/retrieve-qr']
   const isNoScrollRoute = noScrollRoutes.includes(router.pathname)
 

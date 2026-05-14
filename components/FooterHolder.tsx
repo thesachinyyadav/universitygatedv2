@@ -19,7 +19,7 @@ export default function FooterHolder() {
   const [role, setRole] = useState<Role>(null);
   const [showRoleModal, setShowRoleModal] = useState(false);
 
-  useEffect(() => {
+  const syncAuthState = () => {
     const userData = localStorage.getItem('user');
     if (!userData) {
       setIsLoggedIn(false);
@@ -35,6 +35,19 @@ export default function FooterHolder() {
       setIsLoggedIn(false);
       setRole(null);
     }
+  };
+
+  useEffect(() => {
+    syncAuthState();
+
+    const handleAuthChange = () => syncAuthState();
+    window.addEventListener('storage', handleAuthChange);
+    window.addEventListener('auth:changed', handleAuthChange as EventListener);
+
+    return () => {
+      window.removeEventListener('storage', handleAuthChange);
+      window.removeEventListener('auth:changed', handleAuthChange as EventListener);
+    };
   }, [router.pathname]);
 
   const dashboardHref =
@@ -44,22 +57,13 @@ export default function FooterHolder() {
     localStorage.removeItem('user');
     setIsLoggedIn(false);
     setRole(null);
+    window.dispatchEvent(new Event('auth:changed'));
     router.push('/');
   };
 
   const navItems = useMemo<NavItem[]>(() => {
     if (isLoggedIn) {
       return [
-        {
-          key: 'home',
-          label: 'Home',
-          href: '/',
-          icon: (
-            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M12 3l9 7h-3v10h-5v-6H11v6H6V10H3l9-7z" />
-            </svg>
-          ),
-        },
         {
           key: 'dashboard',
           label: 'Dashboard',
@@ -71,12 +75,12 @@ export default function FooterHolder() {
           ),
         },
         {
-          key: 'history',
-          label: 'History',
-          href: '/retrieve-qr',
+          key: 'home',
+          label: 'Home',
+          href: '/',
           icon: (
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-3.88-7.44M21 3v6h-6" />
+            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 3l9 7h-3v10h-5v-6H11v6H6V10H3l9-7z" />
             </svg>
           ),
         },

@@ -12,14 +12,35 @@ export default function Navbar() {
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const loginDropdownRef = useRef<HTMLDivElement | null>(null);
 
-  useEffect(() => {
-    // Check if user is logged in
+  const syncAuthState = () => {
     const userData = localStorage.getItem('user');
-    if (userData) {
+    if (!userData) {
+      setIsLoggedIn(false);
+      setUserRole(null);
+      return;
+    }
+
+    try {
       const user = JSON.parse(userData);
       setIsLoggedIn(true);
       setUserRole(user.role);
+    } catch {
+      setIsLoggedIn(false);
+      setUserRole(null);
     }
+  };
+
+  useEffect(() => {
+    syncAuthState();
+
+    const handleAuthChange = () => syncAuthState();
+    window.addEventListener('storage', handleAuthChange);
+    window.addEventListener('auth:changed', handleAuthChange as EventListener);
+
+    return () => {
+      window.removeEventListener('storage', handleAuthChange);
+      window.removeEventListener('auth:changed', handleAuthChange as EventListener);
+    };
   }, [router.pathname]);
 
   useEffect(() => {
@@ -47,6 +68,7 @@ export default function Navbar() {
     localStorage.removeItem('user');
     setIsLoggedIn(false);
     setUserRole(null);
+    window.dispatchEvent(new Event('auth:changed'));
     router.push('/');
     setShowMobileMenu(false);
   };

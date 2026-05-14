@@ -152,11 +152,7 @@ export default function GuardDashboard() {
             </div>
 
             <div className="flex items-center gap-2 sm:gap-4 flex-wrap">
-              <div className="px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg bg-slate-50 border border-slate-200 text-[10px] sm:text-xs md:text-sm text-slate-600">
-                Welcome, <span className="font-bold text-slate-900">{user.username}</span>
-              </div>
-
-              <div className="flex items-center gap-2">
+              <div className="hidden sm:flex items-center gap-2">
                 <button
                   onClick={() => router.push('/')}
                   className="px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg text-[10px] sm:text-xs md:text-sm font-semibold text-slate-600 hover:bg-slate-100 border border-slate-200 transition-colors"

@@ -62,7 +62,7 @@ export default function CSODashboard() {
   const [rejectionReason, setRejectionReason] = useState<{ [key: string]: string }>({});
   const [activeTab, setActiveTab] = useState<'events' | 'visitors'>('events');
   const [selectedEventFilter, setSelectedEventFilter] = useState<string>('');
-  const [selectedRequestStatus, setSelectedRequestStatus] = useState<'pending' | 'approved' | 'rejected'>('pending');
+  const [selectedRequestStatus, setSelectedRequestStatus] = useState<'all' | 'pending' | 'approved' | 'rejected'>('all');
   const [eventPage, setEventPage] = useState(1);
   const [historyPage, setHistoryPage] = useState(1);
   const [visitorPage, setVisitorPage] = useState(1);
@@ -241,7 +241,9 @@ export default function CSODashboard() {
     rejected: eventRequests.filter((request) => request.status === 'rejected').length,
   };
 
-  const displayedRequests = eventRequests.filter((request) => request.status === selectedRequestStatus);
+  const displayedRequests = selectedRequestStatus === 'all'
+    ? eventRequests
+    : eventRequests.filter((request) => request.status === selectedRequestStatus);
   const historyRequests = eventRequests.filter((request) => request.status !== 'pending');
   const filteredVisitors = visitors.filter((visitor) => {
     const query = searchTerm.toLowerCase();
@@ -366,7 +368,7 @@ export default function CSODashboard() {
             <div className="flex items-center gap-2 sm:gap-3">
               <button
                 onClick={() => router.push('/')}
-                className="inline-flex items-center gap-1.5 px-2.5 py-2 rounded-lg text-xs sm:text-sm font-semibold text-slate-600 hover:bg-slate-100 transition-colors"
+                className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-2 rounded-lg text-xs sm:text-sm font-semibold text-slate-600 hover:bg-slate-100 transition-colors"
                 aria-label="Go to Home"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -377,7 +379,7 @@ export default function CSODashboard() {
 
               <button
                 onClick={() => { localStorage.removeItem('user'); router.push('/login?role=cso'); }}
-                className="inline-flex items-center gap-1.5 px-2.5 py-2 rounded-lg text-xs sm:text-sm font-semibold text-slate-600 hover:bg-slate-100 transition-colors"
+                className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-2 rounded-lg text-xs sm:text-sm font-semibold text-slate-600 hover:bg-slate-100 transition-colors"
                 aria-label="Logout"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -431,25 +433,80 @@ export default function CSODashboard() {
 
         <main className="px-4 sm:px-6 lg:px-8 py-5 pb-24 lg:pb-8 max-w-7xl">
           <div className="grid grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-4 mb-6">
-            <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm">
+            <motion.div
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              onClick={() => activeTab === 'events' && setSelectedRequestStatus('all')}
+              role={activeTab === 'events' ? 'button' : undefined}
+              tabIndex={activeTab === 'events' ? 0 : -1}
+              className={`bg-white rounded-xl border p-5 shadow-sm transition-all ${
+                activeTab === 'events' ? 'cursor-pointer hover:shadow-md' : 'border-slate-200'
+              } ${
+                activeTab === 'events' && selectedRequestStatus === 'all'
+                  ? 'border-primary-300 ring-2 ring-primary-200'
+                  : 'border-slate-200'
+              }`}
+            >
               <p className="text-xs uppercase tracking-wider font-bold text-primary-600">Total {activeTab === 'events' ? 'Requests' : 'Visitors'}</p>
               <p className="text-4xl font-bold mt-2 mb-1 text-slate-800">{activeTab === 'events' ? eventRequests.length : stats.total}</p>
               <p className="text-sm text-slate-500">All time</p>
             </motion.div>
 
-            <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm">
+            <motion.div
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.05 }}
+              onClick={() => activeTab === 'events' && setSelectedRequestStatus('pending')}
+              role={activeTab === 'events' ? 'button' : undefined}
+              tabIndex={activeTab === 'events' ? 0 : -1}
+              className={`bg-white rounded-xl border p-5 shadow-sm transition-all ${
+                activeTab === 'events' ? 'cursor-pointer hover:shadow-md' : ''
+              } ${
+                activeTab === 'events' && selectedRequestStatus === 'pending'
+                  ? 'border-amber-300 ring-2 ring-amber-200'
+                  : 'border-slate-200'
+              }`}
+            >
               <p className="text-xs uppercase tracking-wider font-bold text-amber-600">Pending</p>
               <p className="text-4xl font-bold mt-2 mb-1 text-slate-800">{activeTab === 'events' ? eventRequestStats.pending : stats.pending}</p>
               <p className="text-sm text-slate-500">Awaiting review</p>
             </motion.div>
 
-            <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm">
+            <motion.div
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+              onClick={() => activeTab === 'events' && setSelectedRequestStatus('approved')}
+              role={activeTab === 'events' ? 'button' : undefined}
+              tabIndex={activeTab === 'events' ? 0 : -1}
+              className={`bg-white rounded-xl border p-5 shadow-sm transition-all ${
+                activeTab === 'events' ? 'cursor-pointer hover:shadow-md' : ''
+              } ${
+                activeTab === 'events' && selectedRequestStatus === 'approved'
+                  ? 'border-green-300 ring-2 ring-green-200'
+                  : 'border-slate-200'
+              }`}
+            >
               <p className="text-xs uppercase tracking-wider font-bold text-green-600">Approved</p>
               <p className="text-4xl font-bold mt-2 mb-1 text-slate-800">{activeTab === 'events' ? eventRequestStats.approved : stats.approved}</p>
               <p className="text-sm text-slate-500">{activeTab === 'events' ? 'Live events' : 'Approved visitors'}</p>
             </motion.div>
 
-            <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm">
+            <motion.div
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.15 }}
+              onClick={() => activeTab === 'events' && setSelectedRequestStatus('rejected')}
+              role={activeTab === 'events' ? 'button' : undefined}
+              tabIndex={activeTab === 'events' ? 0 : -1}
+              className={`bg-white rounded-xl border p-5 shadow-sm transition-all ${
+                activeTab === 'events' ? 'cursor-pointer hover:shadow-md' : ''
+              } ${
+                activeTab === 'events' && selectedRequestStatus === 'rejected'
+                  ? 'border-red-300 ring-2 ring-red-200'
+                  : 'border-slate-200'
+              }`}
+            >
               <p className="text-xs uppercase tracking-wider font-bold text-red-600">{activeTab === 'events' ? 'Rejected' : 'Revoked'}</p>
               <p className="text-4xl font-bold mt-2 mb-1 text-slate-800">{activeTab === 'events' ? eventRequestStats.rejected : stats.revoked}</p>
               <p className="text-sm text-slate-500">Declined</p>
@@ -459,40 +516,20 @@ export default function CSODashboard() {
           {activeTab === 'events' && (
             <motion.section initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
               <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-                <div className="flex items-center justify-between p-4 sm:p-5 border-b border-slate-100 bg-slate-50/50">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between p-4 sm:p-5 border-b border-slate-100 bg-slate-50/50">
                   <div className="flex items-center gap-2 text-slate-800">
                     <svg className="w-5 h-5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                     <h3 className="text-base sm:text-lg font-bold">
-                      {selectedRequestStatus === 'pending' ? 'Pending Requests' : selectedRequestStatus === 'approved' ? 'Approved Requests' : 'Rejected Requests'}
+                      {selectedRequestStatus === 'all'
+                        ? 'All Requests'
+                        : selectedRequestStatus === 'pending'
+                          ? 'Pending Requests'
+                          : selectedRequestStatus === 'approved'
+                            ? 'Approved Requests'
+                            : 'Rejected Requests'}
                     </h3>
-                  </div>
-                  <div className="flex gap-2">
-                    <button 
-                      onClick={() => setSelectedRequestStatus('pending')}
-                      className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                        selectedRequestStatus === 'pending' ? 'bg-amber-500 text-white shadow-md' : 'bg-amber-100 text-amber-700 hover:bg-amber-200'
-                      }`}
-                    >
-                      Pending ({eventRequestStats.pending})
-                    </button>
-                    <button 
-                      onClick={() => setSelectedRequestStatus('approved')}
-                      className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                        selectedRequestStatus === 'approved' ? 'bg-green-500 text-white shadow-md' : 'bg-green-100 text-green-700 hover:bg-green-200'
-                      }`}
-                    >
-                      Approved ({eventRequestStats.approved})
-                    </button>
-                    <button 
-                      onClick={() => setSelectedRequestStatus('rejected')}
-                      className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                        selectedRequestStatus === 'rejected' ? 'bg-red-500 text-white shadow-md' : 'bg-red-100 text-red-700 hover:bg-red-200'
-                      }`}
-                    >
-                      Rejected ({eventRequestStats.rejected})
-                    </button>
                   </div>
                 </div>
                 <div className="p-4 sm:p-5">
@@ -507,21 +544,26 @@ export default function CSODashboard() {
                   <div className={`w-10 h-10 rounded-full border-2 flex items-center justify-center mb-3 ${
                     selectedRequestStatus === 'pending' ? 'border-amber-500' :
                     selectedRequestStatus === 'approved' ? 'border-green-500' :
-                    'border-red-500'
+                    selectedRequestStatus === 'rejected' ? 'border-red-500' :
+                    'border-slate-300'
                   }`}>
                     <svg className={`w-5 h-5 ${
                       selectedRequestStatus === 'pending' ? 'text-amber-500' :
                       selectedRequestStatus === 'approved' ? 'text-green-500' :
-                      'text-red-500'
+                      selectedRequestStatus === 'rejected' ? 'text-red-500' :
+                      'text-slate-500'
                     }`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d={
                         selectedRequestStatus === 'pending' ? "M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" :
                         selectedRequestStatus === 'approved' ? "M5 13l4 4L19 7" :
-                        "M6 18L18 6M6 6l12 12"
+                        selectedRequestStatus === 'rejected' ? "M6 18L18 6M6 6l12 12" :
+                        "M8 6h8M8 12h8M8 18h8"
                       } />
                     </svg>
                   </div>
-                  <p className="text-slate-500 text-sm font-medium">No {selectedRequestStatus} event requests</p>
+                  <p className="text-slate-500 text-sm font-medium">
+                    {selectedRequestStatus === 'all' ? 'No event requests' : `No ${selectedRequestStatus} event requests`}
+                  </p>
                 </div>
               ) : (
                 <div className="space-y-4">

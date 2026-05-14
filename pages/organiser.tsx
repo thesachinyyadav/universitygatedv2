@@ -339,11 +339,11 @@ export default function OrganiserDashboard() {
             </div>
 
             <div className="flex items-center gap-2 sm:gap-4 flex-wrap">
-              <div className="px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg bg-slate-50 border border-slate-200 text-[10px] sm:text-xs md:text-sm text-slate-600">
+              <div className="hidden sm:block px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg bg-slate-50 border border-slate-200 text-[10px] sm:text-xs md:text-sm text-slate-600">
                 Welcome, <span className="font-bold text-slate-900">{user.full_name || user.username}</span>
               </div>
 
-              <div className="flex items-center gap-2">
+              <div className="hidden sm:flex items-center gap-2">
                 <button
                   onClick={() => router.push('/')}
                   className="px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg text-[10px] sm:text-xs md:text-sm font-semibold text-slate-600 hover:bg-slate-100 border border-slate-200 transition-colors"
@@ -364,8 +364,8 @@ export default function OrganiserDashboard() {
         <div className="space-y-4 sm:space-y-6">
           {/* Stats & Tabs Area */}
           <div className="bg-white p-4 sm:p-6 rounded-xl shadow-sm border border-slate-100">
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-gray-100 pb-4 mb-6">
-              <div className="flex items-center gap-6">
+            <div className="flex flex-col items-center text-center gap-4 border-b border-gray-100 pb-4 mb-6">
+              <div className="flex flex-wrap items-center justify-center gap-6 text-center">
                 <button
                   onClick={() => setActiveTab('events')}
                   className={`text-sm sm:text-base font-bold transition-all relative pb-2 ${activeTab === 'events' ? 'text-primary-600' : 'text-gray-500 hover:text-gray-700'}`}
@@ -400,7 +400,7 @@ export default function OrganiserDashboard() {
             {activeTab === 'events' ? (
               <div className="space-y-6">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                  <div className="flex items-center gap-2 overflow-x-auto pb-1">
+                  <div className="flex flex-wrap items-center gap-2">
                     {[
                       { key: 'all', label: 'All', count: stats.total, activeColor: 'bg-primary-50 text-primary-700 border border-primary-200', badgeColor: 'bg-primary-200 text-primary-700' },
                       { key: 'approved', label: 'Approved', count: stats.approved, activeColor: 'bg-green-50 text-green-700 border border-green-200', badgeColor: 'bg-green-200 text-green-700' },
@@ -421,7 +421,7 @@ export default function OrganiserDashboard() {
                   </div>
                   <button
                     onClick={() => setShowForm(!showForm)}
-                    className="bg-primary-600 hover:bg-primary-700 text-white px-5 py-2.5 rounded-lg text-sm font-semibold shadow-sm transition-all flex items-center gap-2 flex-shrink-0"
+                    className="bg-primary-600 hover:bg-primary-700 text-white px-5 py-2.5 rounded-lg text-sm font-semibold shadow-sm transition-all flex items-center justify-center gap-2 text-center flex-shrink-0"
                   >
                     {showForm ? (
                       <>Cancel</>
@@ -480,7 +480,25 @@ export default function OrganiserDashboard() {
                     <div className="text-center py-12 text-gray-500 text-sm font-medium">Loading requests...</div>
                   ) : paginatedEventRequests.length === 0 ? (
                     <div className="text-center py-12 text-gray-500 bg-gray-50 rounded-xl border border-dashed border-gray-200">
-                      No events found matching the criteria.
+                      {filterStatus === 'pending' && (
+                        <img
+                          src="/images.png"
+                          alt="No pending events"
+                          className="mx-auto mb-3 h-14 w-14"
+                        />
+                      )}
+                      {filterStatus === 'rejected' && (
+                        <img
+                          src="/0b3ab75a-1eee-4e36-bb82-85d519e867a9.png"
+                          alt="No rejected events"
+                          className="mx-auto mb-3 h-14 w-14"
+                        />
+                      )}
+                      {filterStatus === 'pending'
+                        ? 'No pending event requests.'
+                        : filterStatus === 'rejected'
+                          ? 'No rejected event requests.'
+                        : 'No events found matching the criteria.'}
                     </div>
                   ) : paginatedEventRequests.map(req => (
                     <motion.div key={req.id} layout className="bg-white border border-gray-200 rounded-xl p-4 sm:p-5 hover:shadow-md transition-shadow">
