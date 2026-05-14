@@ -9,20 +9,11 @@ import LoadingScreen from '@/components/LoadingScreen'
 import { ToastProvider } from '@/components/ui/Toast'
 
 export default function App({ Component, pageProps }: AppProps) {
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(false)
   const router = useRouter()
   const showSharedShell = router.pathname !== '/login' && router.pathname !== '/cso' && router.pathname !== '/guard' && router.pathname !== '/organiser'
   const noScrollRoutes = ['/login', '/verify', '/retrieve-qr']
   const isNoScrollRoute = noScrollRoutes.includes(router.pathname)
-
-  useEffect(() => {
-    // Initial loading
-    const timer = setTimeout(() => {
-      setLoading(false)
-    }, 1500) // Show loading screen for 1.5 seconds
-
-    return () => clearTimeout(timer)
-  }, [])
 
   useEffect(() => {
     // Show loading on route change
