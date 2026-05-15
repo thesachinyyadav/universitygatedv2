@@ -7,24 +7,39 @@ export default function PWAProvider({ children }: { children: React.ReactNode })
   const [isOnline, setIsOnline] = useState(true);
 
   useEffect(() => {
-    // Register service worker
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker
-          .register('/sw.js')
-          .then((registration) => {
-            console.log('[PWA] Service Worker registered:', registration.scope);
-            
-            // Check for updates periodically
-            setInterval(() => {
-              registration.update();
-            }, 60000); // Check every minute
-          })
-          .catch((error) => {
-            console.error('[PWA] Service Worker registration failed:', error);
-          });
+    if (!('serviceWorker' in navigator)) return;
+
+    const isProduction = process.env.NODE_ENV === 'production';
+
+    if (!isProduction) {
+      // In dev, an installed SW serves stale JS/HTML which breaks Next.js HMR
+      // and causes an infinite refresh loop. Unregister any existing SW and
+      // clear its caches so dev runs clean.
+      navigator.serviceWorker.getRegistrations().then((regs) => {
+        regs.forEach((reg) => reg.unregister());
       });
+      if ('caches' in window) {
+        caches.keys().then((keys) => keys.forEach((key) => caches.delete(key)));
+      }
+      return;
     }
+
+    // Register service worker (production only)
+    window.addEventListener('load', () => {
+      navigator.serviceWorker
+        .register('/sw.js')
+        .then((registration) => {
+          console.log('[PWA] Service Worker registered:', registration.scope);
+
+          // Check for updates periodically
+          setInterval(() => {
+            registration.update();
+          }, 60000); // Check every minute
+        })
+        .catch((error) => {
+          console.error('[PWA] Service Worker registration failed:', error);
+        });
+    });
 
     // Listen for install prompt
     const handleBeforeInstallPrompt = (e: Event) => {

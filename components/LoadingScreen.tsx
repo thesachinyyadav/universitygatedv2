@@ -51,9 +51,6 @@ export default function LoadingScreen() {
           height={26}
           className="h-6 w-auto"
         />
-        <p className="uppercase" style={{ fontSize: '9px', letterSpacing: '2px' }}>
-          Connecting Made Simple
-        </p>
       </div>
     </div>
   );

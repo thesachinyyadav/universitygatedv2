@@ -9,7 +9,6 @@ export default function Navbar() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userRole, setUserRole] = useState<UserRole | null>(null);
   const [showLoginDropdown, setShowLoginDropdown] = useState(false);
-  const [showMobileMenu, setShowMobileMenu] = useState(false);
   const loginDropdownRef = useRef<HTMLDivElement | null>(null);
 
   const syncAuthState = () => {
@@ -70,7 +69,6 @@ export default function Navbar() {
     setUserRole(null);
     window.dispatchEvent(new Event('auth:changed'));
     router.push('/');
-    setShowMobileMenu(false);
   };
 
   const getRoleDashboard = () => {
@@ -87,7 +85,7 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="fixed top-[env(safe-area-inset-top)] left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-sm">
+    <nav className="fixed top-[env(safe-area-inset-top)] left-0 right-0 z-50 bg-primary-700 backdrop-blur-md border-b border-primary-800 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo and Title */}
@@ -99,11 +97,12 @@ export default function Navbar() {
                 width={48}
                 height={48}
                 className="w-full h-full object-contain"
+                style={{ filter: 'brightness(0) invert(1)' }}
               />
             </div>
             <div className="hidden sm:block">
-              <h1 className="text-base font-bold leading-tight text-slate-900">GATED</h1>
-              <p className="text-[11px] text-slate-500 inline-flex items-center gap-1">
+              <h1 className="text-base font-bold leading-tight text-white">GATED</h1>
+              <p className="text-[11px] text-white/70 inline-flex items-center gap-1">
                 <span>Powered by</span>
                 <Image
                   src="/socio.svg"
@@ -111,11 +110,12 @@ export default function Navbar() {
                   width={42}
                   height={12}
                   className="h-2.5 w-auto inline-block"
+                  style={{ filter: 'brightness(0) invert(1)' }}
                 />
               </p>
             </div>
             <div className="sm:hidden">
-              <h1 className="text-base font-bold text-slate-900">GATED</h1>
+              <h1 className="text-base font-bold text-white">GATED</h1>
             </div>
           </Link>
 
@@ -125,9 +125,9 @@ export default function Navbar() {
               <>
                 <Link
                   href={getRoleDashboard()}
-                  className="px-4 py-2 text-slate-700 hover:bg-slate-100 rounded-lg transition flex items-center space-x-2"
+                  className="px-4 py-2 text-white hover:bg-white/10 rounded-lg transition flex items-center space-x-2"
                 >
-                  <svg className="w-5 h-5 text-primary-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                   </svg>
                   <span className="capitalize">{userRole} Dashboard</span>
@@ -146,7 +146,7 @@ export default function Navbar() {
               <div className="relative" ref={loginDropdownRef}>
                 <button
                   onClick={() => setShowLoginDropdown(!showLoginDropdown)}
-                  className="px-5 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition font-semibold shadow-sm active:scale-95"
+                  className="px-5 py-2 bg-white text-primary-700 hover:bg-white/90 rounded-lg transition font-semibold shadow-sm active:scale-95"
                 >
                   Login
                 </button>
@@ -203,97 +203,20 @@ export default function Navbar() {
             )}
           </div>
 
-          {/* Mobile Menu Button */}
-          <button
-            onClick={() => setShowMobileMenu(!showMobileMenu)}
-            className="md:hidden p-2 text-slate-600 hover:bg-slate-100 rounded-lg transition"
-          >
-            {showMobileMenu ? (
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          {/* Mobile Logout Button (only when logged in) */}
+          {isLoggedIn && (
+            <button
+              onClick={handleLogout}
+              className="md:hidden inline-flex items-center gap-1 px-2 py-0.5 bg-red-600 hover:bg-red-700 text-white rounded-md transition font-semibold text-xs shadow-sm active:scale-95 leading-tight"
+              aria-label="Logout"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
               </svg>
-            ) : (
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-              </svg>
-            )}
-          </button>
+              <span>Logout</span>
+            </button>
+          )}
         </div>
-
-        {/* Mobile Menu */}
-        {showMobileMenu && (
-          <div className="md:hidden pb-4 space-y-2 border-t border-slate-100 pt-2">
-            {isLoggedIn ? (
-              <>
-                <Link
-                  href={getRoleDashboard()}
-                  className="block w-full px-4 py-3 hover:bg-slate-100 rounded-lg transition flex items-center space-x-3 text-slate-700"
-                  onClick={() => setShowMobileMenu(false)}
-                >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                  </svg>
-                  <span className="capitalize">{userRole} Dashboard</span>
-                </Link>
-                <button
-                  onClick={handleLogout}
-                  className="w-full px-4 py-3 bg-tertiary-600 hover:bg-tertiary-700 text-white rounded-lg transition flex items-center space-x-3 font-semibold"
-                >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                  </svg>
-                  <span>Logout</span>
-                </button>
-              </>
-            ) : (
-              <div className="space-y-2">
-                <div className="px-4 py-2 text-xs text-slate-500 font-semibold">
-                  Select Your Role
-                </div>
-                <Link
-                  href="/login?role=guard"
-                  className="block w-full px-4 py-3 hover:bg-slate-100 rounded-lg transition flex items-center space-x-3 text-slate-700"
-                  onClick={() => setShowMobileMenu(false)}
-                >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                  </svg>
-                  <span>Security Guard</span>
-                </Link>
-                <Link
-                  href="/login"
-                  className="block w-full px-4 py-3 hover:bg-slate-100 rounded-lg transition flex items-center space-x-3 text-slate-700"
-                  onClick={() => setShowMobileMenu(false)}
-                >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                  </svg>
-                  <span>Staff Login</span>
-                </Link>
-                <Link
-                  href="/login?role=organiser"
-                  className="block w-full px-4 py-3 hover:bg-slate-100 rounded-lg transition flex items-center space-x-3 text-slate-700"
-                  onClick={() => setShowMobileMenu(false)}
-                >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
-                  </svg>
-                  <span>Event Organiser</span>
-                </Link>
-                <Link
-                  href="/login?role=cso"
-                  className="block w-full px-4 py-3 hover:bg-slate-100 rounded-lg transition flex items-center space-x-3 text-slate-700"
-                  onClick={() => setShowMobileMenu(false)}
-                >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-                  </svg>
-                  <span>Chief Security Officer</span>
-                </Link>
-              </div>
-            )}
-          </div>
-        )}
       </div>
     </nav>
   );

@@ -1,5 +1,5 @@
 import '@/styles/globals.css'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import type { AppProps } from 'next/app'
 import { useRouter } from 'next/router'
 import Navbar from '@/components/Navbar'
@@ -9,20 +9,37 @@ import PWAProvider from '@/components/PWAProvider'
 import LoadingScreen from '@/components/LoadingScreen'
 import { ToastProvider } from '@/components/ui/Toast'
 
+const MIN_LOADING_MS = 1500
+
 export default function App({ Component, pageProps }: AppProps) {
   const [loading, setLoading] = useState(false)
+  const loadingStartedAt = useRef<number>(0)
   const router = useRouter()
   const showSharedShell = router.pathname !== '/login'
   const noScrollRoutes = ['/login', '/verify']
   const isNoScrollRoute = noScrollRoutes.includes(router.pathname)
 
+  // Show the loading screen on initial client mount (e.g. F5 refresh).
+  useEffect(() => {
+    loadingStartedAt.current = Date.now()
+    setLoading(true)
+    const timer = setTimeout(() => setLoading(false), MIN_LOADING_MS)
+    return () => clearTimeout(timer)
+  }, [])
+
+  // Show the loading screen on tab-to-tab navigation (except going back to home).
   useEffect(() => {
     const handleStart = (url: string) => {
       const path = url.split('?')[0]
       if (path === '/') return
+      loadingStartedAt.current = Date.now()
       setLoading(true)
     }
-    const handleComplete = () => setLoading(false)
+    const handleComplete = () => {
+      const elapsed = Date.now() - loadingStartedAt.current
+      const remaining = Math.max(0, MIN_LOADING_MS - elapsed)
+      setTimeout(() => setLoading(false), remaining)
+    }
 
     router.events.on('routeChangeStart', handleStart)
     router.events.on('routeChangeComplete', handleComplete)
@@ -63,7 +80,7 @@ export default function App({ Component, pageProps }: AppProps) {
     <PWAProvider>
       <ToastProvider>
         {loading && <LoadingScreen />}
-        {showSharedShell && <div className="fixed top-0 left-0 right-0 z-[60] h-[env(safe-area-inset-top)] bg-white" />}
+        {showSharedShell && <div className="fixed top-0 left-0 right-0 z-[60] h-[env(safe-area-inset-top)] bg-primary-700" />}
         {showSharedShell && <Navbar />}
         <main className={mainClassName}>
           <Component {...pageProps} />

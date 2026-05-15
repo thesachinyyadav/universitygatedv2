@@ -11,9 +11,6 @@ export default function PoweredBySocio() {
         height={24}
         className="h-5 w-auto"
       />
-      <p className="uppercase" style={{ fontSize: '9px', letterSpacing: '2px' }}>
-        Connecting Made Simple
-      </p>
     </div>
   );
 }

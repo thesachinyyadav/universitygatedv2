@@ -327,12 +327,6 @@ export default function Login() {
                 height={24}
                 className="h-5 w-auto"
               />
-              <p
-                className="uppercase text-[#8b97b4]"
-                style={{ fontSize: '9px', letterSpacing: '2px' }}
-              >
-                Connecting Made Simple
-              </p>
             </div>
           </div>
         </motion.div>

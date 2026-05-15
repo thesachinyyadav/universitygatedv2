@@ -184,12 +184,6 @@ export default function FooterHolder() {
             className="h-5 w-auto"
             style={{ filter: 'brightness(0) invert(1)' }}
           />
-          <p
-            className="uppercase"
-            style={{ color: 'rgba(255,255,255,0.55)', fontSize: '9px', letterSpacing: '2px' }}
-          >
-            Connecting Made Simple
-          </p>
         </div>
       </footer>
 
