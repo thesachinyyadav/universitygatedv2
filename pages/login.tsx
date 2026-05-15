@@ -218,8 +218,7 @@ export default function Login() {
             </div>
 
             <div className="text-center mt-5 sm:mt-6 mb-5 sm:mb-6">
-              <h1 className="text-[2rem] sm:text-[2.75rem] leading-none font-extrabold tracking-tight text-[#0f225b]">Secure Login</h1>
-              <p className="mt-2.5 text-[15px] sm:text-[16px] text-[#6e7c9f]">{getPortalSubtitle()}</p>
+              <p className="text-[15px] sm:text-[16px] text-[#6e7c9f]">{getPortalSubtitle()}</p>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
@@ -297,19 +296,6 @@ export default function Login() {
                   </button>
                 </div>
                 {errors.password && <p className="text-xs text-red-600 px-1">{errors.password}</p>}
-              </div>
-
-              <div className="rounded-2xl border border-[#d9e5fb] bg-[#eef4ff] px-4 py-3.5 sm:px-5 sm:py-4 flex items-start gap-3 text-[#14307d] shadow-[0_1px_0_rgba(20,48,125,0.04)]">
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#2451ca] text-white shadow-[0_10px_25px_-16px_rgba(36,81,202,0.7)]">
-                  <svg className="w-[18px] h-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3l7 4v5c0 5-3.5 7.5-7 9-3.5-1.5-7-4-7-9V7l7-4z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4" />
-                  </svg>
-                </div>
-                <div className="pt-0.5">
-                  <div className="text-[14px] font-semibold leading-tight">Encrypted end-to-end session</div>
-                  <p className="mt-1 text-[13px] text-[#6e7c9f] leading-snug">Your connection is secure and protected.</p>
-                </div>
               </div>
 
               <button
