@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { motion, AnimatePresence } from 'framer-motion';
 import QRScanner from '@/components/QRScanner';
@@ -139,34 +140,15 @@ export default function GuardDashboard() {
     <div className="min-h-screen bg-gray-50 py-3 sm:py-4 md:py-6 px-3 sm:px-4">
       <div className="container mx-auto max-w-6xl">
         <div className="mb-3 sm:mb-4">
-          <div className="flex flex-wrap items-start justify-between gap-2">
-            <div>
-              <h1 className="text-lg sm:text-xl font-bold text-primary-600 mb-1 flex items-center space-x-2">
-                <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                </svg>
-                <span className="text-base sm:text-lg md:text-xl">Security Guard Dashboard</span>
-              </h1>
-              <p className="text-gray-600 text-xs sm:text-sm">
-                Welcome, <strong>{user.username}</strong> | Scan QR to verify
-              </p>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => router.push('/')}
-                className="px-3 py-2 rounded-lg text-xs sm:text-sm font-semibold text-slate-600 hover:bg-slate-100 border border-slate-200"
-              >
-                Home
-              </button>
-              <button
-                onClick={handleLogout}
-                className="px-3 py-2 rounded-lg text-xs sm:text-sm font-semibold text-red-600 hover:bg-red-50 border border-red-200"
-              >
-                Logout
-              </button>
-            </div>
-          </div>
+          <Link href="/" className="text-primary-600 hover:text-primary-700 font-medium text-sm inline-flex items-center gap-1">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            <span>Back to Home</span>
+          </Link>
+          <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-slate-800">
+            Security Guard Dashboard
+          </h1>
         </div>
 
         <div className="space-y-3 sm:space-y-4">
@@ -264,12 +246,20 @@ export default function GuardDashboard() {
                         </div>
 
                         {/* Status Badge */}
-                        <span className={`text-xs px-2 py-1 rounded-full font-semibold flex-shrink-0 ${
+                        <span className={`text-xs px-2 py-1 rounded-full font-semibold flex-shrink-0 inline-flex items-center justify-center ${
                           item.verified
                             ? 'bg-green-100 text-green-700'
                             : 'bg-red-100 text-red-700'
                         }`}>
-                          {item.verified ? '✓' : '✗'}
+                          {item.verified ? (
+                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                            </svg>
+                          ) : (
+                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                          )}
                         </span>
                       </div>
                     </motion.div>
@@ -570,10 +560,19 @@ export default function GuardDashboard() {
                 
                 {/* Content */}
                 <div className="flex-1 min-w-0">
-                  <p className={`font-bold text-sm ${
+                  <p className={`font-bold text-sm inline-flex items-center gap-1.5 ${
                     notification.verified ? 'text-green-800' : 'text-red-800'
                   }`}>
-                    {notification.verified ? 'ACCESS GRANTED ✓' : 'ACCESS DENIED ✗'}
+                    <span>{notification.verified ? 'ACCESS GRANTED' : 'ACCESS DENIED'}</span>
+                    {notification.verified ? (
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                      </svg>
+                    ) : (
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    )}
                   </p>
                   {notification.visitorName && (
                     <p className="text-xs text-gray-700 mt-1 truncate">

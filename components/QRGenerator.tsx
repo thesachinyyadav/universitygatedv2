@@ -126,7 +126,7 @@ export default function QRGenerator({ visitorId, visitorName, requirePdfDownload
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      console.log('[QR_DOWNLOAD] ✓ QR image download initiated');
+      console.log('[QR_DOWNLOAD] QR image download initiated');
     } catch (error) {
       console.error('[QR_DOWNLOAD] Error downloading QR image:', error);
       alert('Failed to download QR image. Please try again.');
@@ -383,7 +383,7 @@ export default function QRGenerator({ visitorId, visitorName, requirePdfDownload
       const safeEventName = visitorDetails?.event_name?.replace(/[^a-zA-Z0-9]/g, '_') || 'Event';
       pdf.save(`GATED_AccessPass_${visitorName.replace(/\s+/g, '_')}_${safeEventName}.pdf`);
       setIsPdfDownloaded(true);
-      console.log('[PDF_DOWNLOAD] ✓ PDF download initiated successfully');
+      console.log('[PDF_DOWNLOAD] PDF download initiated successfully');
     } catch (error) {
       console.error('[PDF_DOWNLOAD] Error generating PDF:', error);
       alert('Failed to generate PDF. Please try again.');
@@ -450,13 +450,35 @@ export default function QRGenerator({ visitorId, visitorName, requirePdfDownload
             <p className="text-sm text-gray-700 mb-2">
               <span className="font-semibold text-primary-600">Category:</span>
             </p>
-            <span 
-              className="inline-block px-4 py-2 rounded-full text-white font-semibold text-sm shadow-md"
+            <span
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-white font-semibold text-sm shadow-md"
               style={{ backgroundColor: visitorDetails.qr_color }}
             >
-              {visitorDetails.visitor_category === 'student' && '🎓 Student'}
-              {visitorDetails.visitor_category === 'speaker' && '🎤 Speaker/Guest'}
-              {visitorDetails.visitor_category === 'vip' && '⭐ VIP'}
+              {visitorDetails.visitor_category === 'student' && (
+                <>
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 14l9-5-9-5-9 5 9 5z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" />
+                  </svg>
+                  <span>Student</span>
+                </>
+              )}
+              {visitorDetails.visitor_category === 'speaker' && (
+                <>
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                  </svg>
+                  <span>Speaker/Guest</span>
+                </>
+              )}
+              {visitorDetails.visitor_category === 'vip' && (
+                <>
+                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.539 1.118l-2.8-2.034a1 1 0 00-1.176 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                  </svg>
+                  <span>VIP</span>
+                </>
+              )}
             </span>
           </div>
         )}

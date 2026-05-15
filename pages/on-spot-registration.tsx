@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import Link from 'next/link';
 import { motion } from 'framer-motion';
 import QRGenerator from '@/components/QRGenerator';
 
@@ -6,6 +7,8 @@ const REASON_OPTIONS = ['Alumni', 'South Indian Bank', 'Department Visit'];
 
 export default function OnSpotRegistration() {
   const [name, setName] = useState('');
+  const [phone, setPhone] = useState('');
+  const [email, setEmail] = useState('');
   const [reason, setReason] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
@@ -26,6 +29,8 @@ export default function OnSpotRegistration() {
     setError('');
 
     const trimmedName = name.trim();
+    const trimmedPhone = phone.trim();
+    const trimmedEmail = email.trim();
     const trimmedReason = reason.trim();
 
     if (!trimmedName) {
@@ -35,6 +40,24 @@ export default function OnSpotRegistration() {
 
     if (!trimmedReason) {
       setError('Reason for visit is required');
+      return;
+    }
+
+    if (!trimmedPhone && !trimmedEmail) {
+      setError('Please provide either a phone number or an email address');
+      return;
+    }
+
+    if (trimmedPhone) {
+      const digitsOnly = trimmedPhone.replace(/\D/g, '');
+      if (digitsOnly.length !== 10 && digitsOnly.length !== 12) {
+        setError('Enter a valid phone number (10 digits, or 12 with country code)');
+        return;
+      }
+    }
+
+    if (trimmedEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail)) {
+      setError('Enter a valid email address');
       return;
     }
 
@@ -48,6 +71,8 @@ export default function OnSpotRegistration() {
         body: JSON.stringify({
           name: trimmedName,
           purpose: trimmedReason,
+          phone: trimmedPhone || undefined,
+          email: trimmedEmail || undefined,
         }),
       });
 
@@ -80,8 +105,16 @@ export default function OnSpotRegistration() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-3 sm:py-4 md:py-6 px-3 sm:px-4">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 pt-1 pb-3 sm:pb-4 md:pb-6 px-3 sm:px-4">
       <div className="container mx-auto max-w-2xl">
+        <div className="mb-1">
+          <Link href="/" className="text-primary-600 hover:text-primary-700 font-medium text-sm inline-flex items-center gap-1">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            <span>Back to Home</span>
+          </Link>
+        </div>
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -124,20 +157,52 @@ export default function OnSpotRegistration() {
             </div>
 
             <div>
-              <label className="label text-xs sm:text-sm">Select OR Type *</label>
-              <input
-                list="on-spot-reasons"
+              <label className="label text-xs sm:text-sm">Reason for Visit *</label>
+              <select
                 value={reason}
                 onChange={(e) => setReason(e.target.value)}
                 required
-                className="input-field text-xs sm:text-sm py-2"
-                placeholder="Choose or type reason for your visit"
-              />
-              <datalist id="on-spot-reasons">
+                className="input-field text-xs sm:text-sm py-2 bg-white"
+              >
+                <option value="" disabled>
+                  Choose reason for your visit
+                </option>
                 {REASON_OPTIONS.map((option) => (
-                  <option key={option} value={option} />
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
                 ))}
-              </datalist>
+              </select>
+            </div>
+
+            <div className="pt-1">
+              <p className="text-xs text-gray-500 mb-2">
+                Provide at least one contact method &mdash; either phone or email (or both).
+              </p>
+              <div>
+                <label className="label text-xs sm:text-sm">Phone Number</label>
+                <input
+                  type="tel"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value.replace(/[^\d+\s-]/g, ''))}
+                  inputMode="tel"
+                  maxLength={15}
+                  className="input-field text-xs sm:text-sm py-2"
+                  placeholder="+91 XXXXXXXXXX"
+                />
+              </div>
+              <div className="mt-3">
+                <label className="label text-xs sm:text-sm">Email ID</label>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  inputMode="email"
+                  autoComplete="email"
+                  className="input-field text-xs sm:text-sm py-2"
+                  placeholder="you@example.com"
+                />
+              </div>
             </div>
 
             <button

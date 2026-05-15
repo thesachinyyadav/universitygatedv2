@@ -18,68 +18,68 @@ export default function PhotoCapture({ onPhotoCapture, capturedPhoto }: PhotoCap
       // Check if running on HTTPS or localhost
       const isSecureContext = window.isSecureContext || window.location.hostname === 'localhost';
       if (!isSecureContext) {
-        alert('⚠️ Camera requires HTTPS! Please use the deployed Vercel URL or localhost.');
+        alert('Camera requires HTTPS! Please use the deployed Vercel URL or localhost.');
         return;
       }
 
       // Check if mediaDevices API is available
       if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        alert('❌ Camera API not available in this browser. Please use Chrome, Firefox, or Safari.');
+        alert('Camera API not available in this browser. Please use Chrome, Firefox, or Safari.');
         return;
       }
 
-      console.log('🎥 Requesting camera access for photo...');
-      
+      console.log('Requesting camera access for photo...');
+
       // Request camera access
-      const mediaStream = await navigator.mediaDevices.getUserMedia({ 
-        video: { 
-          facingMode: 'user', 
+      const mediaStream = await navigator.mediaDevices.getUserMedia({
+        video: {
+          facingMode: 'user',
           width: { ideal: 1280 },
           height: { ideal: 720 }
-        } 
+        }
       });
-      
-      console.log('✅ Camera access granted!');
+
+      console.log('Camera access granted');
       setStream(mediaStream);
       setIsCameraActive(true);
-      
+
       // Wait for next tick to ensure video element is rendered
       setTimeout(() => {
         if (videoRef.current) {
           videoRef.current.srcObject = mediaStream;
-          
+
           // Wait for video to start playing
           videoRef.current.onloadedmetadata = () => {
-            console.log('📹 Video metadata loaded');
+            console.log('Video metadata loaded');
             videoRef.current?.play().then(() => {
-              console.log('▶️ Video playing');
+              console.log('Video playing');
               setIsVideoReady(true);
             }).catch((err) => {
               console.error('Play error:', err);
-              alert('⚠️ Failed to start video. Please try again.');
+              alert('Failed to start video. Please try again.');
             });
           };
         }
       }, 100);
-      
+
     } catch (error: any) {
-      console.error('❌ Camera error:', error);
-      
+      console.error('Camera error:', error);
+
       let errorMessage = '';
       if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
-        errorMessage = '🚫 Camera access denied!\n\nPlease click the camera icon in your browser address bar and allow camera access.';
+        errorMessage = 'Camera access denied!\n\nPlease click the camera icon in your browser address bar and allow camera access.';
       } else if (error.name === 'NotFoundError' || error.name === 'DevicesNotFoundError') {
-        errorMessage = '📷 No camera found on this device.';
+        errorMessage = 'No camera found on this device.';
       } else if (error.name === 'NotReadableError' || error.name === 'TrackStartError') {
-        errorMessage = '⚠️ Camera is being used by another application.\n\nPlease close other apps using the camera and try again.';
+        errorMessage = 'Camera is being used by another application.\n\nPlease close other apps using the camera and try again.';
       } else if (error.name === 'OverconstrainedError') {
-        errorMessage = '⚙️ Camera constraints not supported. Trying without constraints...';
+        errorMessage = 'Camera constraints not supported. Trying without constraints...';
         // Retry without constraints
         try {
           const mediaStream = await navigator.mediaDevices.getUserMedia({ video: true });
           setStream(mediaStream);
           setIsCameraActive(true);
-          
+
           setTimeout(() => {
             if (videoRef.current) {
               videoRef.current.srcObject = mediaStream;
@@ -92,14 +92,14 @@ export default function PhotoCapture({ onPhotoCapture, capturedPhoto }: PhotoCap
           }, 100);
           return;
         } catch (retryError) {
-          errorMessage = '❌ Camera initialization failed.';
+          errorMessage = 'Camera initialization failed.';
         }
       } else if (error.name === 'SecurityError') {
-        errorMessage = '🔒 Security error: Camera requires HTTPS!\n\nPlease use the deployed Vercel URL.';
+        errorMessage = 'Security error: Camera requires HTTPS!\n\nPlease use the deployed Vercel URL.';
       } else {
-        errorMessage = `❌ Camera error: ${error.message || 'Unknown error'}\n\nPlease check browser settings.`;
+        errorMessage = `Camera error: ${error.message || 'Unknown error'}\n\nPlease check browser settings.`;
       }
-      
+
       alert(errorMessage);
     }
   };
@@ -114,60 +114,60 @@ export default function PhotoCapture({ onPhotoCapture, capturedPhoto }: PhotoCap
   };
 
   const capturePhoto = () => {
-    console.log('📸 Attempting to capture photo...');
-    
+    console.log('Attempting to capture photo...');
+
     if (!videoRef.current || !canvasRef.current) {
       console.error('Video or canvas ref not available');
-      alert('❌ Camera not ready');
+      alert('Camera not ready');
       return;
     }
-    
+
     const video = videoRef.current;
     const canvas = canvasRef.current;
-    
+
     // Check if video is ready
     if (video.videoWidth === 0 || video.videoHeight === 0) {
       console.error('Video dimensions are 0');
-      alert('⚠️ Video not ready yet. Please wait a moment and try again.');
+      alert('Video not ready yet. Please wait a moment and try again.');
       return;
     }
-    
-    console.log(`📹 Video dimensions: ${video.videoWidth}x${video.videoHeight}`);
-    
+
+    console.log(`Video dimensions: ${video.videoWidth}x${video.videoHeight}`);
+
     const context = canvas.getContext('2d');
-    
+
     if (!context) {
       console.error('Failed to get canvas context');
-      alert('❌ Failed to get canvas context');
+      alert('Failed to get canvas context');
       return;
     }
-    
+
     try {
       // Set canvas dimensions to match video
       canvas.width = video.videoWidth;
       canvas.height = video.videoHeight;
-      
+
       // Draw the video frame to canvas
       context.drawImage(video, 0, 0, canvas.width, canvas.height);
-      
+
       // Convert canvas to data URL
       const photoDataUrl = canvas.toDataURL('image/jpeg', 0.85);
-      
-      console.log('✅ Photo captured successfully, size:', photoDataUrl.length, 'bytes');
-      
+
+      console.log('Photo captured successfully, size:', photoDataUrl.length, 'bytes');
+
       // Pass photo to parent component
       onPhotoCapture(photoDataUrl);
-      
+
       // Stop camera
       stopCamera();
-      
+
       // Success feedback
       if ('vibrate' in navigator) {
         navigator.vibrate(200);
       }
     } catch (error) {
-      console.error('❌ Error capturing photo:', error);
-      alert('❌ Failed to capture photo. Please try again.');
+      console.error('Error capturing photo:', error);
+      alert('Failed to capture photo. Please try again.');
     }
   };
 
@@ -230,7 +230,7 @@ export default function PhotoCapture({ onPhotoCapture, capturedPhoto }: PhotoCap
               muted
               className="w-full h-auto"
             />
-            
+
             {/* Face Guide Overlay */}
             {isVideoReady && (
               <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
@@ -243,18 +243,22 @@ export default function PhotoCapture({ onPhotoCapture, capturedPhoto }: PhotoCap
                   <div className="absolute bottom-0 left-0 w-8 h-8 border-b-4 border-l-4 border-green-400 rounded-bl-3xl"></div>
                   <div className="absolute bottom-0 right-0 w-8 h-8 border-b-4 border-r-4 border-green-400 rounded-br-3xl"></div>
                 </div>
-                
+
                 {/* Instruction Text */}
                 <div className="absolute top-4 left-0 right-0 text-center">
                   <div className="inline-block bg-black bg-opacity-70 px-4 py-2 rounded-lg">
-                    <p className="text-white text-sm font-semibold">
-                      📸 Center your face in the circle
+                    <p className="text-white text-sm font-semibold inline-flex items-center gap-2">
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                      </svg>
+                      <span>Center your face in the circle</span>
                     </p>
                   </div>
                 </div>
               </div>
             )}
-            
+
             {!isVideoReady && (
               <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50">
                 <div className="text-center text-white">
@@ -270,8 +274,8 @@ export default function PhotoCapture({ onPhotoCapture, capturedPhoto }: PhotoCap
               onClick={capturePhoto}
               disabled={!isVideoReady}
               className={`flex-1 flex items-center justify-center space-x-2 ${
-                isVideoReady 
-                  ? 'btn-primary' 
+                isVideoReady
+                  ? 'btn-primary'
                   : 'bg-gray-300 text-gray-500 px-6 py-3 rounded-lg font-semibold cursor-not-allowed'
               }`}
             >
@@ -298,8 +302,11 @@ export default function PhotoCapture({ onPhotoCapture, capturedPhoto }: PhotoCap
         <div className="space-y-4">
           <div className="relative rounded-lg overflow-hidden border-2 border-green-500">
             <img src={capturedPhoto} alt="Captured" className="w-full h-auto" />
-            <div className="absolute top-2 right-2 bg-green-500 text-white px-3 py-1 rounded-full text-sm font-semibold">
-              ✓ Photo Captured
+            <div className="absolute top-2 right-2 bg-green-500 text-white px-3 py-1 rounded-full text-sm font-semibold inline-flex items-center gap-1">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+              </svg>
+              <span>Photo Captured</span>
             </div>
           </div>
           <button

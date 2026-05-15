@@ -73,13 +73,35 @@ export default function VerifyPage() {
               {visitor.visitor_category && (
                 <div className="flex justify-between border-b pb-2 gap-2 items-center">
                   <span className="font-semibold text-gray-700">Category:</span>
-                  <span 
-                    className="px-2 sm:px-3 py-1 rounded-full text-white text-xs font-semibold whitespace-nowrap"
+                  <span
+                    className="inline-flex items-center gap-1.5 px-2 sm:px-3 py-1 rounded-full text-white text-xs font-semibold whitespace-nowrap"
                     style={{ backgroundColor: visitor.qr_color || '#254a9a' }}
                   >
-                    {visitor.visitor_category === 'student' && '🎓 STUDENT'}
-                    {visitor.visitor_category === 'speaker' && '🎤 SPEAKER'}
-                    {visitor.visitor_category === 'vip' && '⭐ VIP'}
+                    {visitor.visitor_category === 'student' && (
+                      <>
+                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 14l9-5-9-5-9 5 9 5z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" />
+                        </svg>
+                        <span>STUDENT</span>
+                      </>
+                    )}
+                    {visitor.visitor_category === 'speaker' && (
+                      <>
+                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                        </svg>
+                        <span>SPEAKER</span>
+                      </>
+                    )}
+                    {visitor.visitor_category === 'vip' && (
+                      <>
+                        <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+                          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.539 1.118l-2.8-2.034a1 1 0 00-1.176 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                        </svg>
+                        <span>VIP</span>
+                      </>
+                    )}
                   </span>
                 </div>
               )}
@@ -126,7 +148,12 @@ export default function VerifyPage() {
               </div>
             </div>
             <div className="mt-3 sm:mt-4 p-2 sm:p-3 bg-white rounded-lg text-xs text-gray-600">
-              <p>✓ Authorized for entry</p>
+              <p className="inline-flex items-center gap-1">
+                <svg className="w-3.5 h-3.5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                </svg>
+                <span>Authorized for entry</span>
+              </p>
               <p className="text-xs text-gray-500 mt-0.5">
                 {new Date().toLocaleTimeString()}
               </p>

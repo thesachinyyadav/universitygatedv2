@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { motion } from 'framer-motion';
 import { supabase } from '@/lib/supabaseClient';
@@ -62,6 +63,7 @@ export default function CSODashboard() {
   const [rejectionReason, setRejectionReason] = useState<{ [key: string]: string }>({});
   const [activeTab, setActiveTab] = useState<'events' | 'visitors'>('events');
   const [selectedEventFilter, setSelectedEventFilter] = useState<string>('');
+  const [selectedRequestStatus, setSelectedRequestStatus] = useState<'all' | 'pending' | 'approved' | 'rejected'>('all');
   const [eventPage, setEventPage] = useState(1);
   const [historyPage, setHistoryPage] = useState(1);
   const [visitorPage, setVisitorPage] = useState(1);
@@ -240,7 +242,9 @@ export default function CSODashboard() {
     rejected: eventRequests.filter((request) => request.status === 'rejected').length,
   };
 
-  const pendingRequests = eventRequests.filter((request) => request.status === 'pending');
+  const displayedRequests = selectedRequestStatus === 'all'
+    ? eventRequests
+    : eventRequests.filter((request) => request.status === selectedRequestStatus);
   const historyRequests = eventRequests.filter((request) => request.status !== 'pending');
   const filteredVisitors = visitors.filter((visitor) => {
     const query = searchTerm.toLowerCase();
@@ -258,11 +262,11 @@ export default function CSODashboard() {
   const historyPageSize = 6;
   const visitorPageSize = 10;
 
-  const totalEventPages = Math.max(1, Math.ceil(pendingRequests.length / eventPageSize));
+  const totalEventPages = Math.max(1, Math.ceil(displayedRequests.length / eventPageSize));
   const totalHistoryPages = Math.max(1, Math.ceil(historyRequests.length / historyPageSize));
   const totalVisitorPages = Math.max(1, Math.ceil(filteredVisitors.length / visitorPageSize));
 
-  const paginatedPendingRequests = pendingRequests.slice((eventPage - 1) * eventPageSize, eventPage * eventPageSize);
+  const paginatedDisplayedRequests = displayedRequests.slice((eventPage - 1) * eventPageSize, eventPage * eventPageSize);
   const paginatedHistoryRequests = historyRequests.slice((historyPage - 1) * historyPageSize, historyPage * historyPageSize);
   const paginatedVisitors = filteredVisitors.slice((visitorPage - 1) * visitorPageSize, visitorPage * visitorPageSize);
 
@@ -271,6 +275,10 @@ export default function CSODashboard() {
   useEffect(() => {
     setVisitorPage(1);
   }, [searchTerm, selectedEventFilter]);
+
+  useEffect(() => {
+    setEventPage(1);
+  }, [selectedRequestStatus]);
 
   useEffect(() => {
     if (eventPage > totalEventPages) setEventPage(totalEventPages);
@@ -300,22 +308,21 @@ export default function CSODashboard() {
             </div>
             <div>
               <h1 className="text-lg font-bold">CSO Dashboard</h1>
-              <p className="text-xs text-slate-500">Powered by SOCIO</p>
+              <p className="text-xs text-slate-500 inline-flex items-center gap-1">
+                <span>Powered by</span>
+                <Image
+                  src="/socio.svg"
+                  alt="SOCIO"
+                  width={46}
+                  height={13}
+                  className="h-3 w-auto inline-block"
+                />
+              </p>
             </div>
           </div>
         </div>
 
         <nav className="p-4 space-y-2 flex-1">
-          <button
-            onClick={() => router.push('/')}
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold text-slate-600 hover:bg-slate-100 transition"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10.5L12 3l9 7.5M5.25 9.75V20a1 1 0 001 1h4.5v-6h2.5v6h4.5a1 1 0 001-1V9.75" />
-            </svg>
-            <span>Home</span>
-          </button>
-
           <button
             onClick={() => setActiveTab('events')}
             className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold transition ${
@@ -350,20 +357,7 @@ export default function CSODashboard() {
           </button>
         </nav>
 
-        <div className="p-4 border-t border-slate-200">
-          <button
-            onClick={() => {
-              localStorage.removeItem('user');
-              router.push('/login?role=cso');
-            }}
-            className="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg text-sm font-semibold text-slate-600 hover:bg-slate-100"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-            </svg>
-            Logout
-          </button>
-        </div>
+
       </aside>
 
       <div className="lg:ml-72">
@@ -384,13 +378,24 @@ export default function CSODashboard() {
             <div className="flex items-center gap-2 sm:gap-3">
               <button
                 onClick={() => router.push('/')}
-                className="inline-flex items-center gap-1.5 px-2.5 py-2 rounded-lg text-xs sm:text-sm font-semibold text-slate-600 hover:bg-slate-100 transition-colors"
+                className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-2 rounded-lg text-xs sm:text-sm font-semibold text-slate-600 hover:bg-slate-100 transition-colors"
                 aria-label="Go to Home"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10.5L12 3l9 7.5M5.25 9.75V20a1 1 0 001 1h4.5v-6h2.5v6h4.5a1 1 0 001-1V9.75" />
                 </svg>
                 <span className="hidden sm:inline">Home</span>
+              </button>
+
+              <button
+                onClick={() => { localStorage.removeItem('user'); router.push('/login?role=cso'); }}
+                className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-2 rounded-lg text-xs sm:text-sm font-semibold text-slate-600 hover:bg-slate-100 transition-colors"
+                aria-label="Logout"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                </svg>
+                <span className="hidden sm:inline">Logout</span>
               </button>
 
               {activeTab === 'visitors' && (
@@ -438,94 +443,225 @@ export default function CSODashboard() {
 
         <main className="px-4 sm:px-6 lg:px-8 py-5 pb-24 lg:pb-8 max-w-7xl">
           <div className="grid grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-4 mb-6">
-            <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="bg-white rounded-xl border border-slate-200 p-4">
-              <p className="text-[11px] uppercase tracking-wider font-semibold text-slate-500">Total Visitors</p>
-              <p className="text-2xl font-bold mt-1">{stats.total}</p>
+            <motion.div
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              onClick={() => activeTab === 'events' && setSelectedRequestStatus('all')}
+              role={activeTab === 'events' ? 'button' : undefined}
+              tabIndex={activeTab === 'events' ? 0 : -1}
+              className={`bg-white rounded-xl border p-5 shadow-sm transition-all ${
+                activeTab === 'events' ? 'cursor-pointer hover:shadow-md' : 'border-slate-200'
+              } ${
+                activeTab === 'events' && selectedRequestStatus === 'all'
+                  ? 'border-primary-300 ring-2 ring-primary-200'
+                  : 'border-slate-200'
+              }`}
+            >
+              <p className="text-xs uppercase tracking-wider font-bold text-primary-600">Total {activeTab === 'events' ? 'Requests' : 'Visitors'}</p>
+              <p className="text-4xl font-bold mt-2 mb-1 text-slate-800">{activeTab === 'events' ? eventRequests.length : stats.total}</p>
+              <p className="text-sm text-slate-500">All time</p>
             </motion.div>
 
-            <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="bg-white rounded-xl border border-slate-200 p-4">
-              <p className="text-[11px] uppercase tracking-wider font-semibold text-amber-600">Pending</p>
-              <p className="text-2xl font-bold mt-1">{stats.pending}</p>
+            <motion.div
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.05 }}
+              onClick={() => activeTab === 'events' && setSelectedRequestStatus('pending')}
+              role={activeTab === 'events' ? 'button' : undefined}
+              tabIndex={activeTab === 'events' ? 0 : -1}
+              className={`bg-white rounded-xl border p-5 shadow-sm transition-all ${
+                activeTab === 'events' ? 'cursor-pointer hover:shadow-md' : ''
+              } ${
+                activeTab === 'events' && selectedRequestStatus === 'pending'
+                  ? 'border-amber-300 ring-2 ring-amber-200'
+                  : 'border-slate-200'
+              }`}
+            >
+              <p className="text-xs uppercase tracking-wider font-bold text-amber-600">Pending</p>
+              <p className="text-4xl font-bold mt-2 mb-1 text-slate-800">{activeTab === 'events' ? eventRequestStats.pending : stats.pending}</p>
+              <p className="text-sm text-slate-500">Awaiting review</p>
             </motion.div>
 
-            <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="bg-white rounded-xl border border-slate-200 p-4">
-              <p className="text-[11px] uppercase tracking-wider font-semibold text-green-600">Approved</p>
-              <p className="text-2xl font-bold mt-1">{stats.approved}</p>
+            <motion.div
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+              onClick={() => activeTab === 'events' && setSelectedRequestStatus('approved')}
+              role={activeTab === 'events' ? 'button' : undefined}
+              tabIndex={activeTab === 'events' ? 0 : -1}
+              className={`bg-white rounded-xl border p-5 shadow-sm transition-all ${
+                activeTab === 'events' ? 'cursor-pointer hover:shadow-md' : ''
+              } ${
+                activeTab === 'events' && selectedRequestStatus === 'approved'
+                  ? 'border-green-300 ring-2 ring-green-200'
+                  : 'border-slate-200'
+              }`}
+            >
+              <p className="text-xs uppercase tracking-wider font-bold text-green-600">Approved</p>
+              <p className="text-4xl font-bold mt-2 mb-1 text-slate-800">{activeTab === 'events' ? eventRequestStats.approved : stats.approved}</p>
+              <p className="text-sm text-slate-500">{activeTab === 'events' ? 'Live events' : 'Approved visitors'}</p>
             </motion.div>
 
-            <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="bg-white rounded-xl border border-slate-200 p-4">
-              <p className="text-[11px] uppercase tracking-wider font-semibold text-red-600">Revoked</p>
-              <p className="text-2xl font-bold mt-1">{stats.revoked}</p>
+            <motion.div
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.15 }}
+              onClick={() => activeTab === 'events' && setSelectedRequestStatus('rejected')}
+              role={activeTab === 'events' ? 'button' : undefined}
+              tabIndex={activeTab === 'events' ? 0 : -1}
+              className={`bg-white rounded-xl border p-5 shadow-sm transition-all ${
+                activeTab === 'events' ? 'cursor-pointer hover:shadow-md' : ''
+              } ${
+                activeTab === 'events' && selectedRequestStatus === 'rejected'
+                  ? 'border-red-300 ring-2 ring-red-200'
+                  : 'border-slate-200'
+              }`}
+            >
+              <p className="text-xs uppercase tracking-wider font-bold text-red-600">{activeTab === 'events' ? 'Rejected' : 'Revoked'}</p>
+              <p className="text-4xl font-bold mt-2 mb-1 text-slate-800">{activeTab === 'events' ? eventRequestStats.rejected : stats.revoked}</p>
+              <p className="text-sm text-slate-500">Declined</p>
             </motion.div>
           </div>
 
           {activeTab === 'events' && (
             <motion.section initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
-              <div className="flex items-center justify-between">
-                <h3 className="text-lg sm:text-xl font-bold">Event Requests</h3>
-                <span className="text-xs font-semibold text-slate-500">Pending: {eventRequestStats.pending} · Approved: {eventRequestStats.approved} · Rejected: {eventRequestStats.rejected}</span>
-              </div>
+              <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between p-4 sm:p-5 border-b border-slate-100 bg-slate-50/50">
+                  <div className="flex items-center gap-2 text-slate-800">
+                    <svg className="w-5 h-5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <h3 className="text-base sm:text-lg font-bold">
+                      {selectedRequestStatus === 'all'
+                        ? 'All Requests'
+                        : selectedRequestStatus === 'pending'
+                          ? 'Pending Requests'
+                          : selectedRequestStatus === 'approved'
+                            ? 'Approved Requests'
+                            : 'Rejected Requests'}
+                    </h3>
+                  </div>
+                </div>
+                <div className="p-4 sm:p-5">
 
               {isLoading ? (
                 <div className="bg-white rounded-xl border border-slate-200 p-12 text-center">
                   <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary-600 mx-auto" />
                   <p className="text-slate-500 text-sm mt-3">Loading requests...</p>
                 </div>
-              ) : pendingRequests.length === 0 ? (
-                <div className="bg-white rounded-xl border border-slate-200 p-12 text-center">
-                  <p className="text-slate-400">No pending event requests</p>
+              ) : displayedRequests.length === 0 ? (
+                <div className="py-16 flex flex-col items-center justify-center text-center relative">
+                  <div className={`w-10 h-10 rounded-full border-2 flex items-center justify-center mb-3 ${
+                    selectedRequestStatus === 'pending' ? 'border-amber-500' :
+                    selectedRequestStatus === 'approved' ? 'border-green-500' :
+                    selectedRequestStatus === 'rejected' ? 'border-red-500' :
+                    'border-slate-300'
+                  }`}>
+                    <svg className={`w-5 h-5 ${
+                      selectedRequestStatus === 'pending' ? 'text-amber-500' :
+                      selectedRequestStatus === 'approved' ? 'text-green-500' :
+                      selectedRequestStatus === 'rejected' ? 'text-red-500' :
+                      'text-slate-500'
+                    }`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d={
+                        selectedRequestStatus === 'pending' ? "M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" :
+                        selectedRequestStatus === 'approved' ? "M5 13l4 4L19 7" :
+                        selectedRequestStatus === 'rejected' ? "M6 18L18 6M6 6l12 12" :
+                        "M8 6h8M8 12h8M8 18h8"
+                      } />
+                    </svg>
+                  </div>
+                  <p className="text-slate-500 text-sm font-medium">
+                    {selectedRequestStatus === 'all' ? 'No event requests' : `No ${selectedRequestStatus} event requests`}
+                  </p>
                 </div>
               ) : (
                 <div className="space-y-4">
-                  {paginatedPendingRequests.map((request) => (
+                  {paginatedDisplayedRequests.map((request) => (
                     <div key={request.id} className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
                       <div className="p-4 sm:p-5 border-b border-slate-100 flex items-start justify-between gap-3">
                         <div>
                           <h4 className="font-bold text-lg leading-tight">{request.event_name}</h4>
                           <p className="text-sm text-slate-500 mt-1">{request.department}</p>
                         </div>
-                        <span className="text-[10px] uppercase tracking-widest font-bold bg-amber-100 text-amber-700 px-2 py-1 rounded">Pending</span>
+                        <span className={`text-[10px] uppercase tracking-widest font-bold px-2 py-1 rounded ${
+                          request.status === 'pending' ? 'bg-amber-100 text-amber-700' :
+                          request.status === 'approved' ? 'bg-green-100 text-green-700' :
+                          'bg-red-100 text-red-700'
+                        }`}>
+                          {request.status.charAt(0).toUpperCase() + request.status.slice(1)}
+                        </span>
                       </div>
 
                       <div className="p-4 sm:p-5 space-y-3">
                         {request.event_description && <p className="text-sm text-slate-600">{request.event_description}</p>}
 
                         <div className="grid sm:grid-cols-2 gap-2 text-sm text-slate-600">
-                          <p>📅 {formatDateRange(request.date_from, request.date_to)}</p>
-                          <p>👥 Expected: {request.expected_students || 'N/A'}</p>
-                          <p>🏢 Capacity: {request.max_capacity || 'N/A'}</p>
-                          <p>🕒 Submitted: {new Date(request.created_at).toLocaleDateString('en-IN')}</p>
+                          <p className="inline-flex items-center gap-1.5">
+                            <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                            <span>{formatDateRange(request.date_from, request.date_to)}</span>
+                          </p>
+                          <p className="inline-flex items-center gap-1.5">
+                            <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                            </svg>
+                            <span>Expected: {request.expected_students || 'N/A'}</span>
+                          </p>
+                          <p className="inline-flex items-center gap-1.5">
+                            <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                            </svg>
+                            <span>Capacity: {request.max_capacity || 'N/A'}</span>
+                          </p>
+                          <p className="inline-flex items-center gap-1.5">
+                            <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <span>Submitted: {new Date(request.created_at).toLocaleDateString('en-IN')}</span>
+                          </p>
                         </div>
 
-                        <div className="pt-3 border-t border-slate-100">
-                          <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">
-                            Rejection Reason
-                          </label>
-                          <textarea
-                            value={rejectionReason[request.id] || ''}
-                            onChange={(e) => setRejectionReason((prev) => ({ ...prev, [request.id]: e.target.value }))}
-                            className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-300"
-                            placeholder="Enter reason if rejecting this request"
-                            rows={2}
-                          />
+                        {(request.status === 'pending' || (request.status === 'rejected' && request.rejection_reason)) && (
+                          <div className="pt-3 border-t border-slate-100">
+                            {request.status === 'pending' ? (
+                              <>
+                                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">
+                                  Rejection Reason
+                                </label>
+                                <textarea
+                                  value={rejectionReason[request.id] || ''}
+                                  onChange={(e) => setRejectionReason((prev) => ({ ...prev, [request.id]: e.target.value }))}
+                                  className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-300"
+                                  placeholder="Enter reason if rejecting this request"
+                                  rows={2}
+                                />
 
-                          <div className="mt-3 flex gap-2">
-                            <button
-                              onClick={() => handleApproveEvent(request.id, true)}
-                              disabled={isApprovingEvent === request.id}
-                              className="flex-1 bg-primary-600 hover:bg-primary-700 text-white rounded-lg py-2.5 text-sm font-bold disabled:opacity-50"
-                            >
-                              {isApprovingEvent === request.id ? 'Processing...' : 'Approve'}
-                            </button>
-                            <button
-                              onClick={() => handleApproveEvent(request.id, false)}
-                              disabled={isApprovingEvent === request.id || !rejectionReason[request.id]}
-                              className="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg py-2.5 text-sm font-bold disabled:opacity-50"
-                            >
-                              {isApprovingEvent === request.id ? 'Processing...' : 'Reject'}
-                            </button>
+                                <div className="mt-3 flex gap-2">
+                                  <button
+                                    onClick={() => handleApproveEvent(request.id, true)}
+                                    disabled={isApprovingEvent === request.id}
+                                    className="flex-1 bg-primary-600 hover:bg-primary-700 text-white rounded-lg py-2.5 text-sm font-bold disabled:opacity-50"
+                                  >
+                                    {isApprovingEvent === request.id ? 'Processing...' : 'Approve'}
+                                  </button>
+                                  <button
+                                    onClick={() => handleApproveEvent(request.id, false)}
+                                    disabled={isApprovingEvent === request.id || !rejectionReason[request.id]}
+                                    className="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg py-2.5 text-sm font-bold disabled:opacity-50"
+                                  >
+                                    {isApprovingEvent === request.id ? 'Processing...' : 'Reject'}
+                                  </button>
+                                </div>
+                              </>
+                            ) : (
+                              <div className="bg-red-50 p-3 rounded-lg border border-red-100 text-sm text-red-700">
+                                <span className="font-bold">Rejection Reason:</span> {request.rejection_reason}
+                              </div>
+                            )}
                           </div>
-                        </div>
+                        )}
                       </div>
                     </div>
                   ))}
@@ -533,6 +669,8 @@ export default function CSODashboard() {
                   <Pagination currentPage={eventPage} totalPages={totalEventPages} onPageChange={setEventPage} className="pt-2" />
                 </div>
               )}
+                </div>
+              </div>
 
               <div className="bg-white rounded-xl border border-slate-200 p-4 sm:p-5">
                 <h4 className="font-bold text-base sm:text-lg mb-4">Event History</h4>
