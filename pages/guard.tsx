@@ -265,12 +265,20 @@ export default function GuardDashboard() {
                         </div>
 
                         {/* Status Badge */}
-                        <span className={`text-xs px-2 py-1 rounded-full font-semibold flex-shrink-0 ${
+                        <span className={`text-xs px-2 py-1 rounded-full font-semibold flex-shrink-0 inline-flex items-center justify-center ${
                           item.verified
                             ? 'bg-green-100 text-green-700'
                             : 'bg-red-100 text-red-700'
                         }`}>
-                          {item.verified ? '✓' : '✗'}
+                          {item.verified ? (
+                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                            </svg>
+                          ) : (
+                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                          )}
                         </span>
                       </div>
                     </motion.div>
@@ -571,10 +579,19 @@ export default function GuardDashboard() {
                 
                 {/* Content */}
                 <div className="flex-1 min-w-0">
-                  <p className={`font-bold text-sm ${
+                  <p className={`font-bold text-sm inline-flex items-center gap-1.5 ${
                     notification.verified ? 'text-green-800' : 'text-red-800'
                   }`}>
-                    {notification.verified ? 'ACCESS GRANTED ✓' : 'ACCESS DENIED ✗'}
+                    <span>{notification.verified ? 'ACCESS GRANTED' : 'ACCESS DENIED'}</span>
+                    {notification.verified ? (
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                      </svg>
+                    ) : (
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    )}
                   </p>
                   {notification.visitorName && (
                     <p className="text-xs text-gray-700 mt-1 truncate">
