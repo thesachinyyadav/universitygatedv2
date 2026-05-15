@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import Link from 'next/link';
 import { motion } from 'framer-motion';
 import QRGenerator from '@/components/QRGenerator';
 
@@ -91,8 +92,16 @@ export default function OnSpotRegistration() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-3 sm:py-4 md:py-6 px-3 sm:px-4">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 pt-1 pb-3 sm:pb-4 md:pb-6 px-3 sm:px-4">
       <div className="container mx-auto max-w-2xl">
+        <div className="mb-1">
+          <Link href="/" className="text-primary-600 hover:text-primary-700 font-medium text-sm inline-flex items-center gap-1">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            <span>Back to Home</span>
+          </Link>
+        </div>
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
