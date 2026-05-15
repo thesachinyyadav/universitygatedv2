@@ -318,7 +318,22 @@ export default function Login() {
               <span className="text-[#b7c3dc]">•</span>
               <Link href="/terms" className="hover:text-primary-700 cursor-pointer transition-colors">Terms</Link>
             </div>
-            <p className="text-[13px] text-[#8b97b4]">Powered by <span className="font-semibold text-primary-700">SOCIO</span></p>
+            <div className="flex flex-col items-center gap-1">
+              <p className="text-[12px] text-[#8b97b4]">Powered by</p>
+              <Image
+                src="/socio.svg"
+                alt="SOCIO"
+                width={84}
+                height={24}
+                className="h-5 w-auto"
+              />
+              <p
+                className="uppercase text-[#8b97b4]"
+                style={{ fontSize: '9px', letterSpacing: '2px' }}
+              >
+                Connecting Made Simple
+              </p>
+            </div>
           </div>
         </motion.div>
       </main>

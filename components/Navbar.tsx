@@ -103,7 +103,16 @@ export default function Navbar() {
             </div>
             <div className="hidden sm:block">
               <h1 className="text-base font-bold leading-tight text-slate-900">GATED</h1>
-              <p className="text-[11px] text-slate-500">Powered by SOCIO</p>
+              <p className="text-[11px] text-slate-500 inline-flex items-center gap-1">
+                <span>Powered by</span>
+                <Image
+                  src="/socio.svg"
+                  alt="SOCIO"
+                  width={42}
+                  height={12}
+                  className="h-2.5 w-auto inline-block"
+                />
+              </p>
             </div>
             <div className="sm:hidden">
               <h1 className="text-base font-bold text-slate-900">GATED</h1>

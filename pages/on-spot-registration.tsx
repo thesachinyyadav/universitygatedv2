@@ -8,6 +8,7 @@ const REASON_OPTIONS = ['Alumni', 'South Indian Bank', 'Department Visit'];
 export default function OnSpotRegistration() {
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
+  const [email, setEmail] = useState('');
   const [reason, setReason] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
@@ -29,6 +30,7 @@ export default function OnSpotRegistration() {
 
     const trimmedName = name.trim();
     const trimmedPhone = phone.trim();
+    const trimmedEmail = email.trim();
     const trimmedReason = reason.trim();
 
     if (!trimmedName) {
@@ -41,12 +43,22 @@ export default function OnSpotRegistration() {
       return;
     }
 
+    if (!trimmedPhone && !trimmedEmail) {
+      setError('Please provide either a phone number or an email address');
+      return;
+    }
+
     if (trimmedPhone) {
       const digitsOnly = trimmedPhone.replace(/\D/g, '');
       if (digitsOnly.length !== 10 && digitsOnly.length !== 12) {
         setError('Enter a valid phone number (10 digits, or 12 with country code)');
         return;
       }
+    }
+
+    if (trimmedEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail)) {
+      setError('Enter a valid email address');
+      return;
     }
 
     setIsSubmitting(true);
@@ -60,6 +72,7 @@ export default function OnSpotRegistration() {
           name: trimmedName,
           purpose: trimmedReason,
           phone: trimmedPhone || undefined,
+          email: trimmedEmail || undefined,
         }),
       });
 
@@ -134,19 +147,6 @@ export default function OnSpotRegistration() {
             </div>
 
             <div>
-              <label className="label text-xs sm:text-sm">Phone Number</label>
-              <input
-                type="tel"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value.replace(/[^\d+\s-]/g, ''))}
-                inputMode="tel"
-                maxLength={15}
-                className="input-field text-xs sm:text-sm py-2"
-                placeholder="+91 XXXXXXXXXX (optional)"
-              />
-            </div>
-
-            <div>
               <label className="label text-xs sm:text-sm">Date</label>
               <input
                 type="text"
@@ -173,6 +173,36 @@ export default function OnSpotRegistration() {
                   </option>
                 ))}
               </select>
+            </div>
+
+            <div className="pt-1">
+              <p className="text-xs text-gray-500 mb-2">
+                Provide at least one contact method &mdash; either phone or email (or both).
+              </p>
+              <div>
+                <label className="label text-xs sm:text-sm">Phone Number</label>
+                <input
+                  type="tel"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value.replace(/[^\d+\s-]/g, ''))}
+                  inputMode="tel"
+                  maxLength={15}
+                  className="input-field text-xs sm:text-sm py-2"
+                  placeholder="+91 XXXXXXXXXX"
+                />
+              </div>
+              <div className="mt-3">
+                <label className="label text-xs sm:text-sm">Email ID</label>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  inputMode="email"
+                  autoComplete="email"
+                  className="input-field text-xs sm:text-sm py-2"
+                  placeholder="you@example.com"
+                />
+              </div>
             </div>
 
             <button

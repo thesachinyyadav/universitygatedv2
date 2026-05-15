@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { motion } from 'framer-motion';
 import { supabase } from '@/lib/supabaseClient';
@@ -307,7 +308,16 @@ export default function CSODashboard() {
             </div>
             <div>
               <h1 className="text-lg font-bold">CSO Dashboard</h1>
-              <p className="text-xs text-slate-500">Powered by SOCIO</p>
+              <p className="text-xs text-slate-500 inline-flex items-center gap-1">
+                <span>Powered by</span>
+                <Image
+                  src="/socio.svg"
+                  alt="SOCIO"
+                  width={46}
+                  height={13}
+                  className="h-3 w-auto inline-block"
+                />
+              </p>
             </div>
           </div>
         </div>

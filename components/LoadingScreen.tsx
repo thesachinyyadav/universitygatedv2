@@ -40,9 +40,22 @@ export default function LoadingScreen() {
           <h1 className="text-4xl font-bold text-primary-600 mb-2 tracking-tight">
             GATED
           </h1>
-          <p className="text-sm text-gray-600 font-medium">
-            Powered by SOCIO
-          </p>
+          <div className="flex flex-col items-center gap-1">
+            <p className="text-xs text-gray-500 font-medium">Powered by</p>
+            <Image
+              src="/socio.svg"
+              alt="SOCIO"
+              width={90}
+              height={26}
+              className="h-6 w-auto"
+            />
+            <p
+              className="uppercase text-gray-500"
+              style={{ fontSize: '9px', letterSpacing: '2px' }}
+            >
+              Connecting Made Simple
+            </p>
+          </div>
         </motion.div>
 
         {/* Animated Loading Indicator */}
