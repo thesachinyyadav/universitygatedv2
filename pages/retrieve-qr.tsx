@@ -77,7 +77,7 @@ export default function RetrieveQR() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="bg-gray-50">
       <div className="container mx-auto px-4 pt-1 pb-6 sm:pb-8">
         {!showQR ? (
           <motion.div

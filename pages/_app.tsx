@@ -4,6 +4,7 @@ import type { AppProps } from 'next/app'
 import { useRouter } from 'next/router'
 import Navbar from '@/components/Navbar'
 import FooterHolder from '@/components/FooterHolder'
+import PoweredBySocio from '@/components/PoweredBySocio'
 import PWAProvider from '@/components/PWAProvider'
 import LoadingScreen from '@/components/LoadingScreen'
 import { ToastProvider } from '@/components/ui/Toast'
@@ -12,12 +13,15 @@ export default function App({ Component, pageProps }: AppProps) {
   const [loading, setLoading] = useState(false)
   const router = useRouter()
   const showSharedShell = router.pathname !== '/login'
-  const noScrollRoutes = ['/login', '/verify', '/retrieve-qr']
+  const noScrollRoutes = ['/login', '/verify']
   const isNoScrollRoute = noScrollRoutes.includes(router.pathname)
 
   useEffect(() => {
-    // Show loading on route change
-    const handleStart = () => setLoading(true)
+    const handleStart = (url: string) => {
+      const path = url.split('?')[0]
+      if (path === '/') return
+      setLoading(true)
+    }
     const handleComplete = () => setLoading(false)
 
     router.events.on('routeChangeStart', handleStart)
@@ -63,6 +67,7 @@ export default function App({ Component, pageProps }: AppProps) {
         {showSharedShell && <Navbar />}
         <main className={mainClassName}>
           <Component {...pageProps} />
+          {showSharedShell && !isNoScrollRoute && <PoweredBySocio />}
         </main>
         {showSharedShell && <FooterHolder />}
       </ToastProvider>
