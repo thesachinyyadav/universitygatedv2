@@ -68,7 +68,7 @@ export default function Navbar() {
     setIsLoggedIn(false);
     setUserRole(null);
     window.dispatchEvent(new Event('auth:changed'));
-    router.push('/');
+    router.replace('/');
   };
 
   const getRoleDashboard = () => {
@@ -134,7 +134,7 @@ export default function Navbar() {
                 </Link>
                 <button
                   onClick={handleLogout}
-                  className="px-5 py-2 bg-tertiary-600 hover:bg-tertiary-700 text-white rounded-lg transition flex items-center space-x-2 font-semibold shadow-sm"
+                  className="px-5 py-2 bg-transparent hover:bg-white/10 text-white border border-white/40 hover:border-white/60 rounded-lg transition flex items-center space-x-2 font-semibold"
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
@@ -207,7 +207,7 @@ export default function Navbar() {
           {isLoggedIn && (
             <button
               onClick={handleLogout}
-              className="md:hidden inline-flex items-center gap-1 px-2 py-0.5 bg-red-600 hover:bg-red-700 text-white rounded-md transition font-semibold text-sm shadow-sm active:scale-95 leading-tight"
+              className="md:hidden inline-flex items-center gap-1 px-2 py-0.5 bg-transparent hover:bg-white/10 text-white border border-white/40 hover:border-white/60 rounded-md transition font-semibold text-sm active:scale-95 leading-tight"
               aria-label="Logout"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -196,7 +196,7 @@ export default function FooterHolder() {
             </div>
             
             {/* Body */}
-            <div className="p-2 py-3 space-y-1">
+            <div className="p-2 pt-3 pb-0 space-y-1">
               <div className="px-4 py-2 text-xs text-slate-500 font-medium">Select Your Role</div>
               
               <Link href="/login?role=guard" className="flex items-center space-x-3 px-4 py-3 hover:bg-slate-50 transition rounded-xl" onClick={() => setShowRoleModal(false)}>
@@ -228,6 +228,7 @@ export default function FooterHolder() {
               </Link>
             </div>
             
+            <div className="mx-4 mb-4 border-t-2 border-slate-400" />
             {/* Quick Actions (like Retrieve Lost QR Code if needed, optional based on screenshot) */}
             <div className="bg-slate-900 mx-4 mb-4 mt-2 p-3 rounded-xl shadow-lg border border-slate-700 hover:bg-slate-800 transition cursor-pointer flex items-center justify-center space-x-2" onClick={() => { setShowRoleModal(false); router.push('/retrieve-qr'); }}>
                <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
