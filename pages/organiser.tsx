@@ -361,18 +361,6 @@ export default function OrganiserDashboard() {
           </div>
         </div>
 
-        <div className="mb-4 sm:mb-6">
-          <button
-            onClick={() => router.push('/retrieve-qr')}
-            className="inline-flex items-center gap-2 px-4 py-2 border border-primary-600 text-primary-600 hover:bg-primary-50 rounded-lg text-sm font-semibold transition"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7h6v6H3V7zm12 0h6v6h-6V7zM3 17h6v4H3v-4zm12 0h6v4h-6v-4z" />
-            </svg>
-            Retrieve Lost QR Code
-          </button>
-        </div>
-
         <div className="space-y-4 sm:space-y-6">
           {/* Stats & Tabs Area */}
           <div className="bg-white p-4 sm:p-6 rounded-xl shadow-sm border border-slate-100">

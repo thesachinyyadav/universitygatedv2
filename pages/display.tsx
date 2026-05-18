@@ -109,37 +109,51 @@ export default function Display() {
           VISITORS WELCOME DESK
         </div>
 
+        <div className="absolute top-6 right-10">
+          <Image
+            src="/christunilogo.png"
+            alt="Christ University"
+            width={220}
+            height={72}
+            className="h-14 md:h-16 w-auto object-contain"
+            style={{ filter: 'brightness(0) invert(1) drop-shadow(0 3px 8px rgba(0,0,0,0.35))' }}
+          />
+        </div>
+
         <div className="h-full w-full flex flex-col items-center justify-center text-center px-6">
           {isSuccess && event ? (
-            <>
-              <p className="text-3xl md:text-5xl tracking-[0.4em] text-[#cfe0ff] font-light">
-                WELCOME
+            <div>
+              <p
+                key={`success-title-${event.name}-${Date.now()}`}
+                className="text-2xl md:text-4xl tracking-[0.3em] text-[#cfe0ff]/85 font-light opacity-0 animate-[wordIn_0.5s_ease-out_forwards]"
+              >
+                WELCOME TO CHRIST UNIVERSITY
               </p>
               <h1
                 key={`success-${event.name}-${Date.now()}`}
-                className="mt-6 text-5xl md:text-7xl font-semibold tracking-wide text-white drop-shadow-[0_0_25px_rgba(120,170,255,0.45)] animate-[fadeInUp_0.5s_ease-out]"
+                className="mt-8 md:mt-10 text-3xl md:text-5xl font-bold tracking-[0.25em] text-white drop-shadow-[0_0_25px_rgba(120,170,255,0.35)] animate-[fadeInUp_0.5s_ease-out]"
               >
                 {event.name}
               </h1>
-            </>
+            </div>
           ) : isDenied ? (
-            <>
-              <h1 className="text-5xl md:text-7xl font-semibold tracking-[0.25em] text-[#ff6b7a] drop-shadow-[0_0_25px_rgba(255,80,100,0.45)]">
+            <div>
+              <h1 className="text-3xl md:text-5xl font-bold tracking-[0.25em] text-[#ff6b7a] drop-shadow-[0_0_25px_rgba(255,80,100,0.45)]">
                 ACCESS DENIED
               </h1>
-              <p className="mt-6 text-xl md:text-3xl tracking-[0.3em] text-[#ffc3ca] font-light">
+              <p className="mt-8 md:mt-10 text-2xl md:text-4xl tracking-[0.3em] text-[#ffc3ca]/85 font-light">
                 {event?.type === 'denied' && event.reason ? event.reason : 'Please contact security'}
               </p>
-            </>
+            </div>
           ) : isInvalid ? (
-            <>
-              <h1 className="text-5xl md:text-7xl font-semibold tracking-[0.25em] text-[#ffc870] drop-shadow-[0_0_25px_rgba(255,180,80,0.45)]">
+            <div>
+              <h1 className="text-3xl md:text-5xl font-bold tracking-[0.25em] text-[#ffc870] drop-shadow-[0_0_25px_rgba(255,180,80,0.45)]">
                 INVALID QR CODE
               </h1>
-              <p className="mt-6 text-xl md:text-3xl tracking-[0.3em] text-[#ffe1b3] font-light">
+              <p className="mt-8 md:mt-10 text-2xl md:text-4xl tracking-[0.3em] text-[#ffe1b3]/85 font-light">
                 Please try again
               </p>
-            </>
+            </div>
           ) : (
             <div>
               <h1 className="text-3xl md:text-5xl font-bold tracking-[0.25em] text-white drop-shadow-[0_0_25px_rgba(120,170,255,0.35)]">
@@ -152,14 +166,14 @@ export default function Display() {
           )}
         </div>
 
-        <div className="absolute bottom-6 left-0 right-0 flex items-center justify-center gap-2 text-white/80">
-          <span className="text-[13px] font-medium">Powered by</span>
+        <div className="absolute bottom-8 left-0 right-0 flex items-center justify-center gap-3 text-white/80">
+          <span className="text-xl md:text-2xl font-medium">Powered by</span>
           <Image
             src="/socio.svg"
             alt="SOCIO"
-            width={64}
-            height={18}
-            className="h-4 w-auto translate-y-[3px]"
+            width={128}
+            height={36}
+            className="h-7 md:h-9 w-auto translate-y-[5px]"
             style={{ filter: 'brightness(0) invert(1)' }}
           />
         </div>
@@ -174,6 +188,18 @@ export default function Display() {
           to {
             opacity: 1;
             transform: translateY(0);
+          }
+        }
+        @keyframes wordIn {
+          from {
+            opacity: 0;
+            transform: translateY(8px);
+            filter: blur(4px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+            filter: blur(0);
           }
         }
       `}</style>

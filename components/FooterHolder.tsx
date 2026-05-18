@@ -237,15 +237,6 @@ export default function FooterHolder() {
                 <span className="text-slate-700 text-[15px] font-medium">Chief Security Officer</span>
               </Link>
             </div>
-            
-            <div className="mx-4 mb-4 border-t-2 border-slate-400" />
-            {/* Quick Actions (like Retrieve Lost QR Code if needed, optional based on screenshot) */}
-            <div className="bg-slate-900 mx-4 mb-4 mt-2 p-3 rounded-xl shadow-lg border border-slate-700 hover:bg-slate-800 transition cursor-pointer flex items-center justify-center space-x-2" onClick={() => { setShowRoleModal(false); router.push('/retrieve-qr'); }}>
-               <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-3.88-7.44M21 3v6h-6" />
-               </svg>
-               <span className="text-white font-medium text-sm">Retrieve Lost QR Code</span>
-            </div>
           </div>
         </div>
       )}

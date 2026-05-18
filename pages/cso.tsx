@@ -442,18 +442,6 @@ export default function CSODashboard() {
         </header>
 
         <main className="px-4 sm:px-6 lg:px-8 py-5 pb-24 lg:pb-8 max-w-7xl">
-          <div className="mb-6">
-            <button
-              onClick={() => router.push('/retrieve-qr')}
-              className="inline-flex items-center gap-2 px-4 py-2 border border-primary-600 text-primary-600 hover:bg-primary-50 rounded-lg text-sm font-semibold transition"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7h6v6H3V7zm12 0h6v6h-6V7zM3 17h6v4H3v-4zm12 0h6v4h-6v-4z" />
-              </svg>
-              Retrieve Lost QR Code
-            </button>
-          </div>
-
           <div className="grid grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-4 mb-6">
             <motion.div
               initial={{ opacity: 0, y: 12 }}

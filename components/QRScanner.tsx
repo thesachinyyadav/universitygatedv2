@@ -1,5 +1,4 @@
 import { useState, useEffect, useRef } from 'react';
-import Link from 'next/link';
 import { Html5QrcodeScanner } from 'html5-qrcode';
 import { motion } from 'framer-motion';
 
@@ -252,17 +251,6 @@ export default function QRScanner({ onScan }: QRScannerProps) {
                 </svg>
                 <span>Enable Camera</span>
               </button>
-            </div>
-            <div className="mt-3 text-left">
-              <Link
-                href="/retrieve-qr"
-                className="inline-flex items-center gap-2 text-sm sm:text-base font-semibold text-primary-700 hover:text-primary-800 hover:underline transition"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7h6v6H3V7zm12 0h6v6h-6V7zM3 17h6v4H3v-4zm12 0h6v4h-6v-4z" />
-                </svg>
-                <span>Retrieve Lost QR Code</span>
-              </Link>
             </div>
           </>
         )}
