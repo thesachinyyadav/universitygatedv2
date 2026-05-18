@@ -94,34 +94,17 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo and Title */}
-          <Link href="/" className="flex items-center space-x-2 sm:space-x-3 hover:opacity-90 transition">
-            <div className="w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center">
-              <Image
-                src="/socio.svg"
-                alt="SOCIO"
-                width={48}
-                height={48}
-                className="w-full h-full object-contain"
-                style={{ filter: 'brightness(0) invert(1)' }}
-              />
-            </div>
-            <div className="hidden sm:block">
-              <h1 className="text-base font-bold leading-tight text-white">GATED</h1>
-              <p className="text-[11px] text-white/70 inline-flex items-center gap-1">
-                <span>Powered by</span>
-                <Image
-                  src="/socio.svg"
-                  alt="SOCIO"
-                  width={42}
-                  height={12}
-                  className="h-2.5 w-auto inline-block"
-                  style={{ filter: 'brightness(0) invert(1)' }}
-                />
-              </p>
-            </div>
-            <div className="sm:hidden">
-              <h1 className="text-base font-bold text-white">GATED</h1>
-            </div>
+          <Link href="/" className="flex items-center gap-1.5 hover:opacity-90 transition">
+            <Image
+              src="/socio.svg"
+              alt="SOCIO"
+              width={319}
+              height={94}
+              priority
+              className="h-[15px] sm:h-[17px] w-auto translate-y-[1.5px]"
+              style={{ filter: 'brightness(0) invert(1)' }}
+            />
+            <span className="text-base sm:text-lg font-bold tracking-wide text-white leading-none">GATED</span>
           </Link>
 
           {/* Desktop Navigation */}

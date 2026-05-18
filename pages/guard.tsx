@@ -139,39 +139,33 @@ export default function GuardDashboard() {
   return (
     <div className="min-h-screen bg-gray-50 py-3 sm:py-4 md:py-6 px-3 sm:px-4">
       <div className="container mx-auto max-w-6xl">
-        <div className="mb-3 sm:mb-4">
-          <Link href="/" className="text-primary-600 hover:text-primary-700 font-medium text-sm inline-flex items-center gap-1">
+        <div className="mb-4 sm:mb-5">
+          <Link
+            href="/"
+            className="inline-flex items-center gap-1.5 -ml-2 px-2.5 py-1.5 rounded-lg text-sm font-semibold text-primary-700 hover:text-primary-800 hover:bg-primary-50 transition"
+          >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
             </svg>
             <span>Back to Home</span>
           </Link>
-          <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-slate-800">
+          <h1 className="mt-3 text-xl sm:text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight pl-3 border-l-4 border-primary-600">
             Security Guard Dashboard
           </h1>
-          <Link
-            href="/retrieve-qr"
-            className="mt-3 inline-flex items-center gap-2 px-4 py-2 border border-primary-600 text-primary-600 hover:bg-primary-50 rounded-lg text-sm font-semibold transition"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7h6v6H3V7zm12 0h6v6h-6V7zM3 17h6v4H3v-4zm12 0h6v4h-6v-4z" />
-            </svg>
-            Retrieve Lost QR Code
-          </Link>
         </div>
 
-        <div className="space-y-3 sm:space-y-4">
+        <div className="space-y-2.5 sm:space-y-3">
           {/* 1. Scan QR Code */}
           <QRScanner onScan={handleScan} />
 
           {/* 2. Scan History */}
-          <div className="card p-3 sm:p-4">
-            <div className="flex items-center justify-between mb-3">
+          <div className="card p-3 sm:p-4 md:p-4">
+            <div className="flex items-center justify-between mb-2">
               <div className="flex items-center space-x-2">
                 <svg className="w-5 h-5 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
                 </svg>
-                <h3 className="text-base sm:text-lg font-semibold text-gray-800">
+                <h3 className="text-base sm:text-lg font-bold text-slate-900">
                   Scan History
                   {scanHistory.length > 0 && (
                     <span className="ml-2 text-xs sm:text-sm font-normal text-gray-500">
@@ -191,11 +185,12 @@ export default function GuardDashboard() {
             </div>
 
             {scanHistory.length === 0 ? (
-              <div className="text-center py-4 text-gray-400">
-                <svg className="w-10 h-10 mx-auto mb-2 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="text-center py-4">
+                <svg className="w-7 h-7 mx-auto mb-1 text-primary-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
-                <p className="text-xs">No scans yet</p>
+                <p className="text-xs font-semibold text-slate-600">No scans yet</p>
+                <p className="text-[11px] text-gray-400 mt-0.5">Scanned entries will appear here</p>
               </div>
             ) : (
               <div className="space-y-3">
@@ -285,8 +280,8 @@ export default function GuardDashboard() {
           </div>
 
           {/* 3. Current Scan Result */}
-          <div className="card p-3 sm:p-4">
-            <h3 className="text-base sm:text-lg font-semibold text-gray-800 mb-2 sm:mb-3 flex items-center space-x-2">
+          <div className="card p-3 sm:p-4 md:p-4">
+            <h3 className="text-base sm:text-lg font-bold text-slate-900 mb-2 flex items-center space-x-2">
               <svg className="w-5 h-5 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
@@ -301,11 +296,12 @@ export default function GuardDashboard() {
               )}
 
               {!isVerifying && !verificationResult && (
-                <div className="text-center py-6 sm:py-8 text-gray-400">
-                  <svg className="w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-3 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="text-center py-4">
+                  <svg className="w-9 h-9 sm:w-10 sm:h-10 mx-auto mb-1.5 text-primary-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
                   </svg>
-                  <p className="text-xs sm:text-sm">Scan QR to verify</p>
+                  <p className="text-xs sm:text-sm font-semibold text-slate-600">Scan QR to verify</p>
+                  <p className="text-[11px] sm:text-xs text-gray-400 mt-0.5">Point camera at visitor QR code</p>
                 </div>
               )}
 

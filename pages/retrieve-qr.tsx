@@ -86,12 +86,16 @@ export default function RetrieveQR() {
             className="max-w-md mx-auto"
           >
             <div className="mb-1">
-              <Link href="/" className="text-primary-600 hover:text-primary-700 font-medium text-sm inline-flex items-center gap-1">
+              <button
+                type="button"
+                onClick={() => router.back()}
+                className="text-primary-600 hover:text-primary-700 font-medium text-sm inline-flex items-center gap-1"
+              >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                 </svg>
-                <span>Back to Home</span>
-              </Link>
+                <span>Back</span>
+              </button>
             </div>
             <div className="card p-4 sm:p-6">
               {/* Icon */}
