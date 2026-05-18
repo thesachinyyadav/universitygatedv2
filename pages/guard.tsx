@@ -6,6 +6,7 @@ import QRScanner from '@/components/QRScanner';
 import ManualEntry from '@/components/ManualEntry';
 import { Pagination } from '@/components/ui';
 import type { Visitor } from '@/types/database';
+import { broadcastDisplayEvent, primeDisplaySender } from '@/lib/displayEvents';
 
 interface ScanHistoryItem {
   id: string;
@@ -46,6 +47,7 @@ export default function GuardDashboard() {
       return;
     }
     setUser(parsedUser);
+    primeDisplaySender();
   }, [router]);
 
   const handleScan = async (visitorId: string) => {
@@ -59,7 +61,15 @@ export default function GuardDashboard() {
       const data = await response.json();
 
       setVerificationResult(data);
-      
+
+      if (data.verified && data.visitor?.name) {
+        broadcastDisplayEvent({ type: 'success', name: data.visitor.name });
+      } else if (!data.visitor) {
+        broadcastDisplayEvent({ type: 'invalid' });
+      } else {
+        broadcastDisplayEvent({ type: 'denied', reason: data.dateError });
+      }
+
       // Show notification
       setNotification({
         verified: data.verified,
@@ -89,7 +99,9 @@ export default function GuardDashboard() {
     } catch (error) {
       console.error('Verification error:', error);
       setVerificationResult({ verified: false });
-      
+
+      broadcastDisplayEvent({ type: 'invalid' });
+
       // Show error notification
       setNotification({
         verified: false

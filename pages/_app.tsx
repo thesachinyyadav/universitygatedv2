@@ -15,8 +15,9 @@ export default function App({ Component, pageProps }: AppProps) {
   const [loading, setLoading] = useState(false)
   const loadingStartedAt = useRef<number>(0)
   const router = useRouter()
-  const showSharedShell = router.pathname !== '/login'
-  const noScrollRoutes = ['/login', '/verify']
+  const fullScreenRoutes = ['/login', '/display']
+  const showSharedShell = !fullScreenRoutes.includes(router.pathname)
+  const noScrollRoutes = ['/login', '/verify', '/display']
   const isNoScrollRoute = noScrollRoutes.includes(router.pathname)
 
   // Show the loading screen on initial client mount (e.g. F5 refresh).
