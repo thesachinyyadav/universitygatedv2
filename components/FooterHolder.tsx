@@ -84,16 +84,6 @@ export default function FooterHolder() {
             </svg>
           ),
         },
-        {
-          key: 'logout',
-          label: 'Log out',
-          onClick: handleLogout,
-          icon: (
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-            </svg>
-          ),
-        },
       ];
     }
 
@@ -138,23 +128,33 @@ export default function FooterHolder() {
           >
             {navItems.map((item) => {
               const active = isActive(item.href);
-              const className = `flex flex-col items-center justify-center gap-1 rounded-xl py-2 transition ${
-                active ? 'text-primary-700 bg-primary-50 font-semibold' : 'text-slate-400'
+              const className = `relative flex flex-col items-center justify-center gap-1 py-2 transition ${
+                active ? 'text-primary-700 font-semibold' : 'text-slate-400 font-medium'
               }`;
+
+              const content = (
+                <>
+                  <span
+                    className={`absolute top-0 left-1/2 -translate-x-1/2 h-[3px] rounded-b-full transition-all ${
+                      active ? 'w-12 bg-primary-700' : 'w-0 bg-transparent'
+                    }`}
+                  />
+                  <span className={active ? 'scale-110' : ''}>{item.icon}</span>
+                  <span className="text-[11px] uppercase tracking-wide">{item.label}</span>
+                </>
+              );
 
               if (item.href) {
                 return (
                   <Link key={item.key} href={item.href} className={className}>
-                    {item.icon}
-                    <span className="text-[11px] uppercase tracking-wide">{item.label}</span>
+                    {content}
                   </Link>
                 );
               }
 
               return (
                 <button key={item.key} onClick={item.onClick} className={className}>
-                  {item.icon}
-                  <span className="text-[11px] uppercase tracking-wide">{item.label}</span>
+                  {content}
                 </button>
               );
             })}
