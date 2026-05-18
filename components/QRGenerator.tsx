@@ -29,6 +29,12 @@ export default function QRGenerator({ visitorId, visitorName, requirePdfDownload
   const [isPdfDownloaded, setIsPdfDownloaded] = useState(false);
 
   useEffect(() => {
+    if (typeof window !== 'undefined') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, []);
+
+  useEffect(() => {
     fetchVisitorDetails();
   }, [visitorId]);
 
@@ -99,8 +105,9 @@ export default function QRGenerator({ visitorId, visitorName, requirePdfDownload
       const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
       const qrData = `${appUrl}/verify?id=${visitorId}`;
       const url = await QRCode.toDataURL(qrData, {
-        width: 400,
+        width: 600,
         margin: 2,
+        errorCorrectionLevel: 'H',
         color: {
           dark: qrColor, // Use visitor's category color
           light: '#FFFFFF',
@@ -109,27 +116,6 @@ export default function QRGenerator({ visitorId, visitorName, requirePdfDownload
       setQrCodeUrl(url);
     } catch (error) {
       console.error('[QR_GENERATOR] Error generating QR code:', error);
-    }
-  };
-
-  const downloadQR = () => {
-    if (!qrCodeUrl) {
-      console.error('[QR_DOWNLOAD] No QR code URL available');
-      alert('QR code is not ready yet. Please wait a moment and try again.');
-      return;
-    }
-    
-    try {
-      const link = document.createElement('a');
-      link.href = qrCodeUrl;
-      link.download = `QR-${visitorName.replace(/\s+/g, '_')}-${visitorId.slice(0, 8)}.png`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      console.log('[QR_DOWNLOAD] QR image download initiated');
-    } catch (error) {
-      console.error('[QR_DOWNLOAD] Error downloading QR image:', error);
-      alert('Failed to download QR image. Please try again.');
     }
   };
 
@@ -142,242 +128,224 @@ export default function QRGenerator({ visitorId, visitorName, requirePdfDownload
 
     try {
       console.log('[PDF_DOWNLOAD] Starting PDF generation...');
-      
-      // Load the GATED logo
-      const logoImg = new Image();
-      logoImg.src = '/gated.svg';
-      
-      await new Promise((resolve, reject) => {
-        logoImg.onload = resolve;
-        logoImg.onerror = () => {
-          console.warn('[PDF_DOWNLOAD] Logo failed to load, continuing without logo');
-          resolve(null);
-        };
-        // Timeout after 2 seconds if logo doesn't load
-        setTimeout(resolve, 2000);
-      });
 
+      // Rasterize at a capped target width and output JPEG to keep file size small.
+      // (PNG-with-3x-upscale was producing multi-MB embeddings for raster logos.)
+      const loadLogoAsJpeg = (
+        src: string,
+        targetWidthPx: number,
+      ): Promise<{ dataUrl: string; aspect: number } | null> =>
+        new Promise((resolve) => {
+          const img = new Image();
+          const timer = setTimeout(() => {
+            console.warn(`[PDF_DOWNLOAD] Timed out loading ${src}`);
+            resolve(null);
+          }, 3000);
+          img.onload = () => {
+            clearTimeout(timer);
+            try {
+              const aspect =
+                img.naturalWidth > 0 && img.naturalHeight > 0
+                  ? img.naturalWidth / img.naturalHeight
+                  : 2;
+              const canvas = document.createElement('canvas');
+              canvas.width = targetWidthPx;
+              canvas.height = Math.max(1, Math.round(targetWidthPx / aspect));
+              const ctx = canvas.getContext('2d');
+              if (!ctx) {
+                resolve(null);
+                return;
+              }
+              // JPEG has no alpha — paint white behind the logo
+              ctx.fillStyle = '#FFFFFF';
+              ctx.fillRect(0, 0, canvas.width, canvas.height);
+              ctx.imageSmoothingEnabled = true;
+              ctx.imageSmoothingQuality = 'high';
+              ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+              resolve({
+                dataUrl: canvas.toDataURL('image/jpeg', 0.85),
+                aspect,
+              });
+            } catch (err) {
+              console.warn(`[PDF_DOWNLOAD] Failed to convert ${src}:`, err);
+              resolve(null);
+            }
+          };
+          img.onerror = () => {
+            clearTimeout(timer);
+            console.warn(`[PDF_DOWNLOAD] Failed to load ${src}`);
+            resolve(null);
+          };
+          img.src = src;
+        });
+
+      // Target px sized for sharp 14–16 mm prints (~25 px/mm = ~635 DPI is overkill;
+      // ~12 px/mm = ~300 DPI is print-grade). Logos render at ~30–40 mm wide so ~400–500 px is sharp.
+      const [socioLogo, christLogo] = await Promise.all([
+        loadLogoAsJpeg('/socio.svg', 400),
+        loadLogoAsJpeg('/christunilogo.png', 500),
+      ]);
+
+      const pageWidth = 210;
+      const pageHeight = 232;
       const pdf = new jsPDF({
         orientation: 'portrait',
         unit: 'mm',
-        format: 'a4'
+        format: [pageWidth, pageHeight],
+        compress: true,
       });
 
-      // Clean white background
+      // White background
       pdf.setFillColor(255, 255, 255);
-      pdf.rect(0, 0, 210, 297, 'F');
-      
-      // Header section with gold border
-      pdf.setDrawColor(189, 163, 97); // Gold color
-      pdf.setLineWidth(1);
-      pdf.rect(10, 10, 190, 35, 'S');
-      
-      // Add GATED logo (left corner inside border)
-      if (logoImg.complete && logoImg.naturalHeight !== 0) {
-        try {
-          const canvas = document.createElement('canvas');
-          const scale = 3;
-          canvas.width = logoImg.naturalWidth * scale;
-          canvas.height = logoImg.naturalHeight * scale;
-          const ctx = canvas.getContext('2d');
-          if (ctx) {
-            ctx.drawImage(logoImg, 0, 0, canvas.width, canvas.height);
-            const logoDataUrl = canvas.toDataURL('image/png');
-            const aspectRatio = logoImg.naturalWidth / logoImg.naturalHeight;
-            const logoHeight = 10;
-            const logoWidth = logoHeight * aspectRatio;
-            pdf.addImage(logoDataUrl, 'PNG', 15, 16, logoWidth, logoHeight);
-          }
-        } catch (err) {
-          console.warn('[PDF_DOWNLOAD] Could not add logo to PDF:', err);
-        }
-      }
-      
-      // GATED logo + "Gated" text (right side)
-      try {
-        // Convert SVG to PNG via canvas for jsPDF compatibility
-        const gatedLogoImg = new Image();
-        gatedLogoImg.src = '/gated.svg';
-        const gatedLoaded = await new Promise<boolean>((resolve) => {
-          gatedLogoImg.onload = () => resolve(true);
-          gatedLogoImg.onerror = () => {
-            console.warn('[PDF_DOWNLOAD] GATED logo failed to load');
-            resolve(false);
-          };
-          setTimeout(() => resolve(false), 2000);
-        });
+      pdf.rect(0, 0, pageWidth, pageHeight, 'F');
 
-        if (gatedLoaded && gatedLogoImg.naturalWidth > 0) {
-          // Render SVG to canvas, then extract as PNG data URL
-          const canvas = document.createElement('canvas');
-          const scale = 3; // High res
-          canvas.width = gatedLogoImg.naturalWidth * scale;
-          canvas.height = gatedLogoImg.naturalHeight * scale;
-          const ctx = canvas.getContext('2d');
-          if (ctx) {
-            ctx.drawImage(gatedLogoImg, 0, 0, canvas.width, canvas.height);
-            const gatedDataUrl = canvas.toDataURL('image/png');
-            // Calculate dimensions maintaining aspect ratio
-            const aspect = gatedLogoImg.naturalWidth / gatedLogoImg.naturalHeight;
-            const gatedHeight = 10;
-            const gatedWidth = gatedHeight * aspect;
-            // Position: right-aligned, logo then "Gated" text
-            const gatedTextWidth = 22; // approx width of 'Gated' at font size 18
-            const logoX = 195 - gatedTextWidth - gatedWidth - 2;
-            pdf.addImage(gatedDataUrl, 'PNG', logoX, 15, gatedWidth, gatedHeight);
-          }
-          // Add 'Gated' text after the logo
-          pdf.setTextColor(37, 74, 154);
-          pdf.setFontSize(18);
-          pdf.setFont('helvetica', 'bold');
-          pdf.text('Gated', 195, 23, { align: 'right' });
-        } else {
-          throw new Error('GATED logo not loaded');
-        }
-      } catch (err) {
-        // Fallback: just write 'GATED' as text if logo fails
+      // === HEADER: SOCIO (left) + CHRIST (right) ===
+      if (socioLogo) {
+        const h = 14;
+        const w = h * socioLogo.aspect;
+        pdf.addImage(socioLogo.dataUrl, 'JPEG', 15, 15, w, h, undefined, 'FAST');
+      }
+      if (christLogo) {
+        const h = 16;
+        const w = h * christLogo.aspect;
+        pdf.addImage(christLogo.dataUrl, 'JPEG', 195 - w, 14, w, h, undefined, 'FAST');
+      }
+
+      // Blue divider line below logos
+      pdf.setDrawColor(37, 74, 154);
+      pdf.setLineWidth(0.6);
+      pdf.line(15, 36, 195, 36);
+
+      const drawCenteredSpaced = (text: string, y: number, charSpace: number) => {
+        pdf.setCharSpace(0);
+        const baseWidth = pdf.getTextWidth(text);
+        const fullWidth = baseWidth + (text.length - 1) * charSpace;
+        pdf.setCharSpace(charSpace);
+        pdf.text(text, (pageWidth - fullWidth) / 2, y);
+        pdf.setCharSpace(0);
+      };
+
+      // "G A T E D" big spaced title
+      pdf.setTextColor(37, 74, 154);
+      pdf.setFont('helvetica', 'bold');
+      pdf.setFontSize(32);
+      drawCenteredSpaced('GATED', 52, 6);
+
+      // "OFFICIAL ENTRY PASS" subtitle
+      pdf.setTextColor(160, 160, 160);
+      pdf.setFont('helvetica', 'normal');
+      pdf.setFontSize(9);
+      drawCenteredSpaced('OFFICIAL ENTRY PASS', 60, 2.5);
+
+      // === QR with per-user colored border + role strip at bottom ===
+      const qrTop = 74;
+      const qrBoxSize = 100;
+      const qrBoxX = (pageWidth - qrBoxSize) / 2;
+      const panelInset = 5;
+      const stripHeight = 12; // colored strip at bottom for SPEAKER/STUDENT/VIP label
+      const panelW = qrBoxSize - 2 * panelInset;
+      const panelH = qrBoxSize - panelInset - stripHeight;
+      const qrSize = 78;
+      const qrX = qrBoxX + panelInset + (panelW - qrSize) / 2;
+      const qrY = qrTop + panelInset + (panelH - qrSize) / 2;
+
+      if (visitorDetails?.qr_color) {
+        const hex = visitorDetails.qr_color.replace('#', '');
+        const r = parseInt(hex.substring(0, 2), 16);
+        const g = parseInt(hex.substring(2, 4), 16);
+        const b = parseInt(hex.substring(4, 6), 16);
+
+        // Soft shadow
+        pdf.setFillColor(225, 225, 230);
+        pdf.roundedRect(qrBoxX + 1, qrTop + 1, qrBoxSize, qrBoxSize, 4, 4, 'F');
+
+        // Colored frame
+        pdf.setFillColor(r, g, b);
+        pdf.roundedRect(qrBoxX, qrTop, qrBoxSize, qrBoxSize, 4, 4, 'F');
+
+        // White inner panel (asymmetric: leaves room at the bottom for the role strip)
+        pdf.setFillColor(255, 255, 255);
+        pdf.roundedRect(qrBoxX + panelInset, qrTop + panelInset, panelW, panelH, 2, 2, 'F');
+      } else {
+        pdf.setFillColor(255, 255, 255);
+        pdf.roundedRect(qrBoxX, qrTop, qrBoxSize, qrBoxSize, 4, 4, 'F');
+      }
+
+      pdf.addImage(qrCodeUrl, 'PNG', qrX, qrY, qrSize, qrSize);
+
+      // === Role label on the colored bottom strip (white text) ===
+      if (visitorDetails?.visitor_category) {
+        const stripCenterY = qrTop + panelInset + panelH + stripHeight / 2;
+        pdf.setTextColor(255, 255, 255);
+        pdf.setFont('helvetica', 'bold');
+        pdf.setFontSize(13);
+        pdf.text(
+          visitorDetails.visitor_category.toUpperCase(),
+          105,
+          stripCenterY + 1.7,
+          { align: 'center' },
+        );
+      }
+
+      let cursorY = qrTop + qrBoxSize + 12;
+
+      // === Event title (bold blue) ===
+      if (visitorDetails?.event_name) {
         pdf.setTextColor(37, 74, 154);
         pdf.setFontSize(18);
         pdf.setFont('helvetica', 'bold');
-        pdf.text('GATED', 195, 23, { align: 'right' });
+        pdf.text(visitorDetails.event_name, 105, cursorY, { align: 'center', maxWidth: 170 });
+        cursorY += 11;
       }
-      
-      // Subtitle below "University Gated"
+
+      // === Visitor name ===
+      pdf.setTextColor(100, 100, 100);
+      pdf.setFontSize(13);
+      pdf.setFont('helvetica', 'normal');
+      drawCenteredSpaced(visitorName.toUpperCase(), cursorY, 1);
+      cursorY += 11;
+
+      // === Valid dates ===
+      if (visitorDetails?.date_of_visit_from && visitorDetails?.date_of_visit_to) {
+        const fmt = (d: string) =>
+          new Date(d).toLocaleDateString('en-IN', {
+            day: 'numeric',
+            month: 'short',
+            year: 'numeric',
+          });
+        const fromDate = fmt(visitorDetails.date_of_visit_from);
+        const toDate = fmt(visitorDetails.date_of_visit_to);
+        const dateLine = fromDate === toDate ? fromDate : `${fromDate}  to  ${toDate}`;
+
+        pdf.setTextColor(120, 120, 120);
+        pdf.setFontSize(9);
+        pdf.setFont('helvetica', 'bold');
+        drawCenteredSpaced('VALID', cursorY, 1.5);
+        cursorY += 8;
+
+        pdf.setTextColor(37, 74, 154);
+        pdf.setFontSize(15);
+        pdf.setFont('helvetica', 'bold');
+        pdf.text(dateLine, 105, cursorY, { align: 'center' });
+      }
+
+      // === Dashed divider ===
+      pdf.setDrawColor(180, 180, 180);
+      pdf.setLineWidth(0.4);
+      pdf.setLineDashPattern([1.5, 1.5], 0);
+      pdf.line(20, pageHeight - 10, pageWidth - 20, pageHeight - 10);
+      pdf.setLineDashPattern([], 0);
+
+      // === Footer line ===
+      pdf.setTextColor(140, 140, 140);
       pdf.setFontSize(9);
       pdf.setFont('helvetica', 'normal');
-      pdf.setTextColor(120, 120, 120);
-      pdf.text('Powered by SOCIO', 195, 30, { align: 'right' });
-
-      // Main content area with better spacing
-      pdf.setDrawColor(220, 220, 220);
-      pdf.setLineWidth(0.3);
-      pdf.rect(10, 55, 190, 210, 'S');
-      
-      // Visitor name - Large and prominent
-      pdf.setTextColor(37, 74, 154);
-      pdf.setFontSize(24);
-      pdf.setFont('helvetica', 'bold');
-      pdf.text(visitorName.toUpperCase(), 105, 73, { align: 'center' });
-      
-      // Decorative line under name
-      pdf.setDrawColor(189, 163, 97);
-      pdf.setLineWidth(0.8);
-      pdf.line(55, 78, 155, 78);
-
-      // Visitor Category Badge
-      if (visitorDetails?.visitor_category) {
-        const categoryText = visitorDetails.visitor_category.toUpperCase();
-        const categoryColors: { [key: string]: number[] } = {
-          'student': [9, 41, 135],       // Deep Blue (#092987)
-          'speaker': [255, 179, 0],      // Amber
-          'vip': [128, 0, 0]             // Maroon
-        };
-        const colorRGB = categoryColors[visitorDetails.visitor_category] || [9, 41, 135];
-        
-        // Category badge
-        pdf.setFillColor(colorRGB[0], colorRGB[1], colorRGB[2]);
-        pdf.roundedRect(70, 85, 70, 12, 3, 3, 'F');
-        
-        // Category text
-        pdf.setTextColor(255, 255, 255);
-        pdf.setFontSize(12);
-        pdf.setFont('helvetica', 'bold');
-        pdf.text(categoryText, 105, 93, { align: 'center' });
-      }
-
-      // Event Details Section
-      if (visitorDetails?.event_name) {
-        // Event label
-        pdf.setTextColor(100, 100, 100);
-        pdf.setFontSize(10);
-        pdf.setFont('helvetica', 'bold');
-        pdf.text('EVENT', 105, 109, { align: 'center' });
-        
-        // Event name - highlighted with background
-        pdf.setFillColor(255, 250, 240); // Light beige/cream background
-        pdf.roundedRect(25, 112, 160, 14, 2, 2, 'F');
-        
-        // Event name text - larger and bolder
-        pdf.setTextColor(37, 74, 154); // Primary blue for emphasis
-        pdf.setFontSize(16);
-        pdf.setFont('helvetica', 'bold');
-        pdf.text(visitorDetails.event_name, 105, 121, { align: 'center', maxWidth: 150 });
-      }
-
-      // Event Dates
-      if (visitorDetails?.date_of_visit_from && visitorDetails?.date_of_visit_to) {
-        pdf.setTextColor(100, 100, 100);
-        pdf.setFontSize(10);
-        pdf.setFont('helvetica', 'bold');
-        pdf.text('VALID DATES', 105, 132, { align: 'center' });
-        
-        const fromDate = new Date(visitorDetails.date_of_visit_from).toLocaleDateString('en-IN', {
-          day: 'numeric',
-          month: 'short',
-          year: 'numeric'
-        });
-        const toDate = new Date(visitorDetails.date_of_visit_to).toLocaleDateString('en-IN', {
-          day: 'numeric',
-          month: 'short',
-          year: 'numeric'
-        });
-        
-        pdf.setTextColor(37, 74, 154);
-        pdf.setFontSize(12);
-        pdf.setFont('helvetica', 'bold');
-        pdf.text(`${fromDate}  to  ${toDate}`, 105, 141, { align: 'center' });
-      }
-
-      // QR Code with elegant border
-      if (qrCodeUrl) {
-        // Colored border frame
-        if (visitorDetails?.qr_color) {
-          const hexColor = visitorDetails.qr_color.replace('#', '');
-          const r = parseInt(hexColor.substring(0, 2), 16);
-          const g = parseInt(hexColor.substring(2, 4), 16);
-          const b = parseInt(hexColor.substring(4, 6), 16);
-          
-          // Shadow for 3D effect
-          pdf.setFillColor(220, 220, 220);
-          pdf.roundedRect(52, 148, 107, 107, 5, 5, 'F');
-          
-          // Colored border frame (thicker and more prominent)
-          pdf.setFillColor(r, g, b);
-          pdf.roundedRect(50, 146, 110, 110, 5, 5, 'F');
-          
-          // White background for QR
-          pdf.setFillColor(255, 255, 255);
-          pdf.roundedRect(57, 153, 96, 96, 3, 3, 'F');
-        }
-        
-        // QR Code image - centered perfectly
-        pdf.addImage(qrCodeUrl, 'PNG', 62, 158, 86, 86);
-      }
-
-      // Instructions
-      pdf.setTextColor(60, 60, 60);
-      pdf.setFontSize(11);
-      pdf.setFont('helvetica', 'bold');
-      pdf.text('This QR code is required for entry verification.', 105, 267, { align: 'center' });
-      
-      // Visitor ID
-      pdf.setFontSize(8);
-      pdf.setFont('helvetica', 'normal');
-      pdf.setTextColor(150, 150, 150);
-      pdf.text(`Visitor ID: ${visitorId}`, 105, 273, { align: 'center' });
-
-      // Footer
-      pdf.setFillColor(37, 74, 154);
-      pdf.rect(0, 275, 210, 22, 'F');
-      
-      pdf.setTextColor(255, 255, 255);
-      pdf.setFontSize(10);
-      pdf.setFont('helvetica', 'bold');
-      pdf.text('GATED Access Management', 105, 284, { align: 'center' });
-      
-      pdf.setFontSize(7);
-      pdf.setFont('helvetica', 'normal');
-      pdf.text('Secure • Efficient • Contactless', 105, 290, { align: 'center' });
+      pdf.text(
+        'Scan this QR code to get your attendance marked at the event.',
+        105,
+        pageHeight - 4,
+        { align: 'center' },
+      );
 
       // Save PDF
       const safeEventName = visitorDetails?.event_name?.replace(/[^a-zA-Z0-9]/g, '_') || 'Event';
@@ -390,200 +358,73 @@ export default function QRGenerator({ visitorId, visitorName, requirePdfDownload
     }
   };
 
+  const navLocked = requirePdfDownload && !isPdfDownloaded;
+
   return (
     <motion.div
-      initial={{ opacity: 0, scale: 0.95 }}
+      initial={{ opacity: 0, scale: 0.96 }}
       animate={{ opacity: 1, scale: 1 }}
-      className="card text-center max-w-lg mx-auto shadow-xl"
+      className="card text-center max-w-md mx-auto shadow-xl"
     >
-      {/* Success Icon SVG */}
-      <div className="mb-6">
-        <svg className="w-16 h-16 mx-auto text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-        </svg>
+      {/* Success heading */}
+      <div className="flex flex-col items-center mb-5">
+        <div className="w-14 h-14 rounded-full bg-green-100 flex items-center justify-center mb-3">
+          <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+          </svg>
+        </div>
+        <h2 className="text-xl md:text-2xl font-bold text-primary-700">Registration Successful</h2>
+        <p className="text-sm text-gray-500 mt-1">Your access pass is ready</p>
       </div>
 
-      <h2 className="text-2xl md:text-3xl font-bold text-primary-600 mb-3">
-        Registration Successful
-      </h2>
-      
-      <p className="text-gray-600 mb-8 px-4">
-        Your access request has been recorded. Present this QR code at the security gate.
-      </p>
-
-      {/* QR Code Display with Colored Border */}
-      <div className="mb-6 inline-block">
-        <div 
-          className="p-1 rounded-xl shadow-lg"
-          style={{ 
-            backgroundColor: visitorDetails?.qr_color || '#254a9a',
-            padding: '8px'
-          }}
+      {/* QR preview */}
+      <div className="mb-5 flex justify-center">
+        <div
+          className="p-2 rounded-xl shadow-md"
+          style={{ backgroundColor: visitorDetails?.qr_color || '#254a9a' }}
         >
-          <div className="bg-white p-4 rounded-lg">
+          <div className="bg-white p-3 rounded-lg">
             {qrCodeUrl && !isLoading ? (
-              <img src={qrCodeUrl} alt="QR Code" className="mx-auto w-64 h-64 md:w-80 md:h-80" />
+              <img src={qrCodeUrl} alt="Access pass QR code" className="w-56 h-56 md:w-64 md:h-64" />
             ) : (
-              <div className="w-64 h-64 md:w-80 md:h-80 flex items-center justify-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+              <div className="w-56 h-56 md:w-64 md:h-64 flex items-center justify-center">
+                <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary-600" />
               </div>
             )}
           </div>
         </div>
-        {visitorDetails?.qr_color && (
-          <p className="text-xs text-gray-500 text-center mt-2">
-            Color-coded QR for {visitorDetails.visitor_category} category
-          </p>
-        )}
       </div>
 
-      {/* Visitor Info */}
-      <div className="mb-6 bg-primary-50 p-4 rounded-lg space-y-3">
-        <div>
-          <p className="text-sm text-gray-700">
-            <span className="font-semibold text-primary-600">Name:</span> {visitorName}
-          </p>
-        </div>
-        
-        {visitorDetails?.visitor_category && (
-          <div>
-            <p className="text-sm text-gray-700 mb-2">
-              <span className="font-semibold text-primary-600">Category:</span>
-            </p>
-            <span
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-white font-semibold text-sm shadow-md"
-              style={{ backgroundColor: visitorDetails.qr_color }}
-            >
-              {visitorDetails.visitor_category === 'student' && (
-                <>
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 14l9-5-9-5-9 5 9 5z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" />
-                  </svg>
-                  <span>Student</span>
-                </>
-              )}
-              {visitorDetails.visitor_category === 'speaker' && (
-                <>
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
-                  </svg>
-                  <span>Speaker/Guest</span>
-                </>
-              )}
-              {visitorDetails.visitor_category === 'vip' && (
-                <>
-                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.539 1.118l-2.8-2.034a1 1 0 00-1.176 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                  </svg>
-                  <span>VIP</span>
-                </>
-              )}
-            </span>
-          </div>
-        )}
+      {/* Visitor name */}
+      <p className="text-base font-medium text-gray-800 tracking-wide mb-6">{visitorName}</p>
 
-        {visitorDetails?.event_name && (
-          <div>
-            <p className="text-sm text-gray-700">
-              <span className="font-semibold text-primary-600">Event:</span> {visitorDetails.event_name}
-            </p>
-          </div>
-        )}
+      {/* Primary CTA */}
+      <button
+        onClick={downloadPDF}
+        className="w-full bg-primary-600 hover:bg-primary-700 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 flex items-center justify-center space-x-2 shadow-md hover:shadow-lg"
+      >
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+        </svg>
+        <span>Download PDF Pass</span>
+      </button>
 
-        {visitorDetails?.date_of_visit_from && visitorDetails?.date_of_visit_to && (
-          <div>
-            <p className="text-sm text-gray-700">
-              <span className="font-semibold text-primary-600">Valid Dates:</span>
-            </p>
-            <p className="text-xs text-gray-600 mt-1">
-              {new Date(visitorDetails.date_of_visit_from).toLocaleDateString('en-IN', {
-                day: 'numeric',
-                month: 'short',
-                year: 'numeric'
-              })} 
-              {' to '}
-              {new Date(visitorDetails.date_of_visit_to).toLocaleDateString('en-IN', {
-                day: 'numeric',
-                month: 'short',
-                year: 'numeric'
-              })}
-            </p>
-          </div>
-        )}
+      {navLocked && (
+        <p className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 mt-3">
+          Download the PDF pass to continue. Navigation is locked until the PDF is saved.
+        </p>
+      )}
 
-        <div>
-          <p className="text-xs text-gray-500">
-            <span className="font-semibold">Visitor ID:</span> {visitorId}
-          </p>
-        </div>
-      </div>
-
-      {/* Action Buttons */}
-      <div className="space-y-3">
-        <button
-          onClick={downloadPDF}
-          className="w-full bg-primary-600 hover:bg-primary-700 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 flex items-center justify-center space-x-2 shadow-md hover:shadow-lg"
-        >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-          </svg>
-          <span>Download PDF Pass</span>
-        </button>
-
-        {requirePdfDownload && !isPdfDownloaded && (
-          <p className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
-            Download the PDF pass to continue. Navigation is locked until PDF is saved.
-          </p>
-        )}
-        
-        <button
-          onClick={downloadQR}
-          disabled={requirePdfDownload && !isPdfDownloaded}
-          className="w-full bg-tertiary-600 hover:bg-tertiary-700 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 flex items-center justify-center space-x-2 shadow-md hover:shadow-lg"
-        >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-          </svg>
-          <span>Download QR Image</span>
-        </button>
-
-        <div className="flex flex-col sm:flex-row gap-3 mt-2">
-          <a
-            href="/retrieve-qr"
-            className={`flex-1 text-center font-medium py-2 text-sm inline-flex items-center justify-center space-x-1 ${requirePdfDownload && !isPdfDownloaded ? 'text-slate-400 pointer-events-none cursor-not-allowed' : 'text-primary-600 hover:text-primary-700'}`}
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
-            <span>Retrieve QR Later</span>
-          </a>
-          <a
-            href="/"
-            className={`flex-1 text-center font-medium py-2 text-sm inline-flex items-center justify-center space-x-1 ${requirePdfDownload && !isPdfDownloaded ? 'text-slate-400 pointer-events-none cursor-not-allowed' : 'text-primary-600 hover:text-primary-700'}`}
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-            </svg>
-            <span>Return to Home</span>
-          </a>
-        </div>
-      </div>
-
-      {/* Important Notice */}
-      <div className="mt-6 p-4 bg-amber-50 border-l-4 border-amber-400 rounded-r-lg text-left">
-        <div className="flex items-start space-x-3">
-          <svg className="w-6 h-6 text-amber-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-          </svg>
-          <div>
-            <p className="font-semibold text-gray-800 text-sm">Important</p>
-            <p className="text-sm text-gray-600 mt-1">
-              Save or print this QR code. You'll need it for entry verification at the security gate.
-            </p>
-          </div>
-        </div>
-      </div>
+      <a
+        href="/"
+        className={`block mt-4 text-sm font-medium ${
+          navLocked
+            ? 'text-slate-400 pointer-events-none cursor-not-allowed'
+            : 'text-primary-600 hover:text-primary-700'
+        }`}
+      >
+        Return to Home
+      </a>
     </motion.div>
   );
 }

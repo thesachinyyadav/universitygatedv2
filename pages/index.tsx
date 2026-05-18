@@ -41,12 +41,21 @@ export default function Home() {
               <div className="mt-6 flex flex-col sm:flex-row gap-3">
                 <Link
                   href="/on-spot-registration"
-                  className="flex-1 px-5 py-3.5 bg-[#C9A84C] hover:bg-[#d8b860] text-[#0d245f] text-sm font-bold rounded-xl shadow-[0_10px_24px_-6px_rgba(201,168,76,0.55)] ring-1 ring-[#e7c97a]/40 transition-all flex items-center justify-center gap-2 active:scale-[0.99]"
+                  className="flex-1 px-5 py-3.5 bg-[#C9A84C] hover:bg-[#d8b860] text-[#0d245f] text-sm font-bold rounded-xl transition-all flex items-center justify-center gap-2 active:scale-[0.99]"
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
                   </svg>
                   On-Spot Registration
+                </Link>
+                <Link
+                  href="/retrieve-qr"
+                  className="flex-1 px-5 py-3.5 bg-white/10 hover:bg-white/15 text-white text-sm font-semibold rounded-xl border border-white/25 transition-all flex items-center justify-center gap-2 active:scale-[0.99]"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7h6v6H3V7zm12 0h6v6h-6V7zM3 17h6v4H3v-4zm12 0h6v4h-6v-4z" />
+                  </svg>
+                  Retrieve Lost QR Code
                 </Link>
               </div>
             </div>

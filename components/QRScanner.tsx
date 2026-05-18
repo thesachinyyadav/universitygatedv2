@@ -10,7 +10,9 @@ export default function QRScanner({ onScan }: QRScannerProps) {
   const [scannerInitialized, setScannerInitialized] = useState(false);
   const [cameraPermission, setCameraPermission] = useState<'granted' | 'denied' | 'prompt'>('prompt');
   const [scannerActive, setScannerActive] = useState(false);
+  const [cameraReady, setCameraReady] = useState(false);
   const scannerRef = useRef<Html5QrcodeScanner | null>(null);
+  const videoObserverRef = useRef<MutationObserver | null>(null);
   const lastScanRef = useRef<{ id: string; timestamp: number } | null>(null);
   const SCAN_COOLDOWN = 3000; // 3 seconds cooldown between same QR codes
 
@@ -147,6 +149,37 @@ export default function QRScanner({ onScan }: QRScannerProps) {
 
         scannerRef.current = scanner;
         setScannerInitialized(true);
+
+        // Watch for the camera <video> element so we only show the overlay
+        // once the camera is actually playing (avoids floating corners during load)
+        const readerEl = document.getElementById('qr-reader');
+        if (readerEl) {
+          const attachReadyListener = (video: HTMLVideoElement) => {
+            const markReady = () => setCameraReady(true);
+            if (video.readyState >= 2 && !video.paused) {
+              markReady();
+            } else {
+              video.addEventListener('playing', markReady, { once: true });
+              video.addEventListener('loadeddata', markReady, { once: true });
+            }
+          };
+
+          const existingVideo = readerEl.querySelector('video');
+          if (existingVideo) {
+            attachReadyListener(existingVideo as HTMLVideoElement);
+          } else {
+            const observer = new MutationObserver(() => {
+              const video = readerEl.querySelector('video');
+              if (video) {
+                attachReadyListener(video as HTMLVideoElement);
+                observer.disconnect();
+                videoObserverRef.current = null;
+              }
+            });
+            observer.observe(readerEl, { childList: true, subtree: true });
+            videoObserverRef.current = observer;
+          }
+        }
       } catch (error) {
         console.error('Error initializing scanner:', error);
         setScannerActive(false);
@@ -160,8 +193,13 @@ export default function QRScanner({ onScan }: QRScannerProps) {
       scannerRef.current.clear().catch(console.error);
       scannerRef.current = null;
     }
+    if (videoObserverRef.current) {
+      videoObserverRef.current.disconnect();
+      videoObserverRef.current = null;
+    }
     setScannerInitialized(false);
     setScannerActive(false);
+    setCameraReady(false);
   };
 
   // Cleanup on unmount only
@@ -170,6 +208,9 @@ export default function QRScanner({ onScan }: QRScannerProps) {
       if (scannerRef.current) {
         scannerRef.current.clear().catch(console.error);
       }
+      if (videoObserverRef.current) {
+        videoObserverRef.current.disconnect();
+      }
     };
   }, []); // Empty dependency array - only run on mount/unmount
 
@@ -177,38 +218,41 @@ export default function QRScanner({ onScan }: QRScannerProps) {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="card"
+      style={{ backgroundColor: '#eef2ff' }}
+      className="card border-primary-100 shadow-xl hover:shadow-2xl"
     >
       <div className="flex items-center space-x-3 mb-4">
-          <svg className="w-6 h-6 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-7 h-7 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
           </svg>
-          <h3 className="text-lg md:text-xl font-semibold text-gray-800">
+          <h3 className="text-xl md:text-2xl font-bold text-slate-900 tracking-tight">
             Scan QR Code
           </h3>
         </div>
 
         {!scannerActive && cameraPermission !== 'denied' && (
-          <div className="text-center py-8 bg-gray-100 rounded-lg">
-            <svg className="w-20 h-20 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2zM3 3l18 18" />
-            </svg>
-            <p className="text-gray-600 mb-6 px-4">
-              {cameraPermission === 'granted'
-                ? 'Camera is off'
-                : 'Camera access is required to scan visitor QR codes'}
-            </p>
-            <button
-              onClick={requestCameraPermission}
-              className="bg-primary-600 hover:bg-primary-700 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 inline-flex items-center justify-center space-x-3 shadow-md hover:shadow-lg active:scale-95"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+          <>
+            <div className="text-center py-10 sm:py-12 bg-white/70 border border-primary-100 rounded-lg">
+              <svg className="w-14 h-14 mx-auto text-primary-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
               </svg>
-              <span>Enable Camera</span>
-            </button>
-          </div>
+              <p className="text-gray-600 mb-6 px-4 text-sm">
+                {cameraPermission === 'granted'
+                  ? 'Camera is off'
+                  : 'Camera access is required to scan visitor QR codes'}
+              </p>
+              <button
+                onClick={requestCameraPermission}
+                className="bg-primary-600 hover:bg-primary-700 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 inline-flex items-center justify-center space-x-3 shadow-md hover:shadow-lg active:scale-95"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                </svg>
+                <span>Enable Camera</span>
+              </button>
+            </div>
+          </>
         )}
 
         {cameraPermission === 'denied' && (
@@ -225,19 +269,30 @@ export default function QRScanner({ onScan }: QRScannerProps) {
 
         {scannerActive && (
           <>
-            <div className="bg-green-50 border border-green-200 rounded-lg p-3 mb-4 flex items-center justify-between">
-              <div className="flex items-center space-x-2">
-                <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+            <div className="bg-green-50 border border-green-200 rounded-lg px-4 py-2.5 mb-4 flex items-center justify-between gap-6">
+              <div className="flex items-center gap-2.5">
+                <div className="w-2.5 h-2.5 bg-green-500 rounded-full animate-pulse-dot shadow-[0_0_6px_rgba(34,197,94,0.6)]"></div>
                 <span className="text-sm font-medium text-green-700">Camera Active - Ready to Scan</span>
               </div>
               <button
                 onClick={stopScanner}
-                className="text-red-600 hover:text-red-700 text-sm font-medium px-3 py-1 hover:bg-red-50 rounded transition"
+                className="border border-red-500 text-red-600 hover:bg-red-50 text-xs font-semibold rounded-full px-2.5 py-1 transition"
               >
                 Stop Camera
               </button>
             </div>
-            <div id="qr-reader" className="w-full rounded-lg overflow-hidden"></div>
+            <div className="relative">
+              <div id="qr-reader" className="qr-reader-wrap w-full rounded-xl overflow-hidden"></div>
+              {cameraReady && (
+                <div className="scan-frame" aria-hidden="true">
+                  <span className="scan-corner scan-corner-tl"></span>
+                  <span className="scan-corner scan-corner-tr"></span>
+                  <span className="scan-corner scan-corner-bl"></span>
+                  <span className="scan-corner scan-corner-br"></span>
+                  <span className="scan-line"></span>
+                </div>
+              )}
+            </div>
           </>
         )}
       </motion.div>
