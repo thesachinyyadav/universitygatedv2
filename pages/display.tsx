@@ -65,13 +65,17 @@ export default function Display() {
       }, BUFFER_RESET_MS);
 
       if (e.key === 'Enter') {
-        const id = buffer.trim();
+        const raw = buffer.trim();
         buffer = '';
         if (bufferTimer) {
           clearTimeout(bufferTimer);
           bufferTimer = null;
         }
-        if (id) verifyVisitorId(id);
+        if (raw) {
+          const match = raw.match(/id=([a-f0-9-]+)/i);
+          const id = match ? match[1] : raw;
+          verifyVisitorId(id);
+        }
         return;
       }
 
@@ -98,7 +102,7 @@ export default function Display() {
       </Head>
       <div
         className={`fixed inset-0 overflow-hidden text-white select-none transition-colors duration-500 ${
-          isDenied ? 'bg-[#3a0d12]' : isInvalid ? 'bg-[#3d2a0a]' : 'bg-[#0a1a3f]'
+          isDenied ? 'bg-[#3a0d12]' : isInvalid ? 'bg-[#3d2a0a]' : isSuccess ? 'bg-[#0d3a1c]' : 'bg-[#0a1a3f]'
         }`}
       >
         <div className="absolute top-8 left-10 tracking-[0.25em] text-[#c9d6ff] text-lg md:text-xl font-light">
@@ -137,9 +141,14 @@ export default function Display() {
               </p>
             </>
           ) : (
-            <p className="text-3xl md:text-5xl tracking-[0.4em] text-[#cfe0ff] font-light">
-              SCAN TO CONTINUE
-            </p>
+            <div>
+              <h1 className="text-3xl md:text-5xl font-bold tracking-[0.25em] text-white drop-shadow-[0_0_25px_rgba(120,170,255,0.35)]">
+                WELCOME
+              </h1>
+              <p className="mt-8 md:mt-10 text-2xl md:text-4xl tracking-[0.3em] text-[#cfe0ff]/85 font-light">
+                SCAN TO CONTINUE
+              </p>
+            </div>
           )}
         </div>
 

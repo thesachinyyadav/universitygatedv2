@@ -11,7 +11,9 @@ export default function QRScanner({ onScan }: QRScannerProps) {
   const [scannerInitialized, setScannerInitialized] = useState(false);
   const [cameraPermission, setCameraPermission] = useState<'granted' | 'denied' | 'prompt'>('prompt');
   const [scannerActive, setScannerActive] = useState(false);
+  const [cameraReady, setCameraReady] = useState(false);
   const scannerRef = useRef<Html5QrcodeScanner | null>(null);
+  const videoObserverRef = useRef<MutationObserver | null>(null);
   const lastScanRef = useRef<{ id: string; timestamp: number } | null>(null);
   const SCAN_COOLDOWN = 3000; // 3 seconds cooldown between same QR codes
 
@@ -148,6 +150,37 @@ export default function QRScanner({ onScan }: QRScannerProps) {
 
         scannerRef.current = scanner;
         setScannerInitialized(true);
+
+        // Watch for the camera <video> element so we only show the overlay
+        // once the camera is actually playing (avoids floating corners during load)
+        const readerEl = document.getElementById('qr-reader');
+        if (readerEl) {
+          const attachReadyListener = (video: HTMLVideoElement) => {
+            const markReady = () => setCameraReady(true);
+            if (video.readyState >= 2 && !video.paused) {
+              markReady();
+            } else {
+              video.addEventListener('playing', markReady, { once: true });
+              video.addEventListener('loadeddata', markReady, { once: true });
+            }
+          };
+
+          const existingVideo = readerEl.querySelector('video');
+          if (existingVideo) {
+            attachReadyListener(existingVideo as HTMLVideoElement);
+          } else {
+            const observer = new MutationObserver(() => {
+              const video = readerEl.querySelector('video');
+              if (video) {
+                attachReadyListener(video as HTMLVideoElement);
+                observer.disconnect();
+                videoObserverRef.current = null;
+              }
+            });
+            observer.observe(readerEl, { childList: true, subtree: true });
+            videoObserverRef.current = observer;
+          }
+        }
       } catch (error) {
         console.error('Error initializing scanner:', error);
         setScannerActive(false);
@@ -161,8 +194,13 @@ export default function QRScanner({ onScan }: QRScannerProps) {
       scannerRef.current.clear().catch(console.error);
       scannerRef.current = null;
     }
+    if (videoObserverRef.current) {
+      videoObserverRef.current.disconnect();
+      videoObserverRef.current = null;
+    }
     setScannerInitialized(false);
     setScannerActive(false);
+    setCameraReady(false);
   };
 
   // Cleanup on unmount only
@@ -170,6 +208,9 @@ export default function QRScanner({ onScan }: QRScannerProps) {
     return () => {
       if (scannerRef.current) {
         scannerRef.current.clear().catch(console.error);
+      }
+      if (videoObserverRef.current) {
+        videoObserverRef.current.disconnect();
       }
     };
   }, []); // Empty dependency array - only run on mount/unmount
@@ -252,7 +293,18 @@ export default function QRScanner({ onScan }: QRScannerProps) {
                 Stop Camera
               </button>
             </div>
-            <div id="qr-reader" className="qr-reader-wrap w-full rounded-xl overflow-hidden"></div>
+            <div className="relative">
+              <div id="qr-reader" className="qr-reader-wrap w-full rounded-xl overflow-hidden"></div>
+              {cameraReady && (
+                <div className="scan-frame" aria-hidden="true">
+                  <span className="scan-corner scan-corner-tl"></span>
+                  <span className="scan-corner scan-corner-tr"></span>
+                  <span className="scan-corner scan-corner-bl"></span>
+                  <span className="scan-corner scan-corner-br"></span>
+                  <span className="scan-line"></span>
+                </div>
+              )}
+            </div>
           </>
         )}
       </motion.div>

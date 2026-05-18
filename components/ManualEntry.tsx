@@ -8,11 +8,16 @@ interface ManualEntryProps {
 export default function ManualEntry({ onVerify }: ManualEntryProps) {
   const [manualId, setManualId] = useState('');
 
+  const extractVisitorId = (raw: string) => {
+    const match = raw.match(/id=([a-f0-9-]+)/i);
+    return match ? match[1] : raw;
+  };
+
   const handleManualSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const trimmedId = manualId.trim();
     if (trimmedId) {
-      onVerify(trimmedId);
+      onVerify(extractVisitorId(trimmedId));
       setManualId('');
     }
   };
@@ -37,7 +42,7 @@ export default function ManualEntry({ onVerify }: ManualEntryProps) {
           <input
             type="text"
             value={manualId}
-            onChange={(e) => setManualId(e.target.value)}
+            onChange={(e) => setManualId(extractVisitorId(e.target.value))}
             placeholder="Paste or type visitor ID"
             className="input-field border-[1.5px] border-primary-600/30 focus:ring-primary-500/40"
           />
