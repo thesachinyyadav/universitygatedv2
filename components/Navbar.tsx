@@ -8,6 +8,7 @@ export default function Navbar() {
   const router = useRouter();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userRole, setUserRole] = useState<UserRole | null>(null);
+  const [username, setUsername] = useState<string | null>(null);
   const [showLoginDropdown, setShowLoginDropdown] = useState(false);
   const loginDropdownRef = useRef<HTMLDivElement | null>(null);
 
@@ -16,6 +17,7 @@ export default function Navbar() {
     if (!userData) {
       setIsLoggedIn(false);
       setUserRole(null);
+      setUsername(null);
       return;
     }
 
@@ -23,9 +25,11 @@ export default function Navbar() {
       const user = JSON.parse(userData);
       setIsLoggedIn(true);
       setUserRole(user.role);
+      setUsername(user.username || null);
     } catch {
       setIsLoggedIn(false);
       setUserRole(null);
+      setUsername(null);
     }
   };
 
@@ -67,6 +71,7 @@ export default function Navbar() {
     localStorage.removeItem('user');
     setIsLoggedIn(false);
     setUserRole(null);
+    setUsername(null);
     window.dispatchEvent(new Event('auth:changed'));
     router.replace('/');
   };
@@ -203,18 +208,11 @@ export default function Navbar() {
             )}
           </div>
 
-          {/* Mobile Logout Button (only when logged in) */}
-          {isLoggedIn && (
-            <button
-              onClick={handleLogout}
-              className="md:hidden inline-flex items-center gap-1 px-2 py-0.5 bg-transparent hover:bg-white/10 text-white border border-white/40 hover:border-white/60 rounded-md transition font-semibold text-sm active:scale-95 leading-tight"
-              aria-label="Logout"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-              </svg>
-              <span>Log out</span>
-            </button>
+          {/* Mobile greeting (only when logged in) */}
+          {isLoggedIn && username && (
+            <span className="md:hidden text-white/90 text-sm font-medium truncate max-w-[55%]">
+              Hi, <span className="font-semibold text-white">{username}</span>
+            </span>
           )}
         </div>
       </div>
