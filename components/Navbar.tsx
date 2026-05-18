@@ -8,6 +8,7 @@ export default function Navbar() {
   const router = useRouter();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userRole, setUserRole] = useState<UserRole | null>(null);
+  const [username, setUsername] = useState<string | null>(null);
   const [showLoginDropdown, setShowLoginDropdown] = useState(false);
   const loginDropdownRef = useRef<HTMLDivElement | null>(null);
 
@@ -16,6 +17,7 @@ export default function Navbar() {
     if (!userData) {
       setIsLoggedIn(false);
       setUserRole(null);
+      setUsername(null);
       return;
     }
 
@@ -23,9 +25,11 @@ export default function Navbar() {
       const user = JSON.parse(userData);
       setIsLoggedIn(true);
       setUserRole(user.role);
+      setUsername(user.username || null);
     } catch {
       setIsLoggedIn(false);
       setUserRole(null);
+      setUsername(null);
     }
   };
 
@@ -67,8 +71,9 @@ export default function Navbar() {
     localStorage.removeItem('user');
     setIsLoggedIn(false);
     setUserRole(null);
+    setUsername(null);
     window.dispatchEvent(new Event('auth:changed'));
-    router.push('/');
+    router.replace('/');
   };
 
   const getRoleDashboard = () => {
@@ -134,12 +139,12 @@ export default function Navbar() {
                 </Link>
                 <button
                   onClick={handleLogout}
-                  className="px-5 py-2 bg-tertiary-600 hover:bg-tertiary-700 text-white rounded-lg transition flex items-center space-x-2 font-semibold shadow-sm"
+                  className="px-5 py-2 bg-transparent hover:bg-white/10 text-white border border-white/40 hover:border-white/60 rounded-lg transition flex items-center space-x-2 font-semibold"
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                   </svg>
-                  <span>Logout</span>
+                  <span>Log out</span>
                 </button>
               </>
             ) : (
@@ -203,18 +208,22 @@ export default function Navbar() {
             )}
           </div>
 
-          {/* Mobile Logout Button (only when logged in) */}
-          {isLoggedIn && (
-            <button
-              onClick={handleLogout}
-              className="md:hidden inline-flex items-center gap-1 px-2 py-0.5 bg-red-600 hover:bg-red-700 text-white rounded-md transition font-semibold text-xs shadow-sm active:scale-95 leading-tight"
-              aria-label="Logout"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-              </svg>
-              <span>Logout</span>
-            </button>
+          {/* Mobile greeting + logout (only when logged in) */}
+          {isLoggedIn && username && (
+            <div className="md:hidden flex items-center gap-2 max-w-[55%]">
+              <span className="text-white/90 text-sm font-medium truncate">
+                Hi, <span className="font-semibold text-white">{username}</span>
+              </span>
+              <button
+                onClick={handleLogout}
+                aria-label="Log out"
+                className="flex-shrink-0 p-1.5 rounded-lg text-white/70 hover:text-white hover:bg-white/10 active:bg-white/15 transition"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                </svg>
+              </button>
+            </div>
           )}
         </div>
       </div>

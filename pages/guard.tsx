@@ -149,6 +149,15 @@ export default function GuardDashboard() {
           <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-slate-800">
             Security Guard Dashboard
           </h1>
+          <Link
+            href="/retrieve-qr"
+            className="mt-3 inline-flex items-center gap-2 px-4 py-2 border border-primary-600 text-primary-600 hover:bg-primary-50 rounded-lg text-sm font-semibold transition"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7h6v6H3V7zm12 0h6v6h-6V7zM3 17h6v4H3v-4zm12 0h6v4h-6v-4z" />
+            </svg>
+            Retrieve Lost QR Code
+          </Link>
         </div>
 
         <div className="space-y-3 sm:space-y-4">

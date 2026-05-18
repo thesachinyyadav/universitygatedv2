@@ -65,16 +65,6 @@ export default function FooterHolder() {
     if (isLoggedIn) {
       return [
         {
-          key: 'dashboard',
-          label: 'Dashboard',
-          href: dashboardHref,
-          icon: (
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l7-7 4 4 7-7M5 19h14" />
-            </svg>
-          ),
-        },
-        {
           key: 'home',
           label: 'Home',
           href: '/',
@@ -85,12 +75,12 @@ export default function FooterHolder() {
           ),
         },
         {
-          key: 'logout',
-          label: 'Logout',
-          onClick: handleLogout,
+          key: 'dashboard',
+          label: 'Dashboard',
+          href: dashboardHref,
           icon: (
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H9m4 4v1a2 2 0 01-2 2H6a2 2 0 01-2-2V7a2 2 0 012-2h5a2 2 0 012 2v1" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l7-7 4 4 7-7M5 19h14" />
             </svg>
           ),
         },
@@ -138,23 +128,33 @@ export default function FooterHolder() {
           >
             {navItems.map((item) => {
               const active = isActive(item.href);
-              const className = `flex flex-col items-center justify-center gap-1 rounded-xl py-2 transition ${
-                active ? 'text-primary-700 bg-primary-50 font-semibold' : 'text-slate-400'
+              const className = `relative flex flex-col items-center justify-center gap-1 py-2 transition ${
+                active ? 'text-primary-700 font-semibold' : 'text-slate-400 font-medium'
               }`;
+
+              const content = (
+                <>
+                  <span
+                    className={`absolute top-0 left-1/2 -translate-x-1/2 h-[3px] rounded-b-full transition-all ${
+                      active ? 'w-12 bg-primary-700' : 'w-0 bg-transparent'
+                    }`}
+                  />
+                  <span className={active ? 'scale-110' : ''}>{item.icon}</span>
+                  <span className="text-[11px] uppercase tracking-wide">{item.label}</span>
+                </>
+              );
 
               if (item.href) {
                 return (
                   <Link key={item.key} href={item.href} className={className}>
-                    {item.icon}
-                    <span className="text-[11px] uppercase tracking-wide">{item.label}</span>
+                    {content}
                   </Link>
                 );
               }
 
               return (
                 <button key={item.key} onClick={item.onClick} className={className}>
-                  {item.icon}
-                  <span className="text-[11px] uppercase tracking-wide">{item.label}</span>
+                  {content}
                 </button>
               );
             })}
@@ -206,7 +206,7 @@ export default function FooterHolder() {
             </div>
             
             {/* Body */}
-            <div className="p-2 py-3 space-y-1">
+            <div className="p-2 pt-3 pb-0 space-y-1">
               <div className="px-4 py-2 text-xs text-slate-500 font-medium">Select Your Role</div>
               
               <Link href="/login?role=guard" className="flex items-center space-x-3 px-4 py-3 hover:bg-slate-50 transition rounded-xl" onClick={() => setShowRoleModal(false)}>
@@ -238,6 +238,7 @@ export default function FooterHolder() {
               </Link>
             </div>
             
+            <div className="mx-4 mb-4 border-t-2 border-slate-400" />
             {/* Quick Actions (like Retrieve Lost QR Code if needed, optional based on screenshot) */}
             <div className="bg-slate-900 mx-4 mb-4 mt-2 p-3 rounded-xl shadow-lg border border-slate-700 hover:bg-slate-800 transition cursor-pointer flex items-center justify-center space-x-2" onClick={() => { setShowRoleModal(false); router.push('/retrieve-qr'); }}>
                <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
