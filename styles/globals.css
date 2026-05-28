@@ -214,51 +214,44 @@ html {
   animation: pulse-dot 1.5s ease-in-out infinite;
 }
 
-/* html5-qrcode scanner styling overrides */
-.qr-reader-wrap {
-  border: none !important;
+/* ── Scanner Page Layout ── */
+.scan-page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+  background: #F8FAFF;
 }
 
-.qr-reader-wrap,
-#qr-reader,
-#qr-reader__scan_region,
-.qr-reader-wrap video,
-.qr-reader-wrap img,
-.qr-reader-wrap canvas,
-#qr-reader__scan_region > video,
-#qr-reader__scan_region > canvas {
-  border-radius: 12px !important;
-  overflow: hidden !important;
+/* ── QR Corner Brackets ── */
+.scan-frame { position: absolute; inset: 0; pointer-events: none; z-index: 10; }
+.scan-corner {
+  position: absolute; width: 44px; height: 44px;
+  border-color: #FFBA09; border-style: solid;
+}
+.scan-corner-tl { top: 14px; left: 14px; border-width: 4px 0 0 4px; border-top-left-radius: 12px; }
+.scan-corner-tr { top: 14px; right: 14px; border-width: 4px 4px 0 0; border-top-right-radius: 12px; }
+.scan-corner-bl { bottom: 14px; left: 14px; border-width: 0 0 4px 4px; border-bottom-left-radius: 12px; }
+.scan-corner-br { bottom: 14px; right: 14px; border-width: 0 4px 4px 0; border-bottom-right-radius: 12px; }
+
+/* ── Scan Line ── */
+.scan-line {
+  position: absolute; left: 14px; right: 14px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent 0%, rgba(255,186,9,1) 50%, transparent 100%);
+  top: 14px;
+  animation: scan-sweep 2.5s ease-in-out infinite alternate;
+  will-change: top;
+  box-shadow: 0 0 10px rgba(255,186,9,0.8);
+  z-index: 10;
+}
+@keyframes scan-sweep {
+  0%   { top: 14px; }
+  100% { top: calc(100% - 14px); }
 }
 
-/* Hide the library's default "Stop Scanning" button (duplicated by our Stop Camera pill),
-   info icon overlay, and any "powered by" / attribution links */
-#html5-qrcode-button-camera-stop,
-#qr-reader__dashboard_section_csr,
-#qr-reader img.html5-qrcode-icon,
-#qr-reader img[alt*="Info" i],
-#qr-reader img[alt*="Close" i],
-#qr-reader__scan_region img,
-#qr-reader__scan_region svg,
-#qr-reader__scan_region a,
-#qr-reader__scan_region button,
-#qr-reader a,
-#qr-reader [aria-label*="info" i],
-#qr-reader [title*="info" i],
-#qr-reader [class*="info" i],
-#qr-reader__header_message {
-  display: none !important;
-}
-
-/* Remove the library's vignette/shading and corner brackets for a clean camera feed */
-#qr-shaded-region {
-  box-shadow: none !important;
-  border: none !important;
-  background: transparent !important;
-}
-
-#qr-shaded-region > div {
-  display: none !important;
+@keyframes pulse-soft {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.55; }
 }
 
 /* Custom blue scan frame overlay (4 corners + bouncing scan line) */

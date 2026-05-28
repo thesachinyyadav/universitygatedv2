@@ -1,300 +1,265 @@
-import { useState, useEffect, useRef } from 'react';
-import { Html5QrcodeScanner } from 'html5-qrcode';
-import { motion } from 'framer-motion';
+import { useState, useEffect, useRef, useCallback } from 'react';
 
 interface QRScannerProps {
   onScan: (visitorId: string) => void;
 }
 
+type ViewportStatus = 'idle' | 'success' | 'error';
+
 export default function QRScanner({ onScan }: QRScannerProps) {
-  const [scannerInitialized, setScannerInitialized] = useState(false);
-  const [cameraPermission, setCameraPermission] = useState<'granted' | 'denied' | 'prompt'>('prompt');
-  const [scannerActive, setScannerActive] = useState(false);
-  const [cameraReady, setCameraReady] = useState(false);
-  const scannerRef = useRef<Html5QrcodeScanner | null>(null);
-  const videoObserverRef = useRef<MutationObserver | null>(null);
-  const lastScanRef = useRef<{ id: string; timestamp: number } | null>(null);
-  const SCAN_COOLDOWN = 3000; // 3 seconds cooldown between same QR codes
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const scannerRef = useRef<any>(null);
+  const cooldownRef = useRef<Map<string, number>>(new Map());
+  const processScanRef = useRef<(data: string) => void>(() => {});
+  const viewportTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Vibration feedback function
-  const triggerVibration = () => {
-    if ('vibrate' in navigator) {
-      // Pattern: vibrate for 200ms, pause 100ms, vibrate for 200ms
-      navigator.vibrate([200, 100, 200]);
-    }
-  };
+  const [isScanning, setIsScanning] = useState(false);
+  const [cameraError, setCameraError] = useState<string | null>(null);
+  const [viewportStatus, setViewportStatus] = useState<ViewportStatus>('idle');
 
-  const requestCameraPermission = async () => {
-    try {
-      // Check if running on HTTPS or localhost
-      const isSecureContext = window.isSecureContext || window.location.hostname === 'localhost';
-      if (!isSecureContext) {
-        alert('Camera requires HTTPS! Please use the deployed Vercel URL or localhost.');
-        setCameraPermission('denied');
-        return;
-      }
+  const flashViewport = useCallback((s: 'success' | 'error') => {
+    setViewportStatus(s);
+    if (viewportTimerRef.current) clearTimeout(viewportTimerRef.current);
+    viewportTimerRef.current = setTimeout(() => setViewportStatus('idle'), 500);
+  }, []);
 
-      // Check if mediaDevices API is available
-      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        alert('Camera API not available in this browser. Please use Chrome, Firefox, or Safari.');
-        setCameraPermission('denied');
-        return;
-      }
-
-      console.log('Requesting camera access...');
-      const stream = await navigator.mediaDevices.getUserMedia({ 
-        video: { facingMode: 'environment' } // Prefer back camera on mobile
-      });
-      
-      console.log('Camera access granted');
-      stream.getTracks().forEach(track => track.stop());
-      setCameraPermission('granted');
-      setScannerActive(true); // Set this BEFORE initializing scanner
-      initializeScanner();
-    } catch (error: any) {
-      console.error('Camera error:', error);
-      setCameraPermission('denied');
-      
-      let errorMessage = '';
-      if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
-        errorMessage = 'Camera access denied!\n\nPlease click the camera icon in your browser address bar and allow camera access.';
-      } else if (error.name === 'NotFoundError' || error.name === 'DevicesNotFoundError') {
-        errorMessage = 'No camera found on this device.';
-      } else if (error.name === 'NotReadableError' || error.name === 'TrackStartError') {
-        errorMessage = 'Camera is being used by another application.\n\nPlease close other apps using the camera and try again.';
-      } else if (error.name === 'OverconstrainedError') {
-        errorMessage = 'Camera constraints not supported. Trying again...';
-        // Retry without constraints
-        try {
-          const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-          stream.getTracks().forEach(track => track.stop());
-          setCameraPermission('granted');
-          setScannerActive(true); // Set this BEFORE initializing scanner
-          initializeScanner();
-          return;
-        } catch (retryError) {
-          errorMessage = 'Camera initialization failed.';
-        }
-      } else if (error.name === 'SecurityError') {
-        errorMessage = 'Security error: Camera requires HTTPS!\n\nPlease deploy to Vercel or use localhost.';
-      } else {
-        errorMessage = `Camera error: ${error.message || 'Unknown error'}\n\nPlease check browser settings.`;
-      }
-      
-      alert(errorMessage);
-    }
-  };
-
-  const initializeScanner = () => {
-    if (scannerInitialized) return;
-
-    // Wait for DOM element to be available
-    setTimeout(() => {
-      const element = document.getElementById('qr-reader');
-      if (!element) {
-        console.error('QR reader element not found, retrying...');
-        setScannerActive(false);
-        return;
-      }
-
-      try {
-        const scanner = new Html5QrcodeScanner(
-          'qr-reader',
-          {
-            fps: 30, // Increased FPS for faster scanning
-            qrbox: { width: 280, height: 280 }, // Larger scan box
-            aspectRatio: 1.0,
-            disableFlip: false, // Allow flipped QR codes
-            experimentalFeatures: {
-              useBarCodeDetectorIfSupported: true // Use native browser barcode detector if available (much faster!)
-            },
-            rememberLastUsedCamera: true, // Remember camera preference
-            showTorchButtonIfSupported: true // Show flashlight button if available
-          },
-          false
-        );
-
-        scanner.render(
-          (decodedText) => {
-            // Extract visitor ID from URL or use raw text
-            const match = decodedText.match(/id=([a-f0-9-]+)/i);
-            const visitorId = match ? match[1] : decodedText;
-            
-            // Check if this is a duplicate scan within cooldown period
-            const now = Date.now();
-            if (lastScanRef.current && 
-                lastScanRef.current.id === visitorId && 
-                now - lastScanRef.current.timestamp < SCAN_COOLDOWN) {
-              console.log('Duplicate scan ignored (cooldown active)');
-              return; // Ignore duplicate scan
-            }
-            
-            // Update last scan
-            lastScanRef.current = { id: visitorId, timestamp: now };
-            
-            // Trigger vibration feedback
-            triggerVibration();
-            
-            console.log('QR code scanned:', visitorId);
-            onScan(visitorId);
-            // Don't clear scanner - keep it running for continuous scanning!
-            // scanner.clear();
-            // setScannerActive(false);
-            // setScannerInitialized(false);
-          },
-          (error) => {
-            // Ignore scanning errors - they're thrown constantly during scanning
-          }
-        );
-
-        scannerRef.current = scanner;
-        setScannerInitialized(true);
-
-        // Watch for the camera <video> element so we only show the overlay
-        // once the camera is actually playing (avoids floating corners during load)
-        const readerEl = document.getElementById('qr-reader');
-        if (readerEl) {
-          const attachReadyListener = (video: HTMLVideoElement) => {
-            const markReady = () => setCameraReady(true);
-            if (video.readyState >= 2 && !video.paused) {
-              markReady();
-            } else {
-              video.addEventListener('playing', markReady, { once: true });
-              video.addEventListener('loadeddata', markReady, { once: true });
-            }
-          };
-
-          const existingVideo = readerEl.querySelector('video');
-          if (existingVideo) {
-            attachReadyListener(existingVideo as HTMLVideoElement);
-          } else {
-            const observer = new MutationObserver(() => {
-              const video = readerEl.querySelector('video');
-              if (video) {
-                attachReadyListener(video as HTMLVideoElement);
-                observer.disconnect();
-                videoObserverRef.current = null;
-              }
-            });
-            observer.observe(readerEl, { childList: true, subtree: true });
-            videoObserverRef.current = observer;
-          }
-        }
-      } catch (error) {
-        console.error('Error initializing scanner:', error);
-        setScannerActive(false);
-        alert('Failed to initialize camera scanner. Please try again.');
-      }
-    }, 100); // Small delay to ensure DOM is ready
-  };
-
-  const stopScanner = () => {
+  const stopScanner = useCallback(async () => {
     if (scannerRef.current) {
-      scannerRef.current.clear().catch(console.error);
+      try {
+        scannerRef.current.stop();
+        scannerRef.current.destroy();
+      } catch {}
       scannerRef.current = null;
     }
-    if (videoObserverRef.current) {
-      videoObserverRef.current.disconnect();
-      videoObserverRef.current = null;
+    if (videoRef.current) {
+      try {
+        const stream = videoRef.current.srcObject as MediaStream;
+        stream?.getTracks().forEach(t => t.stop());
+        videoRef.current.srcObject = null;
+      } catch {}
     }
-    setScannerInitialized(false);
-    setScannerActive(false);
-    setCameraReady(false);
-  };
+    setIsScanning(false);
+  }, []);
 
-  // Cleanup on unmount only
+  const startScanner = useCallback(async () => {
+    if (!videoRef.current) return;
+    setCameraError(null);
+    try {
+      // Request permission
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+        stream.getTracks().forEach(t => t.stop());
+      } catch (err: any) {
+        const name = err?.name || '';
+        if (name === 'NotAllowedError' || name === 'PermissionDeniedError') {
+          throw new Error('Camera permission denied. Please enable it in browser settings.');
+        } else if (name === 'NotFoundError' || name === 'DevicesNotFoundError') {
+          throw new Error('No camera found on this device.');
+        } else if (name === 'NotReadableError') {
+          throw new Error('Camera is in use by another app. Please close it and try again.');
+        } else {
+          throw new Error('Camera access required to scan QR codes.');
+        }
+      }
+
+      if (scannerRef.current) await stopScanner();
+
+      const { default: QrScanner } = await import('qr-scanner');
+
+      scannerRef.current = new QrScanner(
+        videoRef.current,
+        (result: { data: string }) => processScanRef.current(result.data),
+        {
+          preferredCamera: 'environment',
+          highlightScanRegion: false,
+          highlightCodeOutline: false,
+          maxScansPerSecond: 30,
+          calculateScanRegion: (v: HTMLVideoElement) => {
+            const smallest = Math.min(v.videoWidth, v.videoHeight);
+            const size = Math.round(smallest * 0.65);
+            return {
+              x: Math.round((v.videoWidth - size) / 2),
+              y: Math.round((v.videoHeight - size) / 2),
+              width: size,
+              height: size,
+            };
+          },
+        }
+      );
+
+      await scannerRef.current.start();
+
+      // Apply autofocus + exposure optimisations after stream is live
+      try {
+        const stream = videoRef.current.srcObject as MediaStream;
+        const track = stream?.getVideoTracks()[0];
+        if (track) {
+          const capabilities = (track.getCapabilities?.() || {}) as any;
+          const advanced: any[] = [];
+          if ((capabilities.focusMode || []).includes('continuous'))
+            advanced.push({ focusMode: 'continuous' });
+          if ((capabilities.exposureMode || []).includes('continuous'))
+            advanced.push({ exposureMode: 'continuous' });
+          await track.applyConstraints({
+            width: { ideal: 1280 }, height: { ideal: 720 },
+            frameRate: { ideal: 30 },
+            ...(advanced.length > 0 ? { advanced } : {}),
+          });
+        }
+      } catch {}
+
+      setIsScanning(true);
+    } catch (err: any) {
+      const msg = (err?.message || '').toLowerCase();
+      let safeMsg = 'Camera access required to scan QR codes.';
+      if (msg.includes('permission') || msg.includes('denied')) {
+        safeMsg = 'Camera permission denied. Please enable it in browser settings.';
+      } else if (msg.includes('no camera') || msg.includes('not found')) {
+        safeMsg = 'No camera found on this device.';
+      } else if (msg.includes('in use')) {
+        safeMsg = 'Camera is in use by another app. Please close it and try again.';
+      } else if (msg.trim()) {
+        safeMsg = err.message;
+      }
+      setCameraError(safeMsg);
+      await stopScanner();
+    }
+  }, [stopScanner]);
+
+  // Keep processScan ref fresh
+  useEffect(() => {
+    processScanRef.current = (data: string) => {
+      const match = data.match(/id=([a-f0-9-]+)/i);
+      const visitorId = match ? match[1] : data;
+
+      const now = Date.now();
+      const last = cooldownRef.current.get(visitorId);
+      if (last && now - last < 2500) return;
+      cooldownRef.current.set(visitorId, now);
+
+      if ('vibrate' in navigator) navigator.vibrate([70]);
+      flashViewport('success');
+      onScan(visitorId);
+    };
+  }, [onScan, flashViewport]);
+
+  // Stop scanner when page hidden
+  useEffect(() => {
+    const onHide = () => { if (isScanning) void stopScanner(); };
+    document.addEventListener('visibilitychange', onHide);
+    return () => document.removeEventListener('visibilitychange', onHide);
+  }, [isScanning, stopScanner]);
+
+  // Cleanup on unmount
   useEffect(() => {
     return () => {
       if (scannerRef.current) {
-        scannerRef.current.clear().catch(console.error);
+        try { scannerRef.current.stop(); scannerRef.current.destroy(); } catch {}
       }
-      if (videoObserverRef.current) {
-        videoObserverRef.current.disconnect();
-      }
+      if (viewportTimerRef.current) clearTimeout(viewportTimerRef.current);
     };
-  }, []); // Empty dependency array - only run on mount/unmount
+  }, []);
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      style={{ backgroundColor: '#eef2ff' }}
-      className="card border-primary-100 shadow-xl hover:shadow-2xl"
-    >
-      <div className="flex items-center space-x-3 mb-4">
-          <svg className="w-7 h-7 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
-          </svg>
-          <h3 className="text-xl md:text-2xl font-bold text-slate-900 tracking-tight">
-            Scan QR Code
-          </h3>
-        </div>
+    <div className="w-full bg-white rounded-[20px] shadow-[0_12px_40px_rgba(1,31,123,0.08)] p-4 flex flex-col items-center">
+      {/* Camera viewport */}
+      <div
+        className="w-full relative rounded-[16px] overflow-hidden bg-white border border-[#F1F5F9]"
+        style={{ aspectRatio: '1' }}
+        aria-label="Camera scanner"
+      >
+        <video
+          ref={videoRef}
+          className="w-full h-full object-cover"
+          style={{ filter: 'brightness(1.15) contrast(1.1) saturate(1.05)' }}
+          muted
+          playsInline
+          autoPlay
+        />
 
-        {!scannerActive && cameraPermission !== 'denied' && (
-          <>
-            <div className="text-center py-10 sm:py-12 bg-white/70 border border-primary-100 rounded-lg">
-              <svg className="w-14 h-14 mx-auto text-primary-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
-              </svg>
-              <p className="text-gray-600 mb-6 px-4 text-sm">
-                {cameraPermission === 'granted'
-                  ? 'Camera is off'
-                  : 'Camera access is required to scan visitor QR codes'}
-              </p>
-              <button
-                onClick={requestCameraPermission}
-                className="bg-primary-600 hover:bg-primary-700 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 inline-flex items-center justify-center space-x-3 shadow-md hover:shadow-lg active:scale-95"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-                </svg>
-                <span>Enable Camera</span>
-              </button>
-            </div>
-          </>
+        {/* Dark gradient overlay while scanning */}
+        {isScanning && (
+          <div
+            className="absolute inset-0 bg-gradient-to-b from-[rgba(0,0,0,0.15)] to-[rgba(0,0,0,0.55)] pointer-events-none"
+            aria-hidden="true"
+          />
         )}
 
-        {cameraPermission === 'denied' && (
-          <div className="text-center py-8 bg-red-50 rounded-lg">
-            <svg className="w-16 h-16 mx-auto text-red-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-            </svg>
-            <p className="text-red-700 font-medium mb-2">Camera Access Denied</p>
-            <p className="text-sm text-gray-600 px-4">
-              Please enable camera permissions in your browser settings to scan QR codes.
-            </p>
+        {/* Viewport flash: success = green, error = red */}
+        {viewportStatus === 'success' && (
+          <div className="absolute inset-0 bg-green-500/25 pointer-events-none z-20 transition-opacity" aria-hidden="true" />
+        )}
+        {viewportStatus === 'error' && (
+          <div className="absolute inset-0 bg-red-500/25 pointer-events-none z-20 transition-opacity" aria-hidden="true" />
+        )}
+
+        {/* Corner brackets + sweep line */}
+        {isScanning && (
+          <div className="scan-frame" aria-hidden="true">
+            <div className="scan-corner scan-corner-tl" />
+            <div className="scan-corner scan-corner-tr" />
+            <div className="scan-corner scan-corner-bl" />
+            <div className="scan-corner scan-corner-br" />
+            <div className="scan-line" />
+
+            {/* Stop scanning button */}
+            <button
+              className="absolute left-3 top-3 w-9 h-9 bg-black/40 backdrop-blur-sm text-white rounded-full flex items-center justify-center z-50 pointer-events-auto active:scale-95 transition-transform text-base"
+              onClick={() => void stopScanner()}
+              aria-label="Stop scanning"
+            >
+              ✕
+            </button>
           </div>
         )}
 
-        {scannerActive && (
-          <>
-            <div className="bg-green-50 border border-green-200 rounded-lg px-4 py-2.5 mb-4 flex items-center justify-between gap-6">
-              <div className="flex items-center gap-2.5">
-                <div className="w-2.5 h-2.5 bg-green-500 rounded-full animate-pulse-dot shadow-[0_0_6px_rgba(34,197,94,0.6)]"></div>
-                <span className="text-sm font-medium text-green-700">Camera Active - Ready to Scan</span>
-              </div>
-              <button
-                onClick={stopScanner}
-                className="border border-red-500 text-red-600 hover:bg-red-50 text-xs font-semibold rounded-full px-2.5 py-1 transition"
-              >
-                Stop Camera
-              </button>
+        {/* Idle state overlay */}
+        {!isScanning && (
+          <div className="absolute inset-0 flex flex-col items-center justify-center bg-white z-30">
+            {/* Dot grid */}
+            <div
+              className="absolute inset-0"
+              style={{ backgroundImage: 'radial-gradient(#CBD5E1 1px, transparent 1px)', backgroundSize: '16px 16px', opacity: 0.4 }}
+            />
+            {/* Yellow corner brackets (idle) */}
+            <div className="absolute inset-0 pointer-events-none z-10 p-4">
+              <div className="absolute top-4 left-4 w-9 h-9 border-t-[3px] border-l-[3px] border-[#FFBA09] rounded-tl-[12px]" />
+              <div className="absolute top-4 right-4 w-9 h-9 border-t-[3px] border-r-[3px] border-[#FFBA09] rounded-tr-[12px]" />
+              <div className="absolute bottom-4 left-4 w-9 h-9 border-b-[3px] border-l-[3px] border-[#FFBA09] rounded-bl-[12px]" />
+              <div className="absolute bottom-4 right-4 w-9 h-9 border-b-[3px] border-r-[3px] border-[#FFBA09] rounded-br-[12px]" />
             </div>
-            <div className="relative">
-              <div id="qr-reader" className="qr-reader-wrap w-full rounded-xl overflow-hidden"></div>
-              {cameraReady && (
-                <div className="scan-frame" aria-hidden="true">
-                  <span className="scan-corner scan-corner-tl"></span>
-                  <span className="scan-corner scan-corner-tr"></span>
-                  <span className="scan-corner scan-corner-bl"></span>
-                  <span className="scan-corner scan-corner-br"></span>
-                  <span className="scan-line"></span>
-                </div>
-              )}
+            {/* Center icon + label */}
+            <div className="z-20 flex flex-col items-center px-6 text-center">
+              <svg width="64" height="64" viewBox="0 0 24 24" fill="none" className="text-[#94A3B8] opacity-40 mb-3">
+                <path d="M3 3h8v8H3V3zm2 2v4h4V5H5zm8-2h8v8h-8V3zm2 2v4h4V5h-4zM3 13h8v8H3v-8zm2 2v4h4v-4H5zm13-2h3v2h-3v-2zm-3 0h2v2h-2v-2zm3 3h3v2h-3v-2zm-3 0h2v2h-2v-2zm3 3h3v2h-3v-2zm-3 0h2v2h-2v-2z" fill="currentColor" />
+              </svg>
+              <p className="text-[#64748B] text-[12px] font-medium tracking-wide">
+                Position QR code within the frame
+              </p>
             </div>
-          </>
+          </div>
         )}
-      </motion.div>
+      </div>
+
+      {/* Camera error message */}
+      {cameraError && !isScanning && (
+        <p className="text-[12px] font-semibold text-red-500 mt-3 text-center px-2">{cameraError}</p>
+      )}
+
+      {/* Start scanning button */}
+      {!isScanning && (
+        <button
+          onClick={() => void startScanner()}
+          className="mt-4 w-full max-w-[320px] h-[44px] bg-[#011F7B] text-white rounded-[12px] font-semibold text-[13px] flex items-center justify-center gap-2.5 active:scale-[0.98] transition-transform shadow-[0_8px_20px_rgba(1,31,123,0.2)]"
+        >
+          <svg className="w-[18px] h-[18px] text-[#FFBA09]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+              d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"
+            />
+          </svg>
+          Start Scanning
+        </button>
+      )}
+    </div>
   );
 }
